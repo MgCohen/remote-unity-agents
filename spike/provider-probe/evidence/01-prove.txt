@@ -1,8 +1,8 @@
 
 --- 1. ONE recipe shape, TWO handlers — the store is swapped, nothing else ---
       [PASS] both handlers take just the command — the store is static, not a parameter
-      [PASS] Repo handler binds the static Repository store
-      [PASS] Bucket handler binds the static BucketStore store
+      [PASS] Repo handler binds the static Repository() store — direct, unqualified
+      [PASS] Bucket handler binds the static Bucket() store — direct, unqualified
       [PASS] Repo key is a string (command.Email) — no __key alias
       [PASS] Bucket key is a BucketKey (forced by the store) — no __key alias
 

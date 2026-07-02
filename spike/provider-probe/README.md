@@ -12,7 +12,7 @@
 |---|---|---|
 | `ByFactory` dict + `Provider` string-bag | store told the emitter its idiomatic `Load/Store` via a string record | **Deleted.** The store *survives* as `IStore`; the handler calls uniform `store.Get/Save`; `Load/Download` lives *inside* the adapter. No table, no verb rewrite. |
 | `__key` alias in the snippet | `var __key = key;` | gone — a snippet param lowers to a clean `var key = …;` local |
-| provider baked into the emitter | two code paths (Repo vs Bucket) | **one path** — swapping `Stores.Repository` → `Stores.BucketStore` is the entire change; the store is a static singleton |
+| provider baked into the emitter | two code paths (Repo vs Bucket) | **one path** — swapping `Repository<User>()` → `Bucket<User>()` is the entire change; the store is a static singleton |
 | `Mutate(scope, …)` took scope | scope threaded through the action | **`Mutate(store, key, body)`** — no scope; the leaves read `scope.Command` |
 
 ## The store survives (`src/Store.cs`)
@@ -20,12 +20,10 @@
 ```csharp
 interface IStore<TArgs, TReturn> { TReturn Get(TArgs args); void Save(TArgs args, TReturn value); }
 
-Repo<User>   : IStore<string,    User>   //  Get(string)    -> User    (Load/Store inside)
-Bucket<User> : IStore<BucketKey, User>   //  Get(BucketKey) -> User    (Download/Upload inside)
-
+// DIRECT free-function acquisition (via `using static Probe.Stores`, like Mutate) — no Stores. prefix.
 // STATIC stores — one singleton per aggregate. Swapping these two is the whole recipe delta.
-Stores.Repository<User>()   // -> the same IStore<string,User> every call
-Stores.BucketStore<User>()  // -> the same IStore<BucketKey,User> every call
+Repository<User>()   // -> the same IStore<string,User> every call    (Load/Store inside)
+Bucket<User>()       // -> the same IStore<BucketKey,User> every call  (Download/Upload inside)
 ```
 
 The idiomatic `Load/Download` is hidden in the adapter — the emitted code never mentions it,
@@ -54,21 +52,22 @@ body. No scaffold statement is ever spelled by the emitter.
 ```csharp
 // Repo                                              // Bucket
 new Feature<AddPointsCommand>(scope =>               new Feature<AddPointsCommand>(scope =>
-    Mutate(store: Stores.Repository<User>(),             Mutate(store: Stores.BucketStore<User>(),
+    Mutate(store: Repository<User>(),                    Mutate(store: Bucket<User>(),
            key:   scope.Command.Email,        // string    key:   new BucketKey(scope.Command.Region), // BucketKey
            body:  user => user.AddPoints(scope.Command.Points))); body: user => user.AddPoints(scope.Command.Points));
 ```
 
-`Feature` (builder) provides `scope`; `Mutate` (action) takes only `(store, key, body)`. The
-command is reached by the leaves via `scope.Command` — not threaded through the action.
+`Feature` (builder) provides `scope`; `Mutate` (action) takes only `(store, key, body)`. Store
+acquisition is a direct free function (`Repository<User>()` / `Bucket<User>()`) like `Mutate`
+itself. The command is reached by the leaves via `scope.Command` — not threaded through.
 
 ## Two owned handlers, emitted from that one shape (`emitted/`)
 
 ```csharp
-// AddPoints.Repository.Handler.cs                  // AddPoints.BucketStore.Handler.cs
+// AddPoints.Repository.Handler.cs                  // AddPoints.Bucket.Handler.cs
 Handle(AddPointsCommand command)                    Handle(AddPointsCommand command)
 {                                                   {
-    var store = Stores.Repository<User>();              var store = Stores.BucketStore<User>();
+    var store = Repository<User>();                     var store = Bucket<User>();
     var key = command.Email;                            var key = new BucketKey(command.Region);
     var agg = store.Get(key);                           var agg = store.Get(key);        // ← identical
     agg.AddPoints(command.Points);                      agg.AddPoints(command.Points);   // ← identical

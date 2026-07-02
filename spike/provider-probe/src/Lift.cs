@@ -74,12 +74,17 @@ static class Lift
             .FirstOrDefault(i => i.Expression is IdentifierNameSyntax id && id.Identifier.ValueText == "Mutate")
         ?? throw new InvalidOperationException("no `Mutate(store:, key:, body:)` call in the recipe.");
 
-    // `store: Stores.Repository<User>()` -> aggregate "User", store name "Repository".
+    // `store: Repository<User>()` -> aggregate "User", store name "Repository".
+    // Handles the direct free-function form and a qualified Stores.Repository<User>() form.
     static (string Aggregate, string StoreName) StoreOf(ExpressionSyntax via)
     {
-        if (via is InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax { Name: GenericNameSyntax g } })
-            return (g.TypeArgumentList.Arguments[0].ToString(), g.Identifier.ValueText);
-        throw new InvalidOperationException("'store:' must be a Stores.<Factory><T>() call.");
+        var generic = via switch
+        {
+            InvocationExpressionSyntax { Expression: GenericNameSyntax g } => g,
+            InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax { Name: GenericNameSyntax g } } => g,
+            _ => throw new InvalidOperationException("'store:' must be a <Factory><T>() call."),
+        };
+        return (generic.TypeArgumentList.Arguments[0].ToString(), generic.Identifier.ValueText);
     }
 
     static IReadOnlyList<string> LiftBody(LambdaExpressionSyntax lambda)

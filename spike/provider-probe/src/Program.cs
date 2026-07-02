@@ -61,10 +61,10 @@ static class Program
         ok &= Check(repo.Text.Contains("Handle(AddPointsCommand command)")
                  && bucket.Text.Contains("Handle(AddPointsCommand command)"),
             "both handlers take just the command — the store is static, not a parameter");
-        ok &= Check(repo.Text.Contains("var store = Stores.Repository<User>();"),
-            "Repo handler binds the static Repository store");
-        ok &= Check(bucket.Text.Contains("var store = Stores.BucketStore<User>();"),
-            "Bucket handler binds the static BucketStore store");
+        ok &= Check(repo.Text.Contains("var store = Repository<User>();"),
+            "Repo handler binds the static Repository() store — direct, unqualified");
+        ok &= Check(bucket.Text.Contains("var store = Bucket<User>();"),
+            "Bucket handler binds the static Bucket() store — direct, unqualified");
         ok &= Check(repo.Text.Contains("var key = command.Email;"),
             "Repo key is a string (command.Email) — no __key alias");
         ok &= Check(bucket.Text.Contains("var key = new BucketKey(command.Region);"),
@@ -122,11 +122,12 @@ static class Program
         using Probe;
         using Probe.Domain;
         using static Probe.Compose;
+        using static Probe.Stores;
         public static class __Neg
         {
             public static Node Recipe() =>
                 new Feature<AddPointsCommand>(scope =>
-                    Mutate(store: Stores.BucketStore<User>(),
+                    Mutate(store: Bucket<User>(),
                            key:   {{key}},
                            body:  user => user.AddPoints(scope.Command.Points)));
         }

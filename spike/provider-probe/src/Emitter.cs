@@ -29,6 +29,7 @@ static class Emitter
             #nullable enable
             using Probe;
             using Probe.Domain;
+            using static Probe.Stores;
 
             namespace Emitted;
 

@@ -3,6 +3,7 @@
 #nullable enable
 using Probe;
 using Probe.Domain;
+using static Probe.Stores;
 
 namespace Emitted;
 
@@ -10,7 +11,7 @@ public static class AddPointsRepositoryHandler
 {
     public static User Handle(AddPointsCommand command)
     {
-        var store = Stores.Repository<User>();
+        var store = Repository<User>();
         var key = command.Email;
         var agg = store.Get(key);
         agg.AddPoints(command.Points);
