@@ -8,37 +8,37 @@ harness: ../../../../tests/Harness/README.md
 ## Rules
 
 ### RunCommand running a successful command → result with exit code 0, captured stdout, and TimedOut false
-<!-- id: runcommand-running-a-successful-command-result-with-exit-code-0-captured-stdout-and-timedout-false -->
+<!-- id: b1 -->
 - **Why:** callers branch on ExitCode and read Stdout to act on output, so a successful run must report success and faithfully surface what the process printed, not lose or corrupt it.
 
 ### RunCommand running a command that exits non-zero → result carrying that exact exit code, TimedOut false
-<!-- id: runcommand-running-a-command-that-exits-non-zero-result-carrying-that-exact-exit-code-timedout-false -->
+<!-- id: b2 -->
 - **Why:** the exact exit code is how callers distinguish failure modes; collapsing it to a generic non-zero or mislabeling failure as a timeout would hide why a step actually failed.
 
 ### RunCommand whose command outlives the configured timeout → result with TimedOut true
-<!-- id: runcommand-whose-command-outlives-the-configured-timeout-result-with-timedout-true -->
+<!-- id: b3 -->
 - **Why:** a hung child process must be detectable and reapable rather than blocking forever, so the timeout has to be observable distinctly from an ordinary exit.
 
 ### EnsureOk on a non-zero result → throws InvalidOperationException naming the failed step
-<!-- id: ensureok-on-a-non-zero-result-throws-invalidoperationexception-naming-the-failed-step -->
+<!-- id: b4 -->
 - **Why:** EnsureOk is the fail-fast guard pipelines rely on, so a failed step must abort loudly with a message that pinpoints which step broke.
 
 ### JsonRepository → round-trips entities through Add, Get, Update, and Remove
-<!-- id: jsonrepository-round-trips-entities-through-add-get-update-and-remove -->
+<!-- id: b5 -->
 - **Why:** the storage seam's core contract — an entity written through the repository is read back, replaced,
   and deleted by id, with `GetAll`/`GetById` reflecting each mutation.
 
 ### JsonRepository on a fresh instance → reloads persisted entities
-<!-- id: jsonrepository-on-a-fresh-instance-reloads-persisted-entities -->
+<!-- id: b6 -->
 - **Why:** writes are durable — a new repository over the same store sees everything a prior instance wrote,
   proving persistence is on disk, not just in the in-memory cache.
 
 ### JsonRepository with an unreadable backing file → starts empty
-<!-- id: jsonrepository-with-an-unreadable-backing-file-starts-empty -->
+<!-- id: b7 -->
 - **Why:** a corrupt or unreadable store is non-fatal — the repository starts empty and a subsequent write
   recovers it, so a bad file never crashes startup.
 
 ### JsonRepository under concurrent writers → no torn store
-<!-- id: jsonrepository-under-concurrent-writers-no-torn-store -->
+<!-- id: b8 -->
 - **Why:** the `SemaphoreSlim` + atomic temp→`File.Replace` write means concurrent `Add`s all land and the
   on-disk file always parses — no torn write under contention.

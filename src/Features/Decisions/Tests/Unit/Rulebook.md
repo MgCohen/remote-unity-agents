@@ -8,26 +8,26 @@ harness: ../../../../../tests/Harness/README.md
 ## Rules
 
 ### Decisions.Raise → stores the question and pushes a matching inbox item sharing its id
-<!-- id: decisions-raise-stores-the-question-and-pushes-a-matching-inbox-item-sharing-its-id -->
+<!-- id: b1 -->
 - **Why:** a raised decision must both persist and surface in the inbox under the same id, so the human sees it
   in the feed and the answer can close both sides through one identifier — the dependency points Decision → Inbox.
 
 ### Decisions.Get → the decision by id, or null when absent
-<!-- id: decisions-get-the-decision-by-id-or-null-when-absent -->
+<!-- id: b2 -->
 - **Why:** a read is pure — fetching a decision must not change it — so it stays safe to retry; a missing id
   returns null rather than throwing.
 
 ### Decisions.List → every decision in arrival order
-<!-- id: decisions-list-every-decision-in-arrival-order -->
+<!-- id: b3 -->
 - **Why:** the decision feed is flat and chronological like the inbox, so listing returns all decisions ordered by
   creation (id as a stable tiebreaker), giving the client a deterministic order without a priority engine.
 
 ### Decisions.Answer → the decision recorded with its yes/no answer once and stable on repeat, null when absent
-<!-- id: decisions-answer-the-decision-recorded-with-its-yes-no-answer-once-and-stable-on-repeat-null-when-absent -->
+<!-- id: b4 -->
 - **Why:** answering records the human's yes/no (with an optional note) the first time and a re-answer must not
   move the recorded answer or its timestamp; a missing id returns null rather than minting one.
 
 ### Decisions.Answer → completes the inbox item it raised
-<!-- id: decisions-answer-completes-the-inbox-item-it-raised -->
+<!-- id: b5 -->
 - **Why:** resolving a decision must complete the inbox item raised under the same id, so the feed reflects the
   decision is handled without the client reconciling two surfaces by hand.

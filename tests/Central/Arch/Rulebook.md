@@ -8,7 +8,7 @@ harness: ../../Harness/README.md
 ## Rules
 
 ### Dependencies flow down the layer graph only
-<!-- id: dependencies-flow-down-the-layer-graph-only -->
+<!-- id: b1 -->
 - **Why:** The layers form a DAG — Contracts and Infrastructure depend on nothing internal; Domain depends
   down onto them; Features onto Domain; Host wires everything and nothing wires it. A reference that climbs
   or skips against this graph inverts the architecture.
@@ -24,7 +24,7 @@ rather than vacuously. A leaf depending on feature internals would be a forbidde
 "leaves never reference internals" (the publishing split's shippability invariant) is enforced here for free.
 
 ### Features must not depend on each other
-<!-- id: features-must-not-depend-on-each-other -->
+<!-- id: b2 -->
 - **Why:** Slices change independently. Cross-feature coupling goes through a peer's `Contract` leaf/events, never
   a direct implementation reference and never its `Api` leaf. This is an *intra*-band decision (Feature A ↛ Feature
   B), so it stays its own named rule rather than folding into the down-only layer graph above.
@@ -35,7 +35,7 @@ Depending on a peer's `Contract` leaf is the ONLY legal cross-feature channel: `
 the published interface; DI supplies the peer's impl at runtime.
 
 ### Git operations depend on the floor, not on the flow engine
-<!-- id: git-operations-depend-on-the-floor-not-on-the-flow-engine -->
+<!-- id: b3 -->
 - **Why:** An `Operation` is floor machinery (`Infrastructure.Operations` — the gated unit, the `internal IGate`
   seam, `RunnerBase`), not flow machinery. A capability that only *produces* operations (Git: PR ops, Tasks,
   commit/push) needs the floor, not `Domain.Flow`. ADR 0008 moved the gate onto the floor reached through
@@ -47,7 +47,7 @@ sheds it. An *intra*-`Domain` directional decision, so it stays its own named ru
 depend on each other."
 
 ### The agent spawn and billing primitives are internal to Domain.Agents
-<!-- id: the-agent-spawn-and-billing-primitives-are-internal-to-domain-agents -->
+<!-- id: b4 -->
 - **Why:** `PtySession` (the ConPTY spawn door) and `SubscriptionGuard` (the subscription billing key-scrub)
   are the hard-won, dangerous primitives of the agent runtime — oracle Tier-A bits. Keeping them `internal`
   makes the compiler, not convention, the wall: nothing outside the agent runtime can `new` a raw spawn or skip
@@ -57,7 +57,7 @@ A named visibility rule, not a dependency edge — `BeInternal()` on each named 
 or a primitive renamed, this fails. Add a primitive to the rule's name list as the agent runtime grows.
 
 ### Feature endpoints are internal sealed
-<!-- id: feature-endpoints-are-internal-sealed -->
+<!-- id: b5 -->
 - **Why:** The canonical slice (ADR 0011 D3) forfeits verb↔verb compile isolation — a feature's verbs share one
   assembly — and recovers the blast-radius mitigation by declaring every endpoint `internal sealed`. Same-feature
   verbs may still collaborate (Projects' `Send.CreatedAtAsync<GetProjectEndpoint>` routing reference), yet no
@@ -71,7 +71,7 @@ check fails the moment a listed feature's endpoints actually become internal sea
 instead of rotting. A per-feature non-vacuity guard rejects a conformant feature that declares no endpoints at all.
 
 ### Each feature's implementation assembly exports only its Module
-<!-- id: each-feature-s-implementation-assembly-exports-only-its-module -->
+<!-- id: b6 -->
 - **Why:** Internal-sealed endpoints alone let a feature compile yet never be served — the `<F>Module` is the
   Host-facing anchor that hands the feature's assembly to FastEndpoints (`AddFastEndpoints(o => o.Assemblies)`),
   so a missing Module is a silent dead route. Requiring the impl assembly to export *exactly* its `<F>Module`

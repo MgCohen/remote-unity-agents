@@ -3,7 +3,7 @@ docType: guide
 ---
 
 ## Summary
-<!-- id: summary -->
+<!-- id: b1 -->
 How to react to repository and agent lifecycle events — a commit landing, a Claude turn ending — by
 dropping a declarative `.hook` file in your feature's own folder. A `.hook` needs no build, no
 registration, and no code change: the `abox-hooks` controller (`tools/hooks`) discovers it on disk and
@@ -12,7 +12,7 @@ reaction can be in any language.
 
 ## Procedures
 ### Adding a hook
-<!-- id: adding-a-hook -->
+<!-- id: b2 -->
 **Context:** a `.hook` is a declarative text file (`<name>.hook`) the `abox-hooks` controller discovers
 by globbing its scan roots. It names the event kinds that fire it and an action to run; the event
 arrives as JSON on a `run:` command's stdin, so the reaction can be in any language.
@@ -38,7 +38,7 @@ event is on the stream, with the event JSON on its stdin.
 ---
 
 ### Reacting when a commit lands
-<!-- id: reacting-when-a-commit-lands -->
+<!-- id: b3 -->
 **Context:** the `CommitLanded` event is produced by a git `post-commit` hook that calls
 `abox-hooks commit`, which reads `HEAD` and dispatches in one step.
 ##### 1. Install the git post-commit hook
@@ -57,7 +57,7 @@ sha, branch, and subject on stdin.
 ---
 
 ### Reacting when a Claude turn ends
-<!-- id: reacting-when-a-claude-turn-ends -->
+<!-- id: b4 -->
 **Context:** the Claude provider maps each turn's raw Stop signal onto the hooks stream as a
 `TurnEnded` event — but only when the project has opted in.
 ##### 1. Opt the project in
@@ -74,7 +74,7 @@ your command now runs at the end of each Claude turn with the raw turn payload o
 ---
 
 ### Feeding the agent back with a check hook
-<!-- id: feeding-the-agent-back-with-a-check-hook -->
+<!-- id: b5 -->
 **Context:** a `mode: check` hook runs synchronously and its output is relayed to the running agent; a
 non-zero exit blocks the turn-end so the agent must address it before stopping, while a passing check
 surfaces its output as advisory context.
@@ -92,7 +92,7 @@ failing check blocks the turn and feeds its message back, while a passing check 
 ---
 
 ### Narrowing a hook with a when: filter
-<!-- id: narrowing-a-hook-with-a-when-filter -->
+<!-- id: b6 -->
 **Context:** `on:` selects the event kind; `when:` adds a closed-vocabulary filter so the hook fires
 only on a subset. Every present `when:` clause must hold for the hook to run.
 ##### 1. Add a when: clause

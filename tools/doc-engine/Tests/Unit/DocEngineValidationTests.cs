@@ -147,8 +147,7 @@ public sealed class DocEngineValidationTests
     {
         var stamped = Stamp(Unstamped);
 
-        Assert.Contains("<!-- id: summary -->", stamped);
-        Assert.Contains("<!-- id: wire-the-store -->", stamped);
+        Assert.Contains("<!-- id: b1 -->", stamped);
         Assert.Empty(Validate(stamped));
     }
 
@@ -161,10 +160,14 @@ public sealed class DocEngineValidationTests
         Assert.Equal(once, Stamp(once));
     }
 
-    [Rule("Ids.Stamp → a derived-id collision gets a numeric suffix")]
+    [Rule("Ids.Stamp → gives every block a distinct sequential handle")]
     [Fact]
-    public void Ids_stamp_suffixes_a_collision() =>
-        Assert.Contains("<!-- id: wire-the-store-2 -->", Stamp(Unstamped));
+    public void Ids_stamp_numbers_every_block_distinctly()
+    {
+        var ids = Stamp(Unstamped).Where(l => l.StartsWith("<!-- id:", StringComparison.Ordinal)).ToArray();
+
+        Assert.Equal(new[] { "<!-- id: b1 -->", "<!-- id: b2 -->", "<!-- id: b3 -->", "<!-- id: b4 -->" }, ids);
+    }
 
     [Rule("Ids.Stamp → an existing id survives a retitle, so a reference never breaks")]
     [Fact]
@@ -176,9 +179,9 @@ public sealed class DocEngineValidationTests
         Assert.Equal(retitled, Stamp(retitled));
     }
 
-    [Rule("Ids.Stamp → derives an id-safe slug from a title carrying punctuation")]
+    [Rule("Ids.Stamp → the handle is a short opaque id carrying nothing of the title")]
     [Fact]
-    public void Ids_stamp_slug_is_id_safe()
+    public void Ids_stamp_id_is_a_short_opaque_handle()
     {
         var lines = new[]
         {
@@ -188,7 +191,7 @@ public sealed class DocEngineValidationTests
         };
 
         var id = Stamp(lines).First(l => l.StartsWith("<!-- id:", StringComparison.Ordinal));
-        Assert.Matches("^<!-- id: [a-z0-9-]+ -->$", id);
+        Assert.Matches(@"^<!-- id: b\d+ -->$", id);
     }
 
     [Rule("DocValidator.Validate → flags an onChange path outside the allowlisted roots")]

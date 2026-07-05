@@ -8,18 +8,21 @@ public static class Ids
     private static readonly Regex H3 = new(@"^###\s+(.+?)\s*$");
     private static readonly Regex AnyHeader = new(@"^#{2,5}\s");
     private static readonly Regex IdComment = new(@"^<!--\s*id:\s*([\w-]+)\s*-->\s*$");
+    private static readonly Regex Handle = new(@"^b(\d+)$");
 
-    // Stamp a stable `<!-- id: … -->` handle under every singleton/member header that lacks one, so every
-    // block is addressable by an id that persists across retitles (the client references it). Idempotent:
-    // an existing handle is left untouched; only missing ones are filled. Steps keep their ordinal id.
+    // Stamp a stable `<!-- id: b<N> -->` handle under every singleton/member header that lacks one. The id is
+    // a short opaque handle — an integer with a `b` prefix (so it never reads as a step's `##### N.` ordinal),
+    // deliberately carrying nothing of the title, so a retitle or a reorder can never perturb it (the client
+    // references it). Idempotent: an existing handle is left untouched; new ones continue the highest number.
     public static IReadOnlyList<string> Stamp(
         IReadOnlyList<string> lines,
         IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> defs)
     {
         var groupSlugs = GroupSlugs(defs);
-        var used = new HashSet<string>(StringComparer.Ordinal);
+        var next = 0;
         foreach (var l in lines)
-            if (IdComment.Match(l) is { Success: true } m) used.Add(m.Groups[1].Value);
+            if (IdComment.Match(l) is { Success: true } m && Handle.Match(m.Groups[1].Value) is { Success: true } h)
+                next = Math.Max(next, int.Parse(h.Groups[1].Value));
 
         var result = new List<string>();
         var inGroup = false;
@@ -31,46 +34,25 @@ public static class Ids
             result.Add(line);
             if (m2.Success)
             {
-                var slug = Catalog.Slug(m2.Groups[1].Value);
-                inGroup = groupSlugs.Contains(slug);
-                if (!inGroup) StampAfter(lines, i, slug, used, result);
+                inGroup = groupSlugs.Contains(Catalog.Slug(m2.Groups[1].Value));
+                if (!inGroup) StampAfter(lines, i, ref next, result);
             }
             else if (m3.Success && inGroup)
             {
-                StampAfter(lines, i, Catalog.Slug(m3.Groups[1].Value), used, result);
+                StampAfter(lines, i, ref next, result);
             }
         }
         return result;
     }
 
-    private static void StampAfter(IReadOnlyList<string> lines, int header, string seed, HashSet<string> used, List<string> result)
+    private static void StampAfter(IReadOnlyList<string> lines, int header, ref int next, List<string> result)
     {
         for (var j = header + 1; j < lines.Count; j++)
         {
             if (AnyHeader.IsMatch(lines[j])) break;
             if (IdComment.IsMatch(lines[j])) return;
         }
-        result.Add($"<!-- id: {Unique(Slug(seed), used)} -->");
-    }
-
-    // Id-safe slug: lowercase, every run of non-alphanumerics collapses to one '-', trimmed. Distinct from
-    // Catalog.Slug (which only maps a header to its type and must stay a literal space→dash) — a block's id
-    // must be a bare [a-z0-9-] handle a client can carry and the parser's `[\w-]` id regex can read back.
-    private static string Slug(string text)
-    {
-        var chars = text.Trim().ToLowerInvariant()
-            .Select(c => char.IsLetterOrDigit(c) && c < 128 ? c : '-');
-        var slug = new string(chars.ToArray());
-        while (slug.Contains("--", StringComparison.Ordinal)) slug = slug.Replace("--", "-");
-        return slug.Trim('-');
-    }
-
-    private static string Unique(string seed, HashSet<string> used)
-    {
-        if (used.Add(seed)) return seed;
-        var n = 2;
-        while (!used.Add($"{seed}-{n}")) n++;
-        return $"{seed}-{n}";
+        result.Add($"<!-- id: b{++next} -->");
     }
 
     private static HashSet<string> GroupSlugs(IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> defs)

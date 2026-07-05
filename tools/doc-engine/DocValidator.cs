@@ -163,15 +163,14 @@ public static class DocValidator
         }
     }
 
-    // Every block has an effective id (explicit handle or derived from title/type); all must be unique
-    // among siblings so a cross-reference resolves to one block. A derived collision is fixed by giving
-    // one member an explicit `<!-- id: … -->`.
+    // Ids are unique among siblings so a reference resolves to exactly one block. The stamper assigns distinct
+    // `b<N>` handles by construction; a duplicate can only appear when an author hand-writes a clashing id.
     private static void CheckDuplicateIds(IReadOnlyList<ParsedBlock> siblings, string where, List<string> errs)
     {
         var seen = new HashSet<string>(StringComparer.Ordinal);
         foreach (var b in siblings)
-            if (!seen.Add(b.EffectiveId))
-                errs.Add($"{where}duplicate id '{b.EffectiveId}' — give one member an explicit '<!-- id: … -->' to disambiguate");
+            if (b.Attrs.TryGetValue("id", out var id) && !seen.Add(id))
+                errs.Add($"{where}duplicate id '{id}'");
     }
 
     private static string Label(ParsedBlock b) =>

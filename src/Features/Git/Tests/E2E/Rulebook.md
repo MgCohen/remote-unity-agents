@@ -8,6 +8,6 @@ harness: ../../../../../tests/Harness/README.md
 ## Rules
 
 ### chore on a dirty tree → committed and pushed, working copy clean
-<!-- id: chore-on-a-dirty-tree-committed-and-pushed-working-copy-clean -->
+<!-- id: b1 -->
 - **Why:** the non-agent flow path end to end — `GitChoreFlow` stages the dirty tree, commits with the given
   subject, and pushes to the remote, leaving the working copy clean and the remote head at that commit.

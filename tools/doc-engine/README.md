@@ -79,8 +79,8 @@ dotnet run --project . -- catalog                              # decision matric
 dotnet run --project . -- catalog feature-plan                 # blocks available to one doc type
 dotnet run --project . -- outline <path/to/doc.md>             # print derived views
 dotnet run --project . -- outline <path/to/doc.md> --write     # inject the index in place
-dotnet run --project . -- ids <path/to/doc.md>                # each block's stable id (derived or explicit)
-dotnet run --project . -- ids <path/to/doc.md> --write        # stamp a stable <!-- id --> into every block that lacks one
+dotnet run --project . -- ids <path/to/doc.md>                # list each block's stable id
+dotnet run --project . -- ids <path/to/doc.md> --write        # stamp an opaque <!-- id: bN --> into every block that lacks one
 dotnet run --project . -- onchange <path/to/doc.md>            # the instance's onChange script handler, if any
 dotnet run --project . -- reviewers <path/to/doc.md>           # fresh agents that review a change (judge by default)
 dotnet run --project . -- checks <path/to/doc.md>              # deterministic check scripts that block a change

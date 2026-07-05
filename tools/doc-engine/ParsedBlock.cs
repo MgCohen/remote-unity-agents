@@ -11,12 +11,8 @@ public sealed class ParsedBlock
     public List<string> Lines { get; } = new();
     public List<ParsedBlock> Children { get; } = new();
 
-    // Every block is addressable by a stable id — an explicit `<!-- id: … -->` handle when present,
-    // else derived (a member from its title, a singleton from its type). Explicit is the override: the
-    // author writes one only to keep a handle stable across a retitle or to break a derived collision.
+    // Every block is addressable by a stable `<!-- id: … -->` handle. The validator requires one; the stamper
+    // (`docengine ids --write`) assigns a short opaque `b<N>` id the author never has to type. A step is the
+    // exception — its ordinal (`##### N.`) is its id.
     public bool HasExplicitId => Attrs.ContainsKey("id");
-
-    public string EffectiveId => Attrs.TryGetValue("id", out var id) ? id
-        : Title.Length > 0 ? Catalog.Slug(Title)
-        : Type;
 }

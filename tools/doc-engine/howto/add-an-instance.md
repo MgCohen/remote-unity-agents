@@ -114,10 +114,10 @@ non-empty; a collection group has at least one member; every block carries an
 dotnet run --project . -- ids <home>/<slug>.<suffix>.md --write
 ```
 
-Every block needs a stable `<!-- id: … -->` handle; this stamps one into each block
-that lacks it (steps keep their `##### N.` ordinal). Ids freeze once written — an id
-survives a retitle so a reference to it never breaks. `ids` without `--write` lists
-each block's id and whether it is derived or explicit.
+Every block needs a stable `<!-- id: … -->` handle; this stamps a short opaque `b<N>`
+into each block that lacks it (steps keep their `##### N.` ordinal). Ids freeze once
+written and carry nothing of the title, so a retitle or reorder never perturbs them —
+a reference to one never breaks. `ids` without `--write` lists each block's id.
 
 ## 4. Verify
 

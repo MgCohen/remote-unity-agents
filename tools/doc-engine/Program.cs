@@ -145,9 +145,9 @@ internal static class Program
         var (blocks, _) = InstanceParser.Parse(File.ReadAllLines(path), defs);
         void Print(ParsedBlock b, string indent)
         {
-            var src = b.HasExplicitId ? "explicit" : "derived";
+            var id = b.HasExplicitId ? b.Attrs["id"] : "(unstamped)";
             var name = b.Title.Length > 0 ? $"{b.Type} \"{b.Title}\"" : b.Type;
-            Console.WriteLine($"{indent}{b.EffectiveId,-24} {src,-8} {name}");
+            Console.WriteLine($"{indent}{id,-12} {name}");
             foreach (var c in b.Children) Print(c, indent + "  ");
         }
         foreach (var b in blocks) Print(b, "");
