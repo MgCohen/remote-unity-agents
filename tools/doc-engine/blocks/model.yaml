@@ -1,7 +1,7 @@
 type: model
 description: The domain shape — type sketches, interface surfaces, or a diagram; fenced code and ASCII diagrams are welcome here.
 rubric:
-  shape-not-prose:   Shows the shape (types, interfaces, a diagram) — no prose restating what the sketch already says.
-  elements-anchored: Every element the model names appears elsewhere in the doc.
+  shape-not-prose: Shows the shape (types, interfaces, a diagram) — no prose restating what the sketch already says.
+  warranted:       Every element fits the doc's subject or context — nothing invented that the design neither names, extends, nor implies.
 body:
   type: markdown
