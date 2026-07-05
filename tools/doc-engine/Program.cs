@@ -18,6 +18,7 @@ internal static class Program
                 "reviewers" => ReviewersCmd(root, positional.ElementAtOrDefault(1)),
                 "checks" => ChecksCmd(root, positional.ElementAtOrDefault(1)),
                 "rubric" => RubricCmd(root, positional.ElementAtOrDefault(1)),
+                "grading" => GradingCmd(root, positional.ElementAtOrDefault(1)),
                 "catalog" => CatalogCmd(root, positional.ElementAtOrDefault(1), args.Contains("--json")),
                 "outline" => OutlineCmd(root, positional.ElementAtOrDefault(1), args.Contains("--write")),
                 _ => Usage(),
@@ -116,11 +117,26 @@ internal static class Program
             return 2;
         }
         var path = ToPath(root, rel);
+        var dt = Catalog.LoadDoctype(root, InstanceParser.DoctypeOf(path, File.ReadAllLines(path)));
+        var rubric = Yaml.AsMap(dt.GetValueOrDefault("rubric"));
+        if (rubric is not null)
+            foreach (var (criterion, rule) in rubric) Console.WriteLine($"{criterion}: {Yaml.AsString(rule)}");
+        return 0;
+    }
+
+    private static int GradingCmd(string root, string? rel)
+    {
+        if (rel is null)
+        {
+            Console.Error.WriteLine("usage: docengine grading <file>");
+            return 2;
+        }
+        var path = ToPath(root, rel);
         var lines = File.ReadAllLines(path);
         var defs = Catalog.LoadBlocks(root);
         var dt = Catalog.LoadDoctype(root, InstanceParser.DoctypeOf(path, lines));
         var (blocks, _) = InstanceParser.Parse(lines, defs);
-        foreach (var line in Rubric.Lines(dt, defs, blocks)) Console.WriteLine(line);
+        foreach (var section in Grading.Sections(dt, defs, blocks)) Console.WriteLine(section);
         return 0;
     }
 
@@ -214,7 +230,7 @@ internal static class Program
 
     private static int Usage()
     {
-        Console.Error.WriteLine("usage: docengine <check | validate <file> | onchange <file> | reviewers <file> | checks <file> | rubric <file> | catalog [doctype] [--json] | outline <file> [--write]> [--root <dir>]");
+        Console.Error.WriteLine("usage: docengine <check | validate <file> | onchange <file> | reviewers <file> | checks <file> | rubric <file> | grading <file> | catalog [doctype] [--json] | outline <file> [--write]> [--root <dir>]");
         return 2;
     }
 }

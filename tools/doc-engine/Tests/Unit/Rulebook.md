@@ -70,20 +70,21 @@ harness: ../../../../tests/Harness/README.md
 - **Why:** the warning is for drift only — a declared attr (`status`) and the universal keys every doc may carry
   (`docType`, `onChange`) are legitimate, so warning on them would train authors to ignore the channel.
 
-### Rubric.Lines → doctype criteria first, then the rubric of every block type present
+### Grading.Sections → the doc section first, then one focused section per block type present
 - **Why:** block rubrics guided authoring but gated nothing — the judge graded only the doctype rubric, so a
-  block violating its own rules could still grade clean. The graded rubric must concatenate the doctype's
-  criteria with each present block type's (prefixed `<type>.` so ids stay unique), making every block rubric an
-  enforced standard, not advice.
+  block violating its own rules could still grade clean. The fix is a grading *plan*, not one concatenated
+  rubric: each section is a single-context judge call (the doc against document-level criteria, each present
+  block type against its own, with its members named), so every block rubric is enforced without handing one
+  judge a blob that blurs doc-level and block-level concerns.
 
-### Rubric.Lines → a block type absent from the instance contributes no criteria
+### Grading.Sections → a block type absent from the instance contributes no section
 - **Why:** grading a document against rules for blocks it does not contain invites vacuous or indeterminate
-  verdicts; only the block types actually present may add criteria, keeping every graded line judgeable on the
+  verdicts; only the block types actually present earn a section, keeping every judge call judgeable on the
   artifact itself.
 
-### Rubric.Lines → nested children's block criteria are included
+### Grading.Sections → nested children's block types get their own section
 - **Why:** composed children (a procedure's steps) are blocks like any other and carry their own rubrics; if
-  presence were computed only at the top level, their standards would silently drop out of the graded set.
+  presence were computed only at the top level, their standards would silently drop out of the grading plan.
 
 ### SchemaChecker.Run → no errors for the shipped catalog
 - **Why:** the catalog the whole repo validates against must itself conform to the meta-schema; a non-vacuous

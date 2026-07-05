@@ -162,34 +162,36 @@ public sealed class DocEngineValidationTests
         "## Verification", "Run it end to end.",
     };
 
-    private static IReadOnlyList<string> RubricFor(string[] lines)
+    private static IReadOnlyList<string> GradingFor(string[] lines)
     {
         var defs = Catalog.LoadBlocks(EngineRoot);
         var dt = Catalog.LoadDoctype(EngineRoot, InstanceParser.DoctypeOf("doc.md", lines));
         var (blocks, _) = InstanceParser.Parse(lines, defs);
-        return Rubric.Lines(dt, defs, blocks);
+        return Grading.Sections(dt, defs, blocks);
     }
 
-    [Rule("Rubric.Lines → doctype criteria first, then the rubric of every block type present")]
+    [Rule("Grading.Sections → the doc section first, then one focused section per block type present")]
     [Fact]
-    public void Rubric_concatenates_doctype_and_present_block_criteria()
+    public void Grading_plans_a_doc_section_then_one_per_present_block_type()
     {
-        var rubric = RubricFor(PlanWithPhases);
+        var sections = GradingFor(PlanWithPhases);
 
-        Assert.Contains(rubric, l => l.StartsWith("coverage:", StringComparison.Ordinal));
-        Assert.Contains(rubric, l => l.StartsWith("phase.reuse-first:", StringComparison.Ordinal));
-        Assert.Contains(rubric, l => l.StartsWith("summary.outcome-first:", StringComparison.Ordinal));
+        Assert.StartsWith("=== doc feature-plan\ncoverage:", sections[0], StringComparison.Ordinal);
+        var phase = Assert.Single(sections, s => s.StartsWith("=== block phase", StringComparison.Ordinal));
+        Assert.Contains("(First; Second)", phase, StringComparison.Ordinal);
+        Assert.Contains("\nreuse-first:", phase, StringComparison.Ordinal);
+        Assert.DoesNotContain("coverage:", phase, StringComparison.Ordinal);
     }
 
-    [Rule("Rubric.Lines → a block type absent from the instance contributes no criteria")]
+    [Rule("Grading.Sections → a block type absent from the instance contributes no section")]
     [Fact]
-    public void Rubric_omits_absent_block_types() =>
-        Assert.DoesNotContain(RubricFor(PlanWithPhases), l => l.StartsWith("decision.", StringComparison.Ordinal));
+    public void Grading_omits_absent_block_types() =>
+        Assert.DoesNotContain(GradingFor(PlanWithPhases), s => s.StartsWith("=== block decision", StringComparison.Ordinal));
 
-    [Rule("Rubric.Lines → nested children's block criteria are included")]
+    [Rule("Grading.Sections → nested children's block types get their own section")]
     [Fact]
-    public void Rubric_includes_nested_child_criteria() =>
-        Assert.Contains(RubricFor(NestedGuide), l => l.StartsWith("step.", StringComparison.Ordinal));
+    public void Grading_includes_nested_child_sections() =>
+        Assert.Contains(GradingFor(NestedGuide), s => s.StartsWith("=== block step", StringComparison.Ordinal));
 
     [Rule("SchemaChecker.Run → no errors for the shipped catalog")]
     [Fact]

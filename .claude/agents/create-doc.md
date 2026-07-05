@@ -44,9 +44,9 @@ from that directory with `dotnet run --project . -- <command>`. The data
 6. **Gate.** `dotnet run --project . -- validate <dest>`; fix every violation until it
    PASSes, and resolve any `!` warning it prints.
 7. **Index.** `dotnet run --project . -- outline <dest> --write`.
-8. **Grade.** The judge marks each line of `dotnet run --project . -- rubric <dest>`
-   (the doc type's rubric plus each present block's) pass/fail; address fails, then
-   re-validate.
+8. **Grade.** `dotnet run --project . -- grading <dest>` emits one section per scope
+   (the doc against the doctype rubric, each present block type against its own); the
+   judge marks each section's lines pass/fail. Address fails, then re-validate.
 
 Output path `<dest>`: the document's **home folder** in the repo — where that kind
 of document belongs (e.g. a plan under `PLANS/<slug>.plan.md`, an ADR under

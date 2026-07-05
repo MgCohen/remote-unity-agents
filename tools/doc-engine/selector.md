@@ -50,9 +50,9 @@ it from the data (catalog + per-block rubrics).
 6. **Gate.** `dotnet run --project . -- validate <path/to/doc.md>`; fix every
    violation; repeat until it PASSes; resolve any `!` warning it prints.
 7. **Index.** `dotnet run --project . -- outline <path/to/doc.md> --write`.
-8. **(Optional) grade.** The judge marks each line of
-   `dotnet run --project . -- rubric <path/to/doc.md>` (the doc-type rubric plus each
-   present block's) pass/fail; address fails.
+8. **(Optional) grade.** `dotnet run --project . -- grading <path/to/doc.md>` emits one
+   section per scope (the doc against the doctype rubric, each present block type
+   against its own); the judge marks each section's lines pass/fail. Address fails.
 
 ## Discipline (mirror the doc rubric)
 - The doc stands alone — no "the dump" / chat / revision language.

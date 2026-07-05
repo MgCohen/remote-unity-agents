@@ -426,8 +426,6 @@
         "standalone": "The doc stands alone \u2014 no references to prior chat, earlier drafts, or material the reader cannot open.",
         "concrete": "Names real files and symbols, not vague gestures.",
         "one-home": "Every enumerable fact (a list, layout, inventory, or interface) has one home block \u2014 shapes \u2192 model, boundaries \u2192 scope, choices \u2192 decision, sequencing \u2192 phase; other blocks reference it, never restate it. Narrative overlap is fine; readability outranks purity.",
-        "reuse-first": "Each phase leads with what it reuses before what it adds.",
-        "open-lean": "Open questions are genuinely open and carry a recommended lean.",
         "verify-real": "Verification runs a real end-to-end behaviour, not just build/typecheck.",
         "prose": "Prose is substantive where it matters; bold marks labels, not emphasis."
       },

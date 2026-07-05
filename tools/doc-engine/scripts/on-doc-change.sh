@@ -101,13 +101,28 @@ $cout"
     dt=$(sed -n 's/^docType:[[:space:]]*//p' "$f" | head -n 1)
     for r in $(de reviewers "$f" --root "$engine" 2>/dev/null); do
         if [ "$r" = "judge" ]; then
-            task="Grade the document '$f' (docType: $dt) against this rubric. Give a terse per-criterion verdict and concrete fixes.
+            # The grading plan fans out one focused judge per section (the doc against the doctype
+            # rubric, each present block type against its own) — small single-context rubrics per
+            # call, never one grading blob mixing doc-level and block-level concerns.
+            plan=$(de grading "$f" --root "$engine" 2>/dev/null)
+            n=$(printf '%s\n' "$plan" | grep -c '^=== ' || true)
+            i=1
+            while [ "$i" -le "$n" ]; do
+                section=$(printf '%s\n' "$plan" | awk -v k="$i" '/^=== /{c++} c==k')
+                scope=$(printf '%s\n' "$section" | head -n 1 | sed 's/^=== //')
+                task="Grade the document '$f' (docType: $dt), scoped to: $scope. Read the full document for context, but judge ONLY the criteria below, against that scope. Give a terse per-criterion verdict and concrete fixes.
 
 Rubric:
-$(de rubric "$f" --root "$engine" 2>/dev/null)"
-        else
-            task="Review the document '$f' (docType: $dt) as a fresh reader. Report a terse verdict and concrete, actionable fixes."
+$(printf '%s\n' "$section" | tail -n +2)"
+                rout=$(ABOX_HOOKS_SUPPRESS=1 "$review_cmd" -p --agent judge "$task" </dev/null 2>&1 || true)
+                [ -n "$rout" ] && notes="$notes
+[review:judge — $scope] $f
+$rout"
+                i=$((i + 1))
+            done
+            continue
         fi
+        task="Review the document '$f' (docType: $dt) as a fresh reader. Report a terse verdict and concrete, actionable fixes."
         rout=$(ABOX_HOOKS_SUPPRESS=1 "$review_cmd" -p --agent "$r" "$task" </dev/null 2>&1 || true)
         [ -n "$rout" ] && notes="$notes
 [review:$r] $f
