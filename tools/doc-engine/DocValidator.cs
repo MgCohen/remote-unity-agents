@@ -50,6 +50,8 @@ public static class DocValidator
             }
             if (!allowed.Contains(b.Type))
                 errs.Add($"{where}: '{b.Type}' not in the '{docType}' catalog");
+            if (!b.HasExplicitId)
+                errs.Add($"{where}: needs a stable '<!-- id: … -->' handle — run 'docengine ids <doc> --write' to stamp one");
             ValidateBlock(defs, b, where, errs);
             ValidateChildren(defs, b, where, errs);
         }
@@ -81,6 +83,19 @@ public static class DocValidator
         return errs;
     }
 
+    // Advisory, never blocking: an undeclared front-matter key is silently ignored by Validate, which
+    // hides drift between authoring procedures and the doctype — surface it so both get reconciled.
+    public static IReadOnlyList<string> Warnings(
+        IReadOnlyDictionary<string, object?> dt,
+        IReadOnlyDictionary<string, object?> fm)
+    {
+        var declared = (Yaml.AsMap(dt.GetValueOrDefault("attrs")) ?? new Dictionary<string, object?>())
+            .Keys.Append("docType").Append("onChange").ToHashSet(StringComparer.Ordinal);
+        return fm.Keys.Where(k => !declared.Contains(k))
+            .Select(k => $"doc: front-matter key '{k}' is not declared by the doctype — declare it as an attr or drop it")
+            .ToList();
+    }
+
     private static void ValidateBlock(
         IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> defs,
         ParsedBlock b, string where, List<string> errs)
@@ -100,7 +115,7 @@ public static class DocValidator
                 errs.Add($"{where} {b.Type}: {an}='{av}' does not match /{pat}/");
         }
         foreach (var an in b.Attrs.Keys)
-            if (!specAttrs.ContainsKey(an))
+            if (an != "id" && !specAttrs.ContainsKey(an))
                 errs.Add($"{where} {b.Type}: unknown attr '{an}'");
 
         var bodySpec = defs[b.Type].GetValueOrDefault("body");
@@ -148,6 +163,8 @@ public static class DocValidator
         }
     }
 
+    // Ids are unique among siblings so a reference resolves to exactly one block. The stamper assigns distinct
+    // `b<N>` handles by construction; a duplicate can only appear when an author hand-writes a clashing id.
     private static void CheckDuplicateIds(IReadOnlyList<ParsedBlock> siblings, string where, List<string> errs)
     {
         var seen = new HashSet<string>(StringComparer.Ordinal);
@@ -157,5 +174,5 @@ public static class DocValidator
     }
 
     private static string Label(ParsedBlock b) =>
-        b.Attrs.TryGetValue("id", out var id) ? $"id={id}" : b.Title;
+        b.HasExplicitId ? $"id={b.Attrs["id"]}" : b.Title;
 }

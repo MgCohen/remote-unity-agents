@@ -33,20 +33,28 @@ it from the data (catalog + per-block rubrics).
 3. **Pick blocks.** `dotnet run --project . -- catalog <docType>` → choose blocks whose
    `description` matches real content in the dump. Required blocks must appear.
    Include only what carries substance — no filler.
+   **If content fits no block, do not force it.** A mismatch means the catalog is
+   missing a block type; halt authoring, name the gap, and surface it to the caller
+   (the catalog is owner-reviewed; propose, don't quietly extend). Structure never
+   wins over truth.
 4. **Author each block** to its own `rubric` (`blocks/<type>.yaml`):
    - Singletons → `## <Type>`. Collections → `## <Group>` then `### <title>` members.
-   - Scalar attrs as `key: value` lines; an optional `<!-- id: <slug> -->` handle only
-     when a block must be referenced across edits.
+   - Scalar attrs as `key: value` lines. Don't hand-write ids — step 6 stamps them.
    - Distill, do not transcribe. Name real files/symbols from the dump; never invent.
-5. **Front matter.** Top of the file, a `---` block: `docType`, `status: draft`,
-   `source: <dump path>`. Write the file to its home folder — where that kind of
-   document belongs in the repo (e.g. a plan under `PLANS/`, an ADR under
-   `design/adr/`), provided by the caller; there is no global output dir.
-6. **Gate.** `dotnet run --project . -- validate <path/to/doc.md>`; fix every
-   violation; repeat until it PASSes.
-7. **Index.** `dotnet run --project . -- outline <path/to/doc.md> --write`.
-8. **(Optional) grade.** The judge marks each line of the doc-type's `rubric`
-   pass/fail; address fails.
+5. **Front matter.** Top of the file, a `---` block: `docType` plus the attrs the
+   doc type declares (e.g. `status: draft`) — nothing it doesn't. Write the file to
+   its home folder — where that kind of document belongs in the repo (e.g. a plan
+   under `PLANS/`, an ADR under `design/adr/`), provided by the caller; there is no
+   global output dir.
+6. **Stamp ids.** `dotnet run --project . -- ids <path/to/doc.md> --write` gives every
+   block a stable `<!-- id: … -->` handle — required, and how a client addresses a
+   block. Ids freeze once written; override one only to rename it or break a collision.
+7. **Gate.** `dotnet run --project . -- validate <path/to/doc.md>`; fix every
+   violation; repeat until it PASSes; resolve any `!` warning it prints.
+8. **Index.** `dotnet run --project . -- outline <path/to/doc.md> --write`.
+9. **(Optional) grade.** `dotnet run --project . -- grading <path/to/doc.md>` emits one
+   section per scope (the doc against the doctype rubric, each present block type
+   against its own); the judge marks each section's lines pass/fail. Address fails.
 
 ## Discipline (mirror the doc rubric)
 - The doc stands alone — no "the dump" / chat / revision language.

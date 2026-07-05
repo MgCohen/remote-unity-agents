@@ -8,43 +8,53 @@ harness: ../../../../../tests/Harness/README.md
 ## Rules
 
 ### a ping flow with a trivial prompt → the agent replies and the run completes
+<!-- id: b1 -->
 - **Why:** the simplest real-CLI proof — a live `claude`/`codex` session drives a ping flow to a Completed
   terminal carrying the agent's own reply, which no scripted provider can establish.
 
 ### an autonomous agent given an under-specified prompt → self-resolves and completes without Needs input
+<!-- id: b2 -->
 - **Why:** an Autonomous role must drive its own blocking question through the auto-resolver and reach
   Completed, never stalling on "Needs input:" — the live proof of the autonomy resume loop.
 
 ### an agent given a file request → writes the file into the project on disk
+<!-- id: b3 -->
 - **Why:** only a real CLI session actually edits the project; this proves the agent's tool use lands the
   exact requested bytes in the working directory, end to end.
 
 ### Ask policy with a gated tool and Allow → the hook fires and the write goes through
+<!-- id: b4 -->
 - **Why:** proves PreToolUse fires over ConPTY, carries the tool payload to the resolver, and an Allow lets
   the gated write complete — the live permission-request path.
 
 ### Ask policy with a gated tool and a denial → the write is blocked and the run does not hang
+<!-- id: b5 -->
 - **Why:** a null/deny resolution must block the gated tool and return cleanly, replacing acceptEdits' silent
   mid-turn hang.
 
 ### Auto policy with a gated tool → the tool runs without consulting the resolver
+<!-- id: b6 -->
 - **Why:** Auto auto-approves through the same gate without a human — the write runs even though the resolver
   would have denied, and the resolver is never consulted.
 
 ### a credentialed live turn → the subscription token never appears in the drive buffer
+<!-- id: b7 -->
 - **Why:** the credential rides `docker run`, not the PTY-echoed `docker exec` line, so a real billed turn's
   drive buffer (logged, surfaced to callers) must carry no `sk-ant-` token — the end-to-end proof the
   hardening keeps the subscription credential off the agent transcript.
 
 ### a Human agent given a registry answer → resumes and completes
+<!-- id: b8 -->
 - **Why:** InteractiveResolver parks the question and a registry answer resumes the live run to Completed —
   the inbox/endpoint resume loop against a real CLI.
 
 ### a Human agent with no answer available → escalates as Needs input
+<!-- id: b9 -->
 - **Why:** with no resolution a Human agent must surface NeedsInput rather than hang or guess — the
   deny-on-null escalation.
 
 ### the agent-configured machine → a real commit lands as the bot, never the owner or generic default
+<!-- id: b10 -->
 - **Why:** only the owner's real, agent-configured machine can prove the credential split holds — a probe
   commit is authored as the bot and the resolved identity is never the owner or the unconfigured Claude
   default; no scripted environment establishes which credential the live machine actually uses.

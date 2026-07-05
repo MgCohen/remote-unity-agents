@@ -18,6 +18,8 @@ internal static class Program
                 "reviewers" => ReviewersCmd(root, positional.ElementAtOrDefault(1)),
                 "checks" => ChecksCmd(root, positional.ElementAtOrDefault(1)),
                 "rubric" => RubricCmd(root, positional.ElementAtOrDefault(1)),
+                "grading" => GradingCmd(root, positional.ElementAtOrDefault(1)),
+                "ids" => IdsCmd(root, positional.ElementAtOrDefault(1), args.Contains("--write")),
                 "catalog" => CatalogCmd(root, positional.ElementAtOrDefault(1), args.Contains("--json")),
                 "outline" => OutlineCmd(root, positional.ElementAtOrDefault(1), args.Contains("--write")),
                 _ => Usage(),
@@ -58,6 +60,7 @@ internal static class Program
         var fm = InstanceParser.ParseFrontmatter(lines);
         var errs = DocValidator.Validate(defs, dt, blocks, groupsSeen, fm);
         Console.WriteLine($"doc: {Path.GetRelativePath(root, path)}   docType: {Yaml.AsString(dt.GetValueOrDefault("docType"))}   blocks: {blocks.Count}");
+        foreach (var w in DocValidator.Warnings(dt, fm)) Console.WriteLine("  ! " + w);
         if (errs.Count > 0)
         {
             Console.WriteLine($"\nFAIL — {errs.Count} violation(s):");
@@ -119,6 +122,51 @@ internal static class Program
         var rubric = Yaml.AsMap(dt.GetValueOrDefault("rubric"));
         if (rubric is not null)
             foreach (var (criterion, rule) in rubric) Console.WriteLine($"{criterion}: {Yaml.AsString(rule)}");
+        return 0;
+    }
+
+    private static int IdsCmd(string root, string? rel, bool write)
+    {
+        if (rel is null)
+        {
+            Console.Error.WriteLine("usage: docengine ids <file> [--write]");
+            return 2;
+        }
+        var path = ToPath(root, rel);
+        var defs = Catalog.LoadBlocks(root);
+        if (write)
+        {
+            var stamped = Ids.Stamp(File.ReadAllLines(path), defs);
+            File.WriteAllText(path, string.Join("\n", stamped) + "\n");
+            var (after, _) = InstanceParser.Parse(File.ReadAllLines(path), defs);
+            Console.WriteLine($"stamped ids into {Path.GetRelativePath(root, path)} ({after.Count} blocks)");
+            return 0;
+        }
+        var (blocks, _) = InstanceParser.Parse(File.ReadAllLines(path), defs);
+        void Print(ParsedBlock b, string indent)
+        {
+            var id = b.HasExplicitId ? b.Attrs["id"] : "(unstamped)";
+            var name = b.Title.Length > 0 ? $"{b.Type} \"{b.Title}\"" : b.Type;
+            Console.WriteLine($"{indent}{id,-12} {name}");
+            foreach (var c in b.Children) Print(c, indent + "  ");
+        }
+        foreach (var b in blocks) Print(b, "");
+        return 0;
+    }
+
+    private static int GradingCmd(string root, string? rel)
+    {
+        if (rel is null)
+        {
+            Console.Error.WriteLine("usage: docengine grading <file>");
+            return 2;
+        }
+        var path = ToPath(root, rel);
+        var lines = File.ReadAllLines(path);
+        var defs = Catalog.LoadBlocks(root);
+        var dt = Catalog.LoadDoctype(root, InstanceParser.DoctypeOf(path, lines));
+        var (blocks, _) = InstanceParser.Parse(lines, defs);
+        foreach (var section in Grading.Sections(dt, defs, blocks)) Console.WriteLine(section);
         return 0;
     }
 
@@ -212,7 +260,7 @@ internal static class Program
 
     private static int Usage()
     {
-        Console.Error.WriteLine("usage: docengine <check | validate <file> | onchange <file> | reviewers <file> | checks <file> | rubric <file> | catalog [doctype] [--json] | outline <file> [--write]> [--root <dir>]");
+        Console.Error.WriteLine("usage: docengine <check | validate <file> | onchange <file> | reviewers <file> | checks <file> | rubric <file> | grading <file> | ids <file> [--write] | catalog [doctype] [--json] | outline <file> [--write]> [--root <dir>]");
         return 2;
     }
 }

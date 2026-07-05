@@ -2,7 +2,7 @@ docType: feature-plan
 description: Build or change a feature — objective, scope, ordered phases, verification.
 
 # Catalog: which block types may appear. No counts — pick by each block's description.
-blocks: [summary, context, scope, decision, phase, verification, open-question]
+blocks: [summary, context, scope, model, decision, phase, verification, open-question]
 required: [summary, phase, verification]
 
 # Doc-level attributes — a visible `---` YAML front-matter block on the instance.
@@ -11,16 +11,25 @@ attrs:
     enum: [draft, approved]
     default: draft
 
+# Deterministic per-docType gates: cited repo paths must resolve; a generated INDEX must be fresh.
+checks: [scripts/check-paths-resolve.sh, scripts/check-index-fresh.sh]
+
 # Binary checks as `id: rule` — ONE list for both authoring (the selector writes to
 # them) and grading (the judge marks each pass/fail, echoing the id). The judge is
-# an AI and infers how to check each rule.
+# an AI and infers how to check each rule. Written in artifact terms — judgeable on
+# the document alone, however it was authored or later edited. Document-level
+# qualities ONLY: per-block standards live in each block's own rubric, graded per
+# block by the `grading` plan — never restated here.
 rubric:
-  coverage:    Every load-bearing part of the dump has a block; nothing significant dropped.
-  right-type:  Each piece sits in the right block type (settled → decision, open → open-question, steps → phase).
+  coverage:    No significant aspect of the subject lacks a block — a cold reader finds no load-bearing gap.
+  right-type:  Each piece sits in the right block type (settled → decision, open → open-question, steps → phase, shapes → model).
   no-filler:   No filler blocks — each carries real substance.
-  standalone:  The doc stands alone — no references to the dump, prior chat, or earlier drafts.
+  standalone:  The doc stands alone — no references to prior chat, earlier drafts, or material the reader cannot open.
   concrete:    Names real files and symbols, not vague gestures.
-  reuse-first: Each phase leads with what it reuses before what it adds.
-  open-lean:   Open questions are genuinely open and carry a recommended lean.
+  one-home:    Every enumerable fact (a list, layout, inventory, or interface) has one home block — shapes → model, boundaries → scope, choices → decision, sequencing → phase; other blocks reference it, never restate it. Narrative overlap is fine; readability outranks purity.
   verify-real: Verification runs a real end-to-end behaviour, not just build/typecheck.
   prose:       Prose is substantive where it matters; bold marks labels, not emphasis.
+
+# Feature plans are claim-heavy: the fact-check reviewer adversarially verifies checkable
+# claims against the repo — the tier the structural validator and the judge cannot cover.
+reviewers: [judge, fact-check]
