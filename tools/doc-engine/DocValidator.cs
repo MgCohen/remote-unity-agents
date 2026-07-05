@@ -81,6 +81,19 @@ public static class DocValidator
         return errs;
     }
 
+    // Advisory, never blocking: an undeclared front-matter key is silently ignored by Validate, which
+    // hides drift between authoring procedures and the doctype — surface it so both get reconciled.
+    public static IReadOnlyList<string> Warnings(
+        IReadOnlyDictionary<string, object?> dt,
+        IReadOnlyDictionary<string, object?> fm)
+    {
+        var declared = (Yaml.AsMap(dt.GetValueOrDefault("attrs")) ?? new Dictionary<string, object?>())
+            .Keys.Append("docType").Append("onChange").ToHashSet(StringComparer.Ordinal);
+        return fm.Keys.Where(k => !declared.Contains(k))
+            .Select(k => $"doc: front-matter key '{k}' is not declared by the doctype — declare it as an attr or drop it")
+            .ToList();
+    }
+
     private static void ValidateBlock(
         IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>> defs,
         ParsedBlock b, string where, List<string> errs)

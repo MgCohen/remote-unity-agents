@@ -11,14 +11,21 @@ attrs:
     enum: [draft, final]
     default: draft
 
+# Deterministic per-docType gates: cited repo paths must resolve; a generated INDEX must be fresh.
+checks: [scripts/check-paths-resolve.sh, scripts/check-index-fresh.sh]
+
 # Binary checks as `id: rule` — one list, for both authoring and grading.
 rubric:
   coverage:               Every investigated question, key source, and the conclusion has a block.
   right-type:             Content sits in the right block (questions → question, sources → quotation, conclusion → outcome).
   no-filler:              No filler blocks.
-  standalone:             The doc stands alone — no references to the source, prior chat, or drafts.
+  standalone:             The doc stands alone — no references to prior chat or earlier drafts (cited sources are fine).
   sourced:                Every claim ties to a cited source; no unsupported assertions.
   headline-first:         The summary leads with the finding, not a buried conclusion.
   expectation-vs-outcome: The outcome says whether the result matched the expected-result.
   questions-answered:     Each question is actually answered.
   prose:                  Prose is substantive; bold marks labels, not emphasis.
+
+# Research is claim-heavy: the fact-check reviewer adversarially verifies checkable
+# claims against the repo and cited sources.
+reviewers: [judge, fact-check]

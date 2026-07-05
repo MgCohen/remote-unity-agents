@@ -82,7 +82,7 @@ dotnet run --project . -- outline <path/to/doc.md> --write     # inject the inde
 dotnet run --project . -- onchange <path/to/doc.md>            # the instance's onChange script handler, if any
 dotnet run --project . -- reviewers <path/to/doc.md>           # fresh agents that review a change (judge by default)
 dotnet run --project . -- checks <path/to/doc.md>              # deterministic check scripts that block a change
-dotnet run --project . -- rubric <path/to/doc.md>              # the doctype's rubric criteria (fed to the judge)
+dotnet run --project . -- rubric <path/to/doc.md>              # the doctype's rubric + each present block's (fed to the judge)
 ```
 
 The last three drive the **on-change reaction pipeline** — `validate` (structure) then

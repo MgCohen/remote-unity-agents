@@ -61,6 +61,30 @@ harness: ../../../../tests/Harness/README.md
   (not its execution): a path that escapes the runnable roots (`.claude/agents`, `.claude/hooks`, `scripts/`) or
   contains `..` must fail, so a doc can never aim its change-handler at an arbitrary executable.
 
+### DocValidator.Warnings → flags an undeclared front-matter key without failing validation
+- **Why:** `Validate` silently ignores front-matter keys the doctype never declared, which let the authoring
+  procedure and the doctype drift apart unnoticed (a `source` key no doctype declares); the advisory tier must
+  name the undeclared key while validation itself stays green, so drift surfaces without blocking a valid doc.
+
+### DocValidator.Warnings → declared attrs and the universal keys warn nothing
+- **Why:** the warning is for drift only — a declared attr (`status`) and the universal keys every doc may carry
+  (`docType`, `onChange`) are legitimate, so warning on them would train authors to ignore the channel.
+
+### Rubric.Lines → doctype criteria first, then the rubric of every block type present
+- **Why:** block rubrics guided authoring but gated nothing — the judge graded only the doctype rubric, so a
+  block violating its own rules could still grade clean. The graded rubric must concatenate the doctype's
+  criteria with each present block type's (prefixed `<type>.` so ids stay unique), making every block rubric an
+  enforced standard, not advice.
+
+### Rubric.Lines → a block type absent from the instance contributes no criteria
+- **Why:** grading a document against rules for blocks it does not contain invites vacuous or indeterminate
+  verdicts; only the block types actually present may add criteria, keeping every graded line judgeable on the
+  artifact itself.
+
+### Rubric.Lines → nested children's block criteria are included
+- **Why:** composed children (a procedure's steps) are blocks like any other and carry their own rubrics; if
+  presence were computed only at the top level, their standards would silently drop out of the graded set.
+
 ### SchemaChecker.Run → no errors for the shipped catalog
 - **Why:** the catalog the whole repo validates against must itself conform to the meta-schema; a non-vacuous
   pass over the real `_schema`/`kinds`/`blocks`/`doctypes` proves the checker does real work and the catalog is sound.

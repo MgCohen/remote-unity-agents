@@ -128,6 +128,69 @@ public sealed class DocEngineValidationTests
         Assert.Contains(Validate(lines.ToArray()), e => e.Contains("onChange", StringComparison.Ordinal));
     }
 
+    [Rule("DocValidator.Warnings → flags an undeclared front-matter key without failing validation")]
+    [Fact]
+    public void Warnings_flag_an_undeclared_front_matter_key()
+    {
+        var lines = new[] { "---", "docType: feature-plan", "source: chat", "---", "" };
+        var dt = Catalog.LoadDoctype(EngineRoot, "feature-plan");
+        var fm = InstanceParser.ParseFrontmatter(lines);
+
+        Assert.Contains(DocValidator.Warnings(dt, fm), w => w.Contains("'source'", StringComparison.Ordinal));
+        Assert.DoesNotContain(Validate(lines), e => e.Contains("source", StringComparison.Ordinal));
+    }
+
+    [Rule("DocValidator.Warnings → declared attrs and the universal keys warn nothing")]
+    [Fact]
+    public void Warnings_stay_silent_for_declared_and_universal_keys()
+    {
+        var lines = new[] { "---", "docType: feature-plan", "status: draft", "onChange: scripts/x.sh", "---", "" };
+
+        Assert.Empty(DocValidator.Warnings(
+            Catalog.LoadDoctype(EngineRoot, "feature-plan"),
+            InstanceParser.ParseFrontmatter(lines)));
+    }
+
+    private static readonly string[] PlanWithPhases =
+    {
+        "---", "docType: feature-plan", "---", "",
+        "## Summary", "A plan.", "",
+        "## Phases",
+        "### First", "status: todo", "", "Do it.",
+        "### Second", "status: todo", "", "Prove it.",
+        "",
+        "## Verification", "Run it end to end.",
+    };
+
+    private static IReadOnlyList<string> RubricFor(string[] lines)
+    {
+        var defs = Catalog.LoadBlocks(EngineRoot);
+        var dt = Catalog.LoadDoctype(EngineRoot, InstanceParser.DoctypeOf("doc.md", lines));
+        var (blocks, _) = InstanceParser.Parse(lines, defs);
+        return Rubric.Lines(dt, defs, blocks);
+    }
+
+    [Rule("Rubric.Lines → doctype criteria first, then the rubric of every block type present")]
+    [Fact]
+    public void Rubric_concatenates_doctype_and_present_block_criteria()
+    {
+        var rubric = RubricFor(PlanWithPhases);
+
+        Assert.Contains(rubric, l => l.StartsWith("coverage:", StringComparison.Ordinal));
+        Assert.Contains(rubric, l => l.StartsWith("phase.reuse-first:", StringComparison.Ordinal));
+        Assert.Contains(rubric, l => l.StartsWith("summary.outcome-first:", StringComparison.Ordinal));
+    }
+
+    [Rule("Rubric.Lines → a block type absent from the instance contributes no criteria")]
+    [Fact]
+    public void Rubric_omits_absent_block_types() =>
+        Assert.DoesNotContain(RubricFor(PlanWithPhases), l => l.StartsWith("decision.", StringComparison.Ordinal));
+
+    [Rule("Rubric.Lines → nested children's block criteria are included")]
+    [Fact]
+    public void Rubric_includes_nested_child_criteria() =>
+        Assert.Contains(RubricFor(NestedGuide), l => l.StartsWith("step.", StringComparison.Ordinal));
+
     [Rule("SchemaChecker.Run → no errors for the shipped catalog")]
     [Fact]
     public void SchemaChecker_passes_the_shipped_catalog() =>
@@ -136,7 +199,7 @@ public sealed class DocEngineValidationTests
     [Rule("Reviewers.Resolve → defaults to the judge for a docType that declares none")]
     [Fact]
     public void Reviewers_default_to_the_judge() =>
-        Assert.Equal(new[] { "judge" }, Reviewers.Resolve(Catalog.LoadDoctype(EngineRoot, "feature-plan")));
+        Assert.Equal(new[] { "judge" }, Reviewers.Resolve(Catalog.LoadDoctype(EngineRoot, "rulebook")));
 
     [Rule("Reviewers.Resolve → returns the docType's declared reviewers when present")]
     [Fact]

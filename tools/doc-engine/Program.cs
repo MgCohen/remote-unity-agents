@@ -58,6 +58,7 @@ internal static class Program
         var fm = InstanceParser.ParseFrontmatter(lines);
         var errs = DocValidator.Validate(defs, dt, blocks, groupsSeen, fm);
         Console.WriteLine($"doc: {Path.GetRelativePath(root, path)}   docType: {Yaml.AsString(dt.GetValueOrDefault("docType"))}   blocks: {blocks.Count}");
+        foreach (var w in DocValidator.Warnings(dt, fm)) Console.WriteLine("  ! " + w);
         if (errs.Count > 0)
         {
             Console.WriteLine($"\nFAIL — {errs.Count} violation(s):");
@@ -115,10 +116,11 @@ internal static class Program
             return 2;
         }
         var path = ToPath(root, rel);
-        var dt = Catalog.LoadDoctype(root, InstanceParser.DoctypeOf(path, File.ReadAllLines(path)));
-        var rubric = Yaml.AsMap(dt.GetValueOrDefault("rubric"));
-        if (rubric is not null)
-            foreach (var (criterion, rule) in rubric) Console.WriteLine($"{criterion}: {Yaml.AsString(rule)}");
+        var lines = File.ReadAllLines(path);
+        var defs = Catalog.LoadBlocks(root);
+        var dt = Catalog.LoadDoctype(root, InstanceParser.DoctypeOf(path, lines));
+        var (blocks, _) = InstanceParser.Parse(lines, defs);
+        foreach (var line in Rubric.Lines(dt, defs, blocks)) Console.WriteLine(line);
         return 0;
     }
 
