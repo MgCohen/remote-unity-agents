@@ -67,9 +67,12 @@ it is a singleton.
   - any scalar attrs as `key: value` lines — enum or free string alike
     (e.g. `status: doing`, or `source: Microsoft ConPTY docs`);
   - then a blank line and the Markdown body.
-  - optionally a stable handle comment `<!-- id: <slug> -->` — only when something
-    needs to reference this block across edits; unique within the document. Most
-    blocks omit it.
+  - a stable handle comment `<!-- id: <slug> -->` — **required on every block**, and
+    unique within the document (it is how a client, or a cross-reference, names one
+    block). Don't hand-write it: `docengine ids <file> --write` stamps a handle into
+    every block that lacks one. An id freezes once written — it survives a retitle, so
+    a reference to it never breaks; hand-write one only to rename a handle or break a
+    derived collision. Steps keep their ordinal (`##### N.`) as their id.
 
 A complete minimal `feature-plan` (its required blocks are `summary`, `phase`,
 `verification`):
@@ -102,10 +105,21 @@ The concrete checks that prove "done" — build, tests, one behaviour run.
 
 Rules the validator enforces: only blocks in the doc type's catalog appear; every
 `required` block is present; enum attrs hold an allowed value; a required body is
-non-empty; a collection group has at least one member; any `<!-- id -->` handles
-present are unique.
+non-empty; a collection group has at least one member; every block carries an
+`<!-- id -->` handle, and all handles are unique.
 
-## 3. Verify
+## 3. Stamp ids
+
+```bash
+dotnet run --project . -- ids <home>/<slug>.<suffix>.md --write
+```
+
+Every block needs a stable `<!-- id: … -->` handle; this stamps one into each block
+that lacks it (steps keep their `##### N.` ordinal). Ids freeze once written — an id
+survives a retitle so a reference to it never breaks. `ids` without `--write` lists
+each block's id and whether it is derived or explicit.
+
+## 4. Verify
 
 ```bash
 dotnet run --project . -- validate <home>/<slug>.<suffix>.md
@@ -114,7 +128,7 @@ dotnet run --project . -- validate <home>/<slug>.<suffix>.md
 Expect `PASS — conforms to the catalog.` Each violation names the offending block
 (`#N (<title>)`, or `#N (id=…)` when it carries a handle) and the problem; fix and re-run.
 
-## 4. (Optional) generate the index
+## 5. (Optional) generate the index
 
 ```bash
 dotnet run --project . -- outline <home>/<slug>.<suffix>.md --write

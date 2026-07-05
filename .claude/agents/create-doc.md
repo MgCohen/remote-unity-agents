@@ -36,15 +36,17 @@ from that directory with `dotnet run --project . -- <command>`. The data
    never wins over truth.
 4. **Author each block** to its `blocks/<type>.yaml` `rubric`:
    - Singletons → `## <Type>`; collections → `## <Group>` then `### <title>` members.
-   - Scalar attrs as `key: value` lines; an optional `<!-- id: <slug> -->` handle only
-     when a block must be referenced across edits — most blocks omit it.
+   - Scalar attrs as `key: value` lines. Don't hand-write ids — step 6 stamps them.
    - Distill, never transcribe; name real files/symbols from the dump; never invent.
 5. **Front matter.** A top `---` block with `docType` plus the attrs the doc type
    declares (e.g. `status: draft`) — nothing it doesn't.
-6. **Gate.** `dotnet run --project . -- validate <dest>`; fix every violation until it
+6. **Stamp ids.** `dotnet run --project . -- ids <dest> --write` gives every block a
+   stable `<!-- id: … -->` handle (required — a client addresses a block by it). Ids are
+   frozen once written; override one only to rename its handle or break a collision.
+7. **Gate.** `dotnet run --project . -- validate <dest>`; fix every violation until it
    PASSes, and resolve any `!` warning it prints.
-7. **Index.** `dotnet run --project . -- outline <dest> --write`.
-8. **Grade.** `dotnet run --project . -- grading <dest>` emits one section per scope
+8. **Index.** `dotnet run --project . -- outline <dest> --write`.
+9. **Grade.** `dotnet run --project . -- grading <dest>` emits one section per scope
    (the doc against the doctype rubric, each present block type against its own); the
    judge marks each section's lines pass/fail. Address fails, then re-validate.
 

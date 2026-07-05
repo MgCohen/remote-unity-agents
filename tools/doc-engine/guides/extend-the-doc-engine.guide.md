@@ -3,12 +3,14 @@ docType: guide
 ---
 
 ## Summary
+<!-- id: summary -->
 How to extend the doc-engine catalog: add a new block, compose it into a doc type, wire that type's
 on-change reactions, and author a conforming instance — the changes you make when the vocabulary or its
 reactions need to grow.
 
 ## Procedures
 ### Adding a block
+<!-- id: adding-a-block -->
 **Context:** a block is a reusable content unit (`blocks/<type>.yaml`) that doc types compose.
 ##### 1. Pick the type name and content shape
 Decide whether the block is a singleton or a `collection`, and how it carries content — typed
@@ -25,6 +27,7 @@ exists in the catalog and is ready to be composed into a doc type.
 ---
 
 ### Adding a doc type
+<!-- id: adding-a-doc-type -->
 **Context:** a doc type (`doctypes/<name>.yaml`) names the blocks a document composes and which are required.
 ##### 1. Ensure the blocks exist
 If a block the doc type needs is missing, add it first via "Adding a block".
@@ -40,6 +43,7 @@ it in its front matter.
 ---
 
 ### Wiring a doc type's on-change reactions
+<!-- id: wiring-a-doc-type-s-on-change-reactions -->
 **Context:** when an instance changes, the engine runs a pipeline off that change — `docengine validate`
 (generic structure) then the doc type's `checks:` (deterministic scripts) both **block** on failure,
 then its `reviewers:` (fresh agents) **advise** — all fed back to the session. A doc type opts into the
@@ -63,6 +67,7 @@ checked, and reviewed — deterministic failures block, reviewer notes advise.
 ---
 
 ### Authoring an instance
+<!-- id: authoring-an-instance -->
 **Context:** an instance is a `.md` file whose front matter declares a `docType` the engine validates it against.
 ##### 1. Start from the doc type's blocks
 Run `docengine catalog <docType>` to see the blocks available, then draft `## ` sections for the ones you need.

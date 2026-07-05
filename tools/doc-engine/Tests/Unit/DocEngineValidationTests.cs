@@ -48,9 +48,10 @@ public sealed class DocEngineValidationTests
     private static readonly string[] NestedGuide =
     {
         "---", "docType: guide", "---", "",
-        "## Summary", "A how-to.", "",
+        "## Summary", "<!-- id: summary -->", "A how-to.", "",
         "## Procedures",
         "### Doing a thing",
+        "<!-- id: doing-a-thing -->",
         "**Context:** c.",
         "",
         "##### 1. First step", "- **Condition:** only sometimes", "Do the first thing.",
@@ -116,6 +117,78 @@ public sealed class DocEngineValidationTests
         var lines = NestedGuide.TakeWhile(l => !l.StartsWith("#####", StringComparison.Ordinal)).ToArray();
 
         Assert.Contains(Validate(lines), e => e.Contains("requires at least one step", StringComparison.Ordinal));
+    }
+
+    [Rule("DocValidator.Validate → flags a block with no explicit id handle")]
+    [Fact]
+    public void Validate_rejects_a_block_missing_its_id()
+    {
+        var lines = NestedGuide.Where(l => l != "<!-- id: doing-a-thing -->").ToArray();
+
+        Assert.Contains(Validate(lines), e => e.Contains("needs a stable", StringComparison.Ordinal));
+    }
+
+    private static readonly string[] Unstamped =
+    {
+        "---", "docType: feature-plan", "status: draft", "---", "",
+        "## Summary", "List threads.", "",
+        "## Phases",
+        "### Wire the store", "status: todo", "", "Reuses x. Adds y. Done when z.",
+        "### Wire the store", "status: todo", "", "Reuses a. Adds b. Done when c.",
+        "## Verification", "Run it.",
+    };
+
+    private static string[] Stamp(string[] lines) =>
+        Ids.Stamp(lines, Catalog.LoadBlocks(EngineRoot)).ToArray();
+
+    [Rule("Ids.Stamp → fills every block missing an id, and a stamped doc then validates")]
+    [Fact]
+    public void Ids_stamp_makes_an_unstamped_doc_valid()
+    {
+        var stamped = Stamp(Unstamped);
+
+        Assert.Contains("<!-- id: summary -->", stamped);
+        Assert.Contains("<!-- id: wire-the-store -->", stamped);
+        Assert.Empty(Validate(stamped));
+    }
+
+    [Rule("Ids.Stamp → is idempotent: a second pass changes nothing")]
+    [Fact]
+    public void Ids_stamp_is_idempotent()
+    {
+        var once = Stamp(Unstamped);
+
+        Assert.Equal(once, Stamp(once));
+    }
+
+    [Rule("Ids.Stamp → a derived-id collision gets a numeric suffix")]
+    [Fact]
+    public void Ids_stamp_suffixes_a_collision() =>
+        Assert.Contains("<!-- id: wire-the-store-2 -->", Stamp(Unstamped));
+
+    [Rule("Ids.Stamp → an existing id survives a retitle, so a reference never breaks")]
+    [Fact]
+    public void Ids_stamp_preserves_an_id_across_a_retitle()
+    {
+        var stamped = Stamp(Unstamped);
+        var retitled = stamped.Select(l => l == "### Wire the store" ? "### Persist threads to disk" : l).ToArray();
+
+        Assert.Equal(retitled, Stamp(retitled));
+    }
+
+    [Rule("Ids.Stamp → derives an id-safe slug from a title carrying punctuation")]
+    [Fact]
+    public void Ids_stamp_slug_is_id_safe()
+    {
+        var lines = new[]
+        {
+            "---", "docType: rulebook", "testType: unit", "rubric: r", "---", "",
+            "## Rules",
+            "### DocValidator.Validate → no errors, really!", "- **Why:** x.",
+        };
+
+        var id = Stamp(lines).First(l => l.StartsWith("<!-- id:", StringComparison.Ordinal));
+        Assert.Matches("^<!-- id: [a-z0-9-]+ -->$", id);
     }
 
     [Rule("DocValidator.Validate → flags an onChange path outside the allowlisted roots")]

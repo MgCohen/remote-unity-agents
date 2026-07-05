@@ -50,6 +50,8 @@ public static class DocValidator
             }
             if (!allowed.Contains(b.Type))
                 errs.Add($"{where}: '{b.Type}' not in the '{docType}' catalog");
+            if (!b.HasExplicitId)
+                errs.Add($"{where}: needs a stable '<!-- id: … -->' handle — run 'docengine ids <doc> --write' to stamp one");
             ValidateBlock(defs, b, where, errs);
             ValidateChildren(defs, b, where, errs);
         }

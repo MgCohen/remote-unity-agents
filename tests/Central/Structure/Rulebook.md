@@ -8,6 +8,7 @@ harness: ../../Harness/README.md
 ## Rules
 
 ### Every project lives under an agreed home folder
+<!-- id: every-project-lives-under-an-agreed-home-folder -->
 - **Why:** The agreed home folders (Infrastructure, Domain, Features, Host) are the only legal places
   production code may live. A folder under none of them escaped the structure — caught on disk, before it
   compiles, so an uncompiled-code blind spot can't hide it.
@@ -18,6 +19,7 @@ shrinks instead of rotting. It is now empty: Morph and Web both evicted to the w
 folder* is the companion guarantee, enforced at compile time by IDE0130 (`/.editorconfig`), not a test here.
 
 ### Each feature is one implementation project plus its Api/Contract leaves
+<!-- id: each-feature-is-one-implementation-project-plus-its-api-contract-leaves -->
 - **Why:** The canonical slice (ADR 0011 D2, amended by the contract-publishing split) is exactly one
   implementation project per feature (verbs as folders, `Module` folded in) plus its leaves: at most one external
   `Api` leaf (client-facing) and at most one internal `Contract` leaf (cross-feature), at least one of the two — no
@@ -32,6 +34,7 @@ features (per-use-case Flows, per-verb Tasks awaiting Gate 5); the guard still r
 feature, and a staleness check fails once a listed feature consolidates, so the list shrinks instead of rotting.
 
 ### Each verb folder declares its endpoint
+<!-- id: each-verb-folder-declares-its-endpoint -->
 - **Why:** The canonical slice is one endpoint per verb folder (ADR 0011); the only legal non-verb folders are the
   published `Api/` and `Contract/` leaves and the folded-in `Module/`. A verb folder with no `*Endpoint.cs` is either a stray
   helper bucket (the `Shared/` sub-assembly the shape forbids) or a verb whose endpoint was misnamed or misplaced —
@@ -45,6 +48,7 @@ consolidating a feature to the canonical shape removes its exemption, and the gu
 verb folders to conform.
 
 ### Requests, responses, and DTOs live in an Api or Contract leaf
+<!-- id: requests-responses-and-dtos-live-in-an-api-or-contract-leaf -->
 - **Why:** The client binds a feature's `Api/` leaf and a peer slice binds its `Contract/` leaf — those are the only
   places the outside may name. A `*Request`/`*Response`/`*Dto`/`*View` type stranded in a verb folder is unbindable
   from outside the slice, the "what goes in a leaf vs the feature" mix-up. Read on disk by the type-naming convention
@@ -57,6 +61,7 @@ the convention is live (the leaves do hold such types), so the rule polices a re
 vacuously. It holds for every feature today, laggards included — even mid-migration, wire types already live in a leaf.
 
 ### Only the Api rollup is packable
+<!-- id: only-the-api-rollup-is-packable -->
 - **Why:** Exactly one package ships off-box — `ABox.Api`, the rollup at `src/Api` that bundles every feature's `Api`
   leaf DLL into one `.nupkg`. If a feature project (an impl, a `Contract` leaf, or an `Api` leaf individually) also
   declared `IsPackable=true`, a stray solution-wide `dotnet pack` would publish a second, unmanaged package to the
@@ -67,6 +72,7 @@ Checked on disk (`SourceTree.ApiRollupIsPackable` + `FeatureProjectsDeclaringPac
 `<IsPackable>true</IsPackable>` + `<PackageId>ABox.Api</PackageId>`, and no feature csproj may re-declare it true.
 
 ### Every Api leaf is a self-contained bundle input
+<!-- id: every-api-leaf-is-a-self-contained-bundle-input -->
 - **Why:** The rollup discovers Api leaves by a path+name wildcard (`Features/*/Api/*.Api.csproj`) and ships each
   one's DLL with no `<dependency>` entries. So a leaf placed off that path silently drops out of the package, and a
   leaf that declares a Project/PackageReference would ship a DLL whose dependency never travels — a runtime break on
@@ -78,6 +84,7 @@ Checked on disk (`SourceTree.MisplacedApiLeaves` + `ApiLeavesWithDependencies`):
 `<PackageReference>`. Projects' `Api` leaf satisfies it positively, so the rule is non-vacuous from day one.
 
 ### The test harness depends on nothing it shells out to
+<!-- id: the-test-harness-depends-on-nothing-it-shells-out-to -->
 - **Why:** ADR 0015 makes the enforcement spine acyclic by pointing its dependency arrow OUT: the Docs type
   shells out to the doc-engine CLI, so a Rulebook stays a document the engine validates from outside — never a
   type the harness links. A `ProjectReference` to `ABox.DocEngine` or a `YamlDotNet` `PackageReference` in
@@ -88,6 +95,7 @@ A text scan of every `*.csproj` under `tests/Harness/` (`SourceTree.HarnessForbi
 compile, so the `[det]` claim in ADR 0015 is enforced, not just asserted.
 
 ### No build output lives under src or tests
+<!-- id: no-build-output-lives-under-src-or-tests -->
 - **Why:** `UseArtifactsOutput` + a pinned `ArtifactsPath` centralize every project's bin/obj into the repo-root
   `/artifacts`. A `bin`, `obj`, or `artifacts` folder under `src/` or `tests/` means a project escaped the root
   `Directory.Build.props` — the bug that scattered Features output into `src/Features/artifacts/`.
