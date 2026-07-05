@@ -19,6 +19,7 @@ internal static class Program
                 "checks" => ChecksCmd(root, positional.ElementAtOrDefault(1)),
                 "rubric" => RubricCmd(root, positional.ElementAtOrDefault(1)),
                 "grading" => GradingCmd(root, positional.ElementAtOrDefault(1)),
+                "ids" => IdsCmd(root, positional.ElementAtOrDefault(1)),
                 "catalog" => CatalogCmd(root, positional.ElementAtOrDefault(1), args.Contains("--json")),
                 "outline" => OutlineCmd(root, positional.ElementAtOrDefault(1), args.Contains("--write")),
                 _ => Usage(),
@@ -121,6 +122,27 @@ internal static class Program
         var rubric = Yaml.AsMap(dt.GetValueOrDefault("rubric"));
         if (rubric is not null)
             foreach (var (criterion, rule) in rubric) Console.WriteLine($"{criterion}: {Yaml.AsString(rule)}");
+        return 0;
+    }
+
+    private static int IdsCmd(string root, string? rel)
+    {
+        if (rel is null)
+        {
+            Console.Error.WriteLine("usage: docengine ids <file>");
+            return 2;
+        }
+        var path = ToPath(root, rel);
+        var defs = Catalog.LoadBlocks(root);
+        var (blocks, _) = InstanceParser.Parse(File.ReadAllLines(path), defs);
+        void Print(ParsedBlock b, string indent)
+        {
+            var src = b.HasExplicitId ? "explicit" : "derived";
+            var name = b.Title.Length > 0 ? $"{b.Type} \"{b.Title}\"" : b.Type;
+            Console.WriteLine($"{indent}{b.EffectiveId,-24} {src,-8} {name}");
+            foreach (var c in b.Children) Print(c, indent + "  ");
+        }
+        foreach (var b in blocks) Print(b, "");
         return 0;
     }
 

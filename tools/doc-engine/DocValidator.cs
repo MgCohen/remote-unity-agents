@@ -113,7 +113,7 @@ public static class DocValidator
                 errs.Add($"{where} {b.Type}: {an}='{av}' does not match /{pat}/");
         }
         foreach (var an in b.Attrs.Keys)
-            if (!specAttrs.ContainsKey(an))
+            if (an != "id" && !specAttrs.ContainsKey(an))
                 errs.Add($"{where} {b.Type}: unknown attr '{an}'");
 
         var bodySpec = defs[b.Type].GetValueOrDefault("body");
@@ -161,14 +161,17 @@ public static class DocValidator
         }
     }
 
+    // Every block has an effective id (explicit handle or derived from title/type); all must be unique
+    // among siblings so a cross-reference resolves to one block. A derived collision is fixed by giving
+    // one member an explicit `<!-- id: … -->`.
     private static void CheckDuplicateIds(IReadOnlyList<ParsedBlock> siblings, string where, List<string> errs)
     {
         var seen = new HashSet<string>(StringComparer.Ordinal);
         foreach (var b in siblings)
-            if (b.Attrs.TryGetValue("id", out var id) && !seen.Add(id))
-                errs.Add($"{where}duplicate id '{id}'");
+            if (!seen.Add(b.EffectiveId))
+                errs.Add($"{where}duplicate id '{b.EffectiveId}' — give one member an explicit '<!-- id: … -->' to disambiguate");
     }
 
     private static string Label(ParsedBlock b) =>
-        b.Attrs.TryGetValue("id", out var id) ? $"id={id}" : b.Title;
+        b.HasExplicitId ? $"id={b.Attrs["id"]}" : b.Title;
 }
