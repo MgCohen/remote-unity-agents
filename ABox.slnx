@@ -22,6 +22,8 @@
     <Project Path="src/Features/Projects/ABox.Projects.csproj" />
     <Project Path="src/Features/Inbox/Api/ABox.Inbox.Api.csproj" />
     <Project Path="src/Features/Inbox/ABox.Inbox.csproj" />
+    <Project Path="src/Features/Threads/Api/ABox.Threads.Api.csproj" />
+    <Project Path="src/Features/Threads/ABox.Threads.csproj" />
     <Project Path="src/Features/Decisions/Contract/ABox.Decisions.Contract.csproj" />
     <Project Path="src/Features/Decisions/ABox.Decisions.csproj" />
     <Project Path="src/Features/Tasks/Contract/ABox.Tasks.Contract.csproj" />

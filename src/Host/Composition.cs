@@ -14,6 +14,7 @@ using ABox.Features.Git.Contract;
 using ABox.Features.Git.Module;
 using ABox.Features.Inbox.Module;
 using ABox.Features.Projects.Module;
+using ABox.Features.Threads.Module;
 using ABox.Infrastructure.Paths;
 using ABox.Infrastructure.Storage;
 
@@ -33,7 +34,7 @@ internal static class Composition
         services.ConfigureHttpJsonOptions(o => o.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
         services.AddFastEndpoints(o => o.Assemblies =
-            [ProjectsModule.EndpointsAssembly, GitModule.EndpointsAssembly, InboxModule.EndpointsAssembly, DecisionsModule.EndpointsAssembly]);
+            [ProjectsModule.EndpointsAssembly, GitModule.EndpointsAssembly, InboxModule.EndpointsAssembly, DecisionsModule.EndpointsAssembly, ThreadsModule.EndpointsAssembly]);
 
         services.AddSingleton<IOrchestratorPaths, OrchestratorPaths>();
 
