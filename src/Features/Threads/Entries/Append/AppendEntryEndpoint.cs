@@ -22,14 +22,21 @@ internal sealed class AppendEntryEndpoint(IRepository<Thread> threads) : Endpoin
             return;
         }
 
+        if (req.Author is not { } author || !Enum.IsDefined(author))
+        {
+            AddError(r => r.Author, "An entry needs its author: Human or Agent.");
+            await Send.ErrorsAsync(400, ct);
+            return;
+        }
+
         if (await threads.GetById(req.Id, ct) is not { } thread)
         {
             await Send.NotFoundAsync(ct);
             return;
         }
 
-        var doc = string.IsNullOrWhiteSpace(req.Doc) ? null : new DocRef(req.Doc);
-        var entry = new ThreadEntry(DateTimeOffset.UtcNow, req.Author, summary, doc);
+        var doc = string.IsNullOrWhiteSpace(req.Doc) ? null : new DocRef(req.Doc.Trim());
+        var entry = new ThreadEntry(DateTimeOffset.UtcNow, author, summary, doc);
         var updated = thread with { Entries = [.. thread.Entries, entry] };
         await threads.Update(updated, ct);
 

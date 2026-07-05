@@ -14,6 +14,13 @@ internal sealed class SetStateEndpoint(IRepository<Thread> threads) : Endpoint<S
 
     public override async Task HandleAsync(SetStateRequest req, CancellationToken ct)
     {
+        if (!Enum.IsDefined(req.State))
+        {
+            AddError(r => r.State, "Unknown state; a thread is Active, Completed, or Archived.");
+            await Send.ErrorsAsync(400, ct);
+            return;
+        }
+
         if (await threads.GetById(req.Id, ct) is not { } thread)
         {
             await Send.NotFoundAsync(ct);

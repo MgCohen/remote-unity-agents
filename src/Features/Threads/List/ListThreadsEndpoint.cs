@@ -15,6 +15,13 @@ internal sealed class ListThreadsEndpoint(IRepository<Thread> threads) : Endpoin
 
     public override async Task HandleAsync(ListThreadsRequest req, CancellationToken ct)
     {
+        if (req.State is { } requested && !Enum.IsDefined(requested))
+        {
+            AddError(r => r.State, "Unknown state; a thread is Active, Completed, or Archived.");
+            await Send.ErrorsAsync(400, ct);
+            return;
+        }
+
         var state = req.State ?? ThreadState.Active;
         var all = await threads.GetAll(ct);
 
