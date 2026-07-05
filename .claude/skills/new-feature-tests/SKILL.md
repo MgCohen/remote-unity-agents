@@ -71,14 +71,14 @@ in the engine assembly the feature never references. You stamp the csproj, the R
 harness does the rest.
 
 **2. `<Type>/Rulebook.md`** — a `rulebook` instance pointing at the central rubric. The `../` depth
-to `tests/` matches the csproj's; for `src/Features/<F>/Tests/<Type>/Rulebook` it is six levels:
+to `tests/` matches the csproj's; for `src/Features/<F>/Tests/<Type>/Rulebook` it is five levels:
 
 ```markdown
 ---
 docType: rulebook
 testType: unit
-rubric: ../../../../../../tests/Rubrics/Unit.md
-harness: ../../../../../../tests/Harness/README.md
+rubric: ../../../../../tests/Rubrics/Unit.md
+harness: ../../../../../tests/Harness/README.md
 ---
 
 ## Rules

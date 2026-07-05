@@ -15,6 +15,7 @@
     <ProjectReference Include="..\..\..\..\tests\Harness\ABox.Tests.Harness.csproj" />
     <ProjectReference Include="..\ABox.Threads.csproj" />
     <ProjectReference Include="..\..\..\Infrastructure\ABox.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\Host\Tests\ABox.Host.Tests.csproj" />
   </ItemGroup>
 
 </Project>

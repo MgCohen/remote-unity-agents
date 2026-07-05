@@ -13,6 +13,11 @@ internal sealed record Thread(
     IReadOnlyList<OpenPoint> OpenPoints,
     DateTimeOffset CreatedAt) : IEntity
 {
-    public static Thread Capture(string title) =>
-        new(Guid.NewGuid(), title, ThreadState.Active, string.Empty, null, [], [], DateTimeOffset.UtcNow);
+    public static Thread Capture(string title)
+    {
+        var trimmed = title.Trim();
+        if (trimmed.Length == 0)
+            throw new ArgumentException("A thread needs a title; pass the one-line idea being parked.", nameof(title));
+        return new(Guid.NewGuid(), trimmed, ThreadState.Active, string.Empty, null, [], [], DateTimeOffset.UtcNow);
+    }
 }

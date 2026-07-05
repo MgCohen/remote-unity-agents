@@ -1,5 +1,6 @@
 using ABox.Features.Threads;
 using ABox.Infrastructure.Storage;
+using Author = ABox.Features.Threads.Api.Author;
 using Thread = ABox.Features.Threads.Thread;
 using ThreadState = ABox.Features.Threads.Api.ThreadState;
 
@@ -24,7 +25,13 @@ public sealed class ThreadTests : IDisposable
         Assert.Null(thread.SynthesizedAt);
         Assert.Empty(thread.Entries);
         Assert.Empty(thread.OpenPoints);
+        Assert.NotEqual(default, thread.CreatedAt);
     }
+
+    [Rule("Thread.Capture rejects a blank title")]
+    [Fact]
+    public void Capture_refuses_a_blank_title() =>
+        Assert.Throws<ArgumentException>(() => Thread.Capture("   "));
 
     [Rule("Thread persisted through the repository → reloads whole from a fresh repository")]
     [Fact]
@@ -57,13 +64,20 @@ public sealed class ThreadTests : IDisposable
     [Fact]
     public async Task An_updated_thread_reloads_as_the_mutation()
     {
-        var thread = Thread.Capture("merge as archive plus receipts");
+        var at = new DateTimeOffset(2026, 7, 3, 9, 0, 0, TimeSpan.Zero);
+        var thread = Thread.Capture("merge as archive plus receipts") with
+        {
+            Entries = [new ThreadEntry(at, Author.Human, "first jot", null)],
+            OpenPoints = [new OpenPoint(Guid.NewGuid(), at, "still open")],
+        };
         await NewRepository().Add(thread);
 
         var jotted = thread with
         {
             State = ThreadState.Archived,
-            Entries = [new ThreadEntry(DateTimeOffset.UtcNow, Author.Human, "folded into thread A", null)],
+            Synthesis = "folded into thread A",
+            SynthesizedAt = at.AddDays(1),
+            Entries = [.. thread.Entries, new ThreadEntry(at.AddDays(1), Author.Human, "folded into thread A", null)],
         };
         await NewRepository().Update(jotted);
 
@@ -71,7 +85,12 @@ public sealed class ThreadTests : IDisposable
 
         Assert.NotNull(reloaded);
         Assert.Equal(ThreadState.Archived, reloaded.State);
+        Assert.Equal(jotted.Synthesis, reloaded.Synthesis);
+        Assert.Equal(jotted.SynthesizedAt, reloaded.SynthesizedAt);
         Assert.Equal(jotted.Entries, reloaded.Entries);
+        Assert.Equal(thread.Title, reloaded.Title);
+        Assert.Equal(thread.OpenPoints, reloaded.OpenPoints);
+        Assert.Equal(thread.CreatedAt, reloaded.CreatedAt);
     }
 
     public void Dispose() => Directory.Delete(_dir, recursive: true);

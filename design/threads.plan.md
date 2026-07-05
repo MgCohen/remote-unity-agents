@@ -74,7 +74,7 @@ Its everyday collisions are aligned — "pick up the thread", "losing the thread
 
 ### Capture costs one field
 
-Add takes a `Title` and nothing else. The capture moment is where the feature lives or dies — the whole point is parking a thought in one gesture — so it admits zero ceremony: every other part of the record starts empty or default (`Active`, blank synthesis, empty journal and margin) and accrues later.
+Add takes a `Title` and nothing else. The capture moment is where the feature lives or dies — the whole point is parking a thought in one gesture — so it admits zero ceremony: every other part of the record starts empty or default (`Active`, blank synthesis, empty journal and margin) and accrues later. Duplicate titles are legal — a title is a label, not an identity (unlike the Projects template's unique name), and refusing a duplicate would put a lookup between the thought and the parking.
 
 ### Merge is an archive plus receipts
 
@@ -117,9 +117,9 @@ Reuses the ratified slice shape end-to-end: `src/Features/Projects` as the endpo
 
 ### 2. Use-case endpoints
 
-status: todo
+status: done
 
-Reuses the `internal sealed` FastEndpoints shape (ADR 0011 D3), the phase-1 leaf, and the Projects endpoint idiom. Adds the remaining verb folders: `List/`, `Entries/Append/` (`At` server-stamped), `Synthesis/Put/` (also stamps `SynthesizedAt`), `OpenPoints/Add/`, `OpenPoints/Remove/` (by `OpenPoint.Id`), `State/Set/`. `List` returns `Active` threads by default; a `state` query parameter selects any single state instead. Concurrency posture, owned explicitly: mutations are read-modify-write over `IRepository<Thread>` with no version check, so a concurrent write can lose an update — accepted for v1 (single-owner workspace, the same posture every existing feature ships), revisited if v2 puts agents and humans on one thread simultaneously. **Goal:** the full thread life is drivable over HTTP. **Done when:** Wire tests cover every endpoint including the append-only guarantee (no entry update/delete surface exists) and List filtering — noting Threads is the first *co-located* Wire suite (today's Wire tests all live in `src/Host/Tests/Wire` on the `WireApp` fixture), so reuse-vs-clone of that fixture is settled at phase start; the impl assembly's only exported type is its `Module`.
+Reuses the `internal sealed` FastEndpoints shape (ADR 0011 D3), the phase-1 leaf, and the Projects endpoint idiom. Adds the remaining verb folders: `List/`, `Entries/Append/` (`At` server-stamped), `Synthesis/Put/` (also stamps `SynthesizedAt`), `OpenPoints/Add/`, `OpenPoints/Remove/` (by `OpenPoint.Id`), `State/Set/`. `List` returns `Active` threads by default; a `state` query parameter selects any single state instead. Concurrency posture, owned explicitly: mutations are read-modify-write over `IRepository<Thread>` with no version check, so a concurrent write can lose an update — accepted for v1 (single-owner workspace, the same posture every existing feature ships), revisited if v2 puts agents and humans on one thread simultaneously. **Goal:** the full thread life is drivable over HTTP. **Done when:** Wire tests cover every endpoint including the append-only guarantee (no entry update/delete surface exists) and List filtering — noting Threads is the first *co-located* Wire suite (today's Wire tests all live in `src/Host/Tests/Wire` on the `WireApp` fixture) — settled at phase start as **reuse**: `ABox.Threads.Tests` references `ABox.Host.Tests` and boots the public `WireApp` fixture, per the test-colocation rule that a suite needing another owner's fixture references that owner's test assembly; the impl assembly's only exported type is its `Module`.
 
 ### 3. The file drop zone
 

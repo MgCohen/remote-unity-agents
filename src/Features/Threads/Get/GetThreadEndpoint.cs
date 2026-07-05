@@ -20,7 +20,6 @@ internal sealed class GetThreadEndpoint(IRepository<Thread> threads) : Endpoint<
             return;
         }
 
-        await Send.OkAsync(
-            new ThreadDto(thread.Id, thread.Title, thread.State, thread.Synthesis, thread.SynthesizedAt, thread.CreatedAt), ct);
+        await Send.OkAsync(thread.ToDto(), ct);
     }
 }

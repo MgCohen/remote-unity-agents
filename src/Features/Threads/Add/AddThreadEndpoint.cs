@@ -25,9 +25,6 @@ internal sealed class AddThreadEndpoint(IRepository<Thread> threads) : Endpoint<
 
         var thread = Thread.Capture(title);
         await threads.Add(thread, ct);
-        await Send.CreatedAtAsync<GetThreadEndpoint>(
-            new { id = thread.Id },
-            new ThreadDto(thread.Id, thread.Title, thread.State, thread.Synthesis, thread.SynthesizedAt, thread.CreatedAt),
-            cancellation: ct);
+        await Send.CreatedAtAsync<GetThreadEndpoint>(new { id = thread.Id }, thread.ToDto(), cancellation: ct);
     }
 }

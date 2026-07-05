@@ -6,4 +6,6 @@ public sealed record ThreadDto(
     ThreadState State,
     string Synthesis,
     DateTimeOffset? SynthesizedAt,
+    IReadOnlyList<ThreadEntryDto> Entries,
+    IReadOnlyList<OpenPointDto> OpenPoints,
     DateTimeOffset CreatedAt);
