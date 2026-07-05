@@ -49,3 +49,17 @@ harness: ../../../../../tests/Harness/README.md
 - **Why:** state is a label, not a state machine — any of the three defined states is reachable from any
   other (archive is one call from revival by design), while an undefined value would strand the thread
   outside every view, permanently mislabeled.
+
+### PUT /threads/{id}/files/{path} → the file created at the caller-named path, rejecting escapes, refusing taken names
+- **Why:** the input decides the name — the raw body lands at the relative path in the route and that path
+  is the DocRef receipts will carry — so an escaping path is a caller error (400), a taken name is a
+  conflict the immutability rule turns loud (409), and a thread that doesn't exist takes no files (404).
+
+### GET /threads/{id}/files/{path} → the bytes as saved regardless of thread state, or 404 when absent
+- **Why:** a DocRef is permanently valid — archiving leaves the folder untouched, so a receipt's doc must
+  fetch byte-for-byte after the thread is shelved and revived, and an unknown path must say so rather
+  than fabricate.
+
+### GET /threads/{id}/files → every saved file as a folder-prefixed path
+- **Why:** the drop zone is browsable — one read shows what the thread holds, subfolders separated by
+  their path prefixes, so a session can survey the artifacts before diving into any.

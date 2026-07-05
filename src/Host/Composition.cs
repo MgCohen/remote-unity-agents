@@ -56,6 +56,7 @@ internal static class Composition
         services.AddSingleton(CodexBox.Confined());
         services.AddSingleton<IAgentFactory, AgentFactory>();
 
+        services.AddThreads();
         services.AddFlows(flows);
         services.AddSingleton<IPullRequests, StubPullRequests>();
     }

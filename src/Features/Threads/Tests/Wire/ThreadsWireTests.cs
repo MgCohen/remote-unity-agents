@@ -292,4 +292,80 @@ public sealed class ThreadsWireTests(WireApp app) : IClassFixture<WireApp>
         var fetched = await Client.GetFromJsonAsync<ThreadDto>($"/threads/{thread.Id}", WireJson.Options);
         Assert.Equal(ThreadState.Active, fetched!.State);
     }
+
+    [Rule("PUT /threads/{id}/files/{path} → the file created at the caller-named path, rejecting escapes, refusing taken names")]
+    [Fact]
+    public async Task Save_creates_the_file_at_the_named_path()
+    {
+        var thread = await Capture("drop zone");
+
+        using var res = await Client.PutAsync($"/threads/{thread.Id}/files/artifacts/sketch.md",
+            new StringContent("the storage sketch"));
+
+        Assert.Equal(HttpStatusCode.Created, res.StatusCode);
+        var dto = await res.Content.ReadFromJsonAsync<ThreadFileDto>(WireJson.Options);
+        Assert.Equal("artifacts/sketch.md", dto!.Path);
+    }
+
+    [Rule("PUT /threads/{id}/files/{path} → the file created at the caller-named path, rejecting escapes, refusing taken names")]
+    [Fact]
+    public async Task Save_rejects_escapes_taken_names_and_unknown_threads()
+    {
+        var thread = await Capture("guarded drop zone");
+        await Client.PutAsync($"/threads/{thread.Id}/files/artifacts/taken.md", new StringContent("first"));
+
+        using var escape = await Client.PutAsync($"/threads/{thread.Id}/files//etc/escape.md", new StringContent("x"));
+        using var taken = await Client.PutAsync($"/threads/{thread.Id}/files/artifacts/taken.md", new StringContent("second"));
+        using var ghost = await Client.PutAsync($"/threads/{Guid.NewGuid()}/files/artifacts/a.md", new StringContent("x"));
+
+        Assert.Equal(HttpStatusCode.BadRequest, escape.StatusCode);
+        Assert.Equal(HttpStatusCode.Conflict, taken.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, ghost.StatusCode);
+        var kept = await Client.GetStringAsync($"/threads/{thread.Id}/files/artifacts/taken.md");
+        Assert.Equal("first", kept);
+    }
+
+    [Rule("GET /threads/{id}/files/{path} → the bytes as saved regardless of thread state, or 404 when absent")]
+    [Fact]
+    public async Task A_receipts_doc_resolves_after_archive_and_revival()
+    {
+        var thread = await Capture("durable receipts");
+        await Client.PutAsync($"/threads/{thread.Id}/files/sessions/2026-07-05.jsonl",
+            new StringContent("{\"turn\":1}"));
+        await Client.PostAsJsonAsync($"/threads/{thread.Id}/entries",
+            new AppendEntryRequest(thread.Id, Author.Agent, "session receipt", "sessions/2026-07-05.jsonl"));
+
+        await Client.PutAsJsonAsync($"/threads/{thread.Id}/state", new SetStateRequest(thread.Id, ThreadState.Archived));
+        await Client.PutAsJsonAsync($"/threads/{thread.Id}/state", new SetStateRequest(thread.Id, ThreadState.Active));
+
+        var fetched = await Client.GetFromJsonAsync<ThreadDto>($"/threads/{thread.Id}", WireJson.Options);
+        var doc = Assert.Single(fetched!.Entries).Doc;
+        var bytes = await Client.GetStringAsync($"/threads/{thread.Id}/files/{doc}");
+        Assert.Equal("{\"turn\":1}", bytes);
+    }
+
+    [Rule("GET /threads/{id}/files/{path} → the bytes as saved regardless of thread state, or 404 when absent")]
+    [Fact]
+    public async Task An_absent_file_is_404()
+    {
+        var thread = await Capture("nothing here");
+
+        using var res = await Client.GetAsync($"/threads/{thread.Id}/files/artifacts/absent.md");
+
+        Assert.Equal(HttpStatusCode.NotFound, res.StatusCode);
+    }
+
+    [Rule("GET /threads/{id}/files → every saved file as a folder-prefixed path")]
+    [Fact]
+    public async Task List_files_separates_subfolders()
+    {
+        var thread = await Capture("browsable drop zone");
+        await Client.PutAsync($"/threads/{thread.Id}/files/sessions/one.jsonl", new StringContent("s"));
+        await Client.PutAsync($"/threads/{thread.Id}/files/artifacts/sketch.md", new StringContent("a"));
+
+        var listed = await Client.GetFromJsonAsync<string[]>($"/threads/{thread.Id}/files", WireJson.Options);
+
+        Assert.NotNull(listed);
+        Assert.Equal(["artifacts/sketch.md", "sessions/one.jsonl"], listed);
+    }
 }
