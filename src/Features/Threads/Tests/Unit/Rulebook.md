@@ -46,6 +46,15 @@ harness: ../../../../../tests/Harness/README.md
   folder so subfolders (sessions, artifacts, whatever comes) separate naturally, and a thread with no
   folder yet lists empty rather than erroring.
 
+### ThreadFiles refuses to read or write through a symlink out of the folder
+- **Why:** lifecycle travels with the folder, so the folder must actually contain everything reachable
+  through it — a planted symlink pointing out is refused on read, on write, and skipped in listings, and
+  a folder-shaped name (trailing separator, no filename) is a caller error, not a 500.
+
+### ThreadFiles.Save → an empty body never claims a name
+- **Why:** a name once written is immutable, so a truncated or bodyless upload must not permanently burn a
+  DocRef over zero bytes — an empty save is refused and the name stays free for a real one.
+
 ### ThreadFiles reserves the .tmp suffix for in-flight uploads
 - **Why:** uploads stage beside their target before moving into place, so the staging suffix cannot be a
   caller's name and staged or crash-orphaned files never appear in listings — the browsable drop zone

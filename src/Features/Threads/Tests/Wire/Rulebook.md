@@ -50,10 +50,11 @@ harness: ../../../../../tests/Harness/README.md
   other (archive is one call from revival by design), while an undefined value would strand the thread
   outside every view, permanently mislabeled.
 
-### PUT /threads/{id}/files/{path} → the file created at the caller-named path, rejecting escapes, refusing taken names
+### PUT /threads/{id}/files/{path} → the file created at the caller-named path, rejecting bad names, refusing taken names
 - **Why:** the input decides the name — the raw body lands at the relative path in the route and that path
-  is the DocRef receipts will carry — so an escaping path is a caller error (400), a taken name is a
-  conflict the immutability rule turns loud (409), and a thread that doesn't exist takes no files (404).
+  is the DocRef receipts will carry — so an escaping path, a folder-shaped name, or an empty body is a
+  caller error (400), a taken name is a conflict the immutability rule turns loud (409), and a thread that
+  doesn't exist takes no files (404).
 
 ### GET /threads/{id}/files/{path} → the bytes as saved regardless of thread state, or 404 when absent
 - **Why:** a DocRef is permanently valid — archiving leaves the folder untouched, so a receipt's doc must

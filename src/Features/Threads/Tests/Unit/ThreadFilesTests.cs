@@ -53,8 +53,43 @@ public sealed class ThreadFilesTests : IDisposable
         await Assert.ThrowsAsync<ArgumentException>(() => files.Save(_threadId, "/etc/steal.md", Bytes("x")));
         await Assert.ThrowsAsync<ArgumentException>(() => files.Save(_threadId, "  ", Bytes("x")));
         await Assert.ThrowsAsync<ArgumentException>(() => files.Get(_threadId, "../other/steal.md"));
+        await Assert.ThrowsAsync<ArgumentException>(() => files.Save(_threadId, "artifacts/", Bytes("x")));
+        await Assert.ThrowsAsync<ArgumentException>(() => files.Save(_threadId, "artifacts/note/", Bytes("x")));
         Assert.False(Directory.Exists(Path.Combine(_dir, "threads", "other")));
         Assert.False(Directory.Exists(Path.Combine(_dir, "threads", _threadId.ToString())));
+    }
+
+    [Rule("ThreadFiles refuses to read or write through a symlink out of the folder")]
+    [Fact]
+    public async Task Symlinked_escapes_are_refused()
+    {
+        var files = NewFiles();
+        var outside = Path.Combine(_dir, "outside");
+        Directory.CreateDirectory(outside);
+        await File.WriteAllTextAsync(Path.Combine(outside, "secret.txt"), "top secret");
+        var threadDir = Path.Combine(_dir, "threads", _threadId.ToString());
+        Directory.CreateDirectory(threadDir);
+        Directory.CreateSymbolicLink(Path.Combine(threadDir, "leak.txt"), Path.Combine(outside, "secret.txt"));
+        Directory.CreateSymbolicLink(Path.Combine(threadDir, "outdir"), outside);
+
+        await Assert.ThrowsAsync<ArgumentException>(() => files.Get(_threadId, "leak.txt"));
+        await Assert.ThrowsAsync<ArgumentException>(() => files.Get(_threadId, "outdir/secret.txt"));
+        await Assert.ThrowsAsync<ArgumentException>(() => files.Save(_threadId, "outdir/planted.md", Bytes("x")));
+        Assert.Empty(await files.List(_threadId));
+        Assert.False(File.Exists(Path.Combine(outside, "planted.md")));
+    }
+
+    [Rule("ThreadFiles.Save → an empty body never claims a name")]
+    [Fact]
+    public async Task An_empty_upload_is_refused()
+    {
+        var files = NewFiles();
+
+        await Assert.ThrowsAsync<ArgumentException>(() => files.Save(_threadId, "artifacts/empty.md", new MemoryStream()));
+
+        Assert.Null(await files.Get(_threadId, "artifacts/empty.md"));
+        var doc = await files.Save(_threadId, "artifacts/empty.md", Bytes("now it has bytes"));
+        Assert.Equal("artifacts/empty.md", doc.Path);
     }
 
     [Rule("ThreadFiles reserves the .tmp suffix for in-flight uploads")]

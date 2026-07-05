@@ -293,7 +293,7 @@ public sealed class ThreadsWireTests(WireApp app) : IClassFixture<WireApp>
         Assert.Equal(ThreadState.Active, fetched!.State);
     }
 
-    [Rule("PUT /threads/{id}/files/{path} → the file created at the caller-named path, rejecting escapes, refusing taken names")]
+    [Rule("PUT /threads/{id}/files/{path} → the file created at the caller-named path, rejecting bad names, refusing taken names")]
     [Fact]
     public async Task Save_creates_the_file_at_the_named_path()
     {
@@ -307,7 +307,7 @@ public sealed class ThreadsWireTests(WireApp app) : IClassFixture<WireApp>
         Assert.Equal("artifacts/sketch.md", dto!.Path);
     }
 
-    [Rule("PUT /threads/{id}/files/{path} → the file created at the caller-named path, rejecting escapes, refusing taken names")]
+    [Rule("PUT /threads/{id}/files/{path} → the file created at the caller-named path, rejecting bad names, refusing taken names")]
     [Fact]
     public async Task Save_rejects_escapes_taken_names_and_unknown_threads()
     {
@@ -315,10 +315,14 @@ public sealed class ThreadsWireTests(WireApp app) : IClassFixture<WireApp>
         await Client.PutAsync($"/threads/{thread.Id}/files/artifacts/taken.md", new StringContent("first"));
 
         using var escape = await Client.PutAsync($"/threads/{thread.Id}/files//etc/escape.md", new StringContent("x"));
+        using var folderName = await Client.PutAsync($"/threads/{thread.Id}/files/artifacts/", new StringContent("x"));
+        using var empty = await Client.PutAsync($"/threads/{thread.Id}/files/artifacts/empty.md", new StringContent(""));
         using var taken = await Client.PutAsync($"/threads/{thread.Id}/files/artifacts/taken.md", new StringContent("second"));
         using var ghost = await Client.PutAsync($"/threads/{Guid.NewGuid()}/files/artifacts/a.md", new StringContent("x"));
 
         Assert.Equal(HttpStatusCode.BadRequest, escape.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, folderName.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, empty.StatusCode);
         Assert.Equal(HttpStatusCode.Conflict, taken.StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, ghost.StatusCode);
         var kept = await Client.GetStringAsync($"/threads/{thread.Id}/files/artifacts/taken.md");
@@ -336,12 +340,17 @@ public sealed class ThreadsWireTests(WireApp app) : IClassFixture<WireApp>
             new AppendEntryRequest(thread.Id, Author.Agent, "session receipt", "sessions/2026-07-05.jsonl"));
 
         await Client.PutAsJsonAsync($"/threads/{thread.Id}/state", new SetStateRequest(thread.Id, ThreadState.Archived));
-        await Client.PutAsJsonAsync($"/threads/{thread.Id}/state", new SetStateRequest(thread.Id, ThreadState.Active));
 
-        var fetched = await Client.GetFromJsonAsync<ThreadDto>($"/threads/{thread.Id}", WireJson.Options);
-        var doc = Assert.Single(fetched!.Entries).Doc;
-        var bytes = await Client.GetStringAsync($"/threads/{thread.Id}/files/{doc}");
-        Assert.Equal("{\"turn\":1}", bytes);
+        var archived = await Client.GetFromJsonAsync<ThreadDto>($"/threads/{thread.Id}", WireJson.Options);
+        var doc = Assert.Single(archived!.Entries).Doc;
+        Assert.Equal(ThreadState.Archived, archived.State);
+        var whileShelved = await Client.GetStringAsync($"/threads/{thread.Id}/files/{doc}");
+
+        await Client.PutAsJsonAsync($"/threads/{thread.Id}/state", new SetStateRequest(thread.Id, ThreadState.Active));
+        var afterRevival = await Client.GetStringAsync($"/threads/{thread.Id}/files/{doc}");
+
+        Assert.Equal("{\"turn\":1}", whileShelved);
+        Assert.Equal("{\"turn\":1}", afterRevival);
     }
 
     [Rule("GET /threads/{id}/files/{path} → the bytes as saved regardless of thread state, or 404 when absent")]
@@ -367,5 +376,14 @@ public sealed class ThreadsWireTests(WireApp app) : IClassFixture<WireApp>
 
         Assert.NotNull(listed);
         Assert.Equal(["artifacts/sketch.md", "sessions/one.jsonl"], listed);
+    }
+
+    [Rule("GET /threads/{id}/files → every saved file as a folder-prefixed path")]
+    [Fact]
+    public async Task List_files_404s_for_an_unknown_thread()
+    {
+        using var res = await Client.GetAsync($"/threads/{Guid.NewGuid()}/files");
+
+        Assert.Equal(HttpStatusCode.NotFound, res.StatusCode);
     }
 }
