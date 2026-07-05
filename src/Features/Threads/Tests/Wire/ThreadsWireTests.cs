@@ -7,7 +7,7 @@ using ThreadState = ABox.Features.Threads.Api.ThreadState;
 
 namespace ABox.Threads.Tests.Wire;
 
-public class ThreadsWireTests(WireApp app) : IClassFixture<WireApp>
+public sealed class ThreadsWireTests(WireApp app) : IClassFixture<WireApp>
 {
     private HttpClient Client => app.CreateClient();
 
