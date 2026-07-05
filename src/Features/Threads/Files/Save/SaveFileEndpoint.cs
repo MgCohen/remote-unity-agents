@@ -24,20 +24,24 @@ internal sealed class SaveFileEndpoint(IRepository<Thread> threads, IThreadFiles
             return;
         }
 
+        DocRef doc;
         try
         {
-            var doc = await files.Save(id, path, HttpContext.Request.Body, ct);
-            await Send.CreatedAtAsync<GetFileEndpoint>(new { id, path = doc.Path }, new ThreadFileDto(doc.Path), cancellation: ct);
+            doc = await files.Save(id, path, HttpContext.Request.Body, ct);
         }
         catch (ArgumentException ex)
         {
             AddError(ex.Message);
             await Send.ErrorsAsync(400, ct);
+            return;
         }
         catch (InvalidOperationException ex)
         {
             AddError(ex.Message);
             await Send.ErrorsAsync(409, ct);
+            return;
         }
+
+        await Send.CreatedAtAsync<GetFileEndpoint>(new { id, path = doc.Path }, new ThreadFileDto(doc.Path), cancellation: ct);
     }
 }

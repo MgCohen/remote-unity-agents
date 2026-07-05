@@ -53,7 +53,23 @@ public sealed class ThreadFilesTests : IDisposable
         await Assert.ThrowsAsync<ArgumentException>(() => files.Save(_threadId, "/etc/steal.md", Bytes("x")));
         await Assert.ThrowsAsync<ArgumentException>(() => files.Save(_threadId, "  ", Bytes("x")));
         await Assert.ThrowsAsync<ArgumentException>(() => files.Get(_threadId, "../other/steal.md"));
-        Assert.False(Directory.Exists(Path.Combine(_dir, "other")));
+        Assert.False(Directory.Exists(Path.Combine(_dir, "threads", "other")));
+        Assert.False(Directory.Exists(Path.Combine(_dir, "threads", _threadId.ToString())));
+    }
+
+    [Rule("ThreadFiles reserves the .tmp suffix for in-flight uploads")]
+    [Fact]
+    public async Task The_tmp_suffix_is_reserved_and_never_listed()
+    {
+        var files = NewFiles();
+        await Assert.ThrowsAsync<ArgumentException>(() => files.Save(_threadId, "artifacts/note.TMP", Bytes("x")));
+
+        await files.Save(_threadId, "artifacts/real.md", Bytes("kept"));
+        var orphan = Path.Combine(_dir, "threads", _threadId.ToString(), "artifacts", ".crashed.abc123.tmp");
+        await File.WriteAllTextAsync(orphan, "leftover");
+
+        Assert.Equal(["artifacts/real.md"], await files.List(_threadId));
+        await Assert.ThrowsAsync<ArgumentException>(() => files.Get(_threadId, "artifacts/.crashed.abc123.tmp"));
     }
 
     [Rule("ThreadFiles.List → every file as a folder-prefixed relative path")]
@@ -61,14 +77,14 @@ public sealed class ThreadFilesTests : IDisposable
     public async Task List_returns_folder_prefixed_paths()
     {
         var files = NewFiles();
-        Assert.Empty(files.List(_threadId));
+        Assert.Empty(await files.List(_threadId));
         await files.Save(_threadId, "sessions/one.jsonl", Bytes("s"));
         await files.Save(_threadId, "artifacts/sketch.md", Bytes("a"));
 
-        var listed = files.List(_threadId);
+        var listed = await files.List(_threadId);
 
         Assert.Equal(["artifacts/sketch.md", "sessions/one.jsonl"], listed);
-        Assert.Empty(NewFiles().List(Guid.NewGuid()));
+        Assert.Empty(await NewFiles().List(Guid.NewGuid()));
     }
 
     public void Dispose() => Directory.Delete(_dir, recursive: true);

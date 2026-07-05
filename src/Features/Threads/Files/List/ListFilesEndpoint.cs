@@ -1,9 +1,10 @@
 using FastEndpoints;
+using ABox.Features.Threads.Api;
 using ABox.Infrastructure.Storage;
 
 namespace ABox.Features.Threads.Files.List;
 
-internal sealed class ListFilesEndpoint(IRepository<Thread> threads, IThreadFiles files) : EndpointWithoutRequest<IReadOnlyList<string>>
+internal sealed class ListFilesEndpoint(IRepository<Thread> threads, IThreadFiles files) : Endpoint<ThreadByIdRequest, IReadOnlyList<string>>
 {
     public override void Configure()
     {
@@ -11,16 +12,14 @@ internal sealed class ListFilesEndpoint(IRepository<Thread> threads, IThreadFile
         AllowAnonymous();
     }
 
-    public override async Task HandleAsync(CancellationToken ct)
+    public override async Task HandleAsync(ThreadByIdRequest req, CancellationToken ct)
     {
-        var id = Route<Guid>("id");
-
-        if (await threads.GetById(id, ct) is null)
+        if (await threads.GetById(req.Id, ct) is null)
         {
             await Send.NotFoundAsync(ct);
             return;
         }
 
-        await Send.OkAsync(files.List(id), ct);
+        await Send.OkAsync(await files.List(req.Id, ct), ct);
     }
 }

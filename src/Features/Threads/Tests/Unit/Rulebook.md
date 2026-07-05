@@ -45,3 +45,8 @@ harness: ../../../../../tests/Harness/README.md
 - **Why:** the drop zone is browsable by construction — listing returns paths relative to the thread's
   folder so subfolders (sessions, artifacts, whatever comes) separate naturally, and a thread with no
   folder yet lists empty rather than erroring.
+
+### ThreadFiles reserves the .tmp suffix for in-flight uploads
+- **Why:** uploads stage beside their target before moving into place, so the staging suffix cannot be a
+  caller's name and staged or crash-orphaned files never appear in listings — the browsable drop zone
+  shows only what was deliberately saved.

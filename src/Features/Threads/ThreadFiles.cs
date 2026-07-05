@@ -7,10 +7,10 @@ internal sealed class ThreadFiles(StorageRoot root) : IThreadFiles
     public async Task<DocRef> Save(Guid threadId, string path, Stream content, CancellationToken ct = default)
     {
         var (folder, file) = Resolve(threadId, path);
+        if (File.Exists(file)) throw Taken(threadId, folder, file);
         Directory.CreateDirectory(Path.GetDirectoryName(file)!);
 
-        // Written whole-then-moved so a failed upload never claims a name: Move refuses an existing
-        // destination, which is the no-overwrite rule enforced against the filesystem alone.
+        // Staged whole, then moved: a failed upload never claims the name (same-name races stay the accepted lost-update posture).
         var tmp = Path.Combine(Path.GetDirectoryName(file)!, $".{Path.GetFileName(file)}.{Guid.NewGuid():N}.tmp");
         try
         {
@@ -20,13 +20,11 @@ internal sealed class ThreadFiles(StorageRoot root) : IThreadFiles
         }
         catch (IOException) when (File.Exists(file))
         {
-            throw new InvalidOperationException(
-                $"'{Relative(folder, file)}' is already written on thread {threadId}; a name, once written, " +
-                "is immutable — save the revision under a new name.");
+            throw Taken(threadId, folder, file);
         }
         finally
         {
-            if (File.Exists(tmp)) File.Delete(tmp);
+            File.Delete(tmp);
         }
 
         return new DocRef(Relative(folder, file));
@@ -38,17 +36,24 @@ internal sealed class ThreadFiles(StorageRoot root) : IThreadFiles
         return Task.FromResult<Stream?>(File.Exists(file) ? File.OpenRead(file) : null);
     }
 
-    public IReadOnlyList<string> List(Guid threadId)
+    public Task<IReadOnlyList<string>> List(Guid threadId, CancellationToken ct = default)
     {
         var folder = ThreadFolder(threadId);
-        if (!Directory.Exists(folder)) return [];
-        return [.. Directory
+        if (!Directory.Exists(folder)) return Task.FromResult<IReadOnlyList<string>>([]);
+        return Task.FromResult<IReadOnlyList<string>>([.. Directory
             .EnumerateFiles(folder, "*", SearchOption.AllDirectories)
+            .Where(f => !IsStaging(f))
             .Select(f => Relative(folder, f))
-            .OrderBy(f => f, StringComparer.Ordinal)];
+            .OrderBy(f => f, StringComparer.Ordinal)]);
     }
 
+    private static InvalidOperationException Taken(Guid threadId, string folder, string file) => new(
+        $"'{Relative(folder, file)}' is already written on thread {threadId}; a name, once written, " +
+        "is immutable — save the revision under a new name.");
+
     private string ThreadFolder(Guid threadId) => Path.Combine(root.Folder, "threads", threadId.ToString());
+
+    private static bool IsStaging(string path) => path.EndsWith(".tmp", StringComparison.OrdinalIgnoreCase);
 
     private (string Folder, string File) Resolve(Guid threadId, string path)
     {
@@ -56,6 +61,8 @@ internal sealed class ThreadFiles(StorageRoot root) : IThreadFiles
             throw new ArgumentException("A file needs a name; pass a path relative to the thread's folder, e.g. 'artifacts/sketch.md'.", nameof(path));
         if (Path.IsPathRooted(path))
             throw new ArgumentException($"'{path}' is absolute; a thread file's path is relative to the thread's folder.", nameof(path));
+        if (IsStaging(path))
+            throw new ArgumentException($"'{path}' ends in '.tmp', the suffix reserved for in-flight uploads; pick another name.", nameof(path));
 
         var folder = ThreadFolder(threadId);
         var file = Path.GetFullPath(Path.Combine(folder, path));
