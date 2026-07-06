@@ -48,9 +48,10 @@ public sealed class DocEngineValidationTests
     private static readonly string[] NestedGuide =
     {
         "---", "docType: guide", "---", "",
-        "## Summary", "A how-to.", "",
+        "## Summary", "<!-- id: summary -->", "A how-to.", "",
         "## Procedures",
         "### Doing a thing",
+        "<!-- id: doing-a-thing -->",
         "**Context:** c.",
         "",
         "##### 1. First step", "- **Condition:** only sometimes", "Do the first thing.",
@@ -118,6 +119,81 @@ public sealed class DocEngineValidationTests
         Assert.Contains(Validate(lines), e => e.Contains("requires at least one step", StringComparison.Ordinal));
     }
 
+    [Rule("DocValidator.Validate → flags a block with no explicit id handle")]
+    [Fact]
+    public void Validate_rejects_a_block_missing_its_id()
+    {
+        var lines = NestedGuide.Where(l => l != "<!-- id: doing-a-thing -->").ToArray();
+
+        Assert.Contains(Validate(lines), e => e.Contains("needs a stable", StringComparison.Ordinal));
+    }
+
+    private static readonly string[] Unstamped =
+    {
+        "---", "docType: feature-plan", "status: draft", "---", "",
+        "## Summary", "List threads.", "",
+        "## Phases",
+        "### Wire the store", "status: todo", "", "Reuses x. Adds y. Done when z.",
+        "### Wire the store", "status: todo", "", "Reuses a. Adds b. Done when c.",
+        "## Verification", "Run it.",
+    };
+
+    private static string[] Stamp(string[] lines) =>
+        Ids.Stamp(lines, Catalog.LoadBlocks(EngineRoot)).ToArray();
+
+    [Rule("Ids.Stamp → fills every block missing an id, and a stamped doc then validates")]
+    [Fact]
+    public void Ids_stamp_makes_an_unstamped_doc_valid()
+    {
+        var stamped = Stamp(Unstamped);
+
+        Assert.Contains("<!-- id: b1 -->", stamped);
+        Assert.Empty(Validate(stamped));
+    }
+
+    [Rule("Ids.Stamp → is idempotent: a second pass changes nothing")]
+    [Fact]
+    public void Ids_stamp_is_idempotent()
+    {
+        var once = Stamp(Unstamped);
+
+        Assert.Equal(once, Stamp(once));
+    }
+
+    [Rule("Ids.Stamp → gives every block a distinct sequential handle")]
+    [Fact]
+    public void Ids_stamp_numbers_every_block_distinctly()
+    {
+        var ids = Stamp(Unstamped).Where(l => l.StartsWith("<!-- id:", StringComparison.Ordinal)).ToArray();
+
+        Assert.Equal(new[] { "<!-- id: b1 -->", "<!-- id: b2 -->", "<!-- id: b3 -->", "<!-- id: b4 -->" }, ids);
+    }
+
+    [Rule("Ids.Stamp → an existing id survives a retitle, so a reference never breaks")]
+    [Fact]
+    public void Ids_stamp_preserves_an_id_across_a_retitle()
+    {
+        var stamped = Stamp(Unstamped);
+        var retitled = stamped.Select(l => l == "### Wire the store" ? "### Persist threads to disk" : l).ToArray();
+
+        Assert.Equal(retitled, Stamp(retitled));
+    }
+
+    [Rule("Ids.Stamp → the handle is a short opaque id carrying nothing of the title")]
+    [Fact]
+    public void Ids_stamp_id_is_a_short_opaque_handle()
+    {
+        var lines = new[]
+        {
+            "---", "docType: rulebook", "testType: unit", "rubric: r", "---", "",
+            "## Rules",
+            "### DocValidator.Validate → no errors, really!", "- **Why:** x.",
+        };
+
+        var id = Stamp(lines).First(l => l.StartsWith("<!-- id:", StringComparison.Ordinal));
+        Assert.Matches(@"^<!-- id: b\d+ -->$", id);
+    }
+
     [Rule("DocValidator.Validate → flags an onChange path outside the allowlisted roots")]
     [Fact]
     public void Validate_rejects_an_onchange_outside_the_allowlist()
@@ -128,6 +204,71 @@ public sealed class DocEngineValidationTests
         Assert.Contains(Validate(lines.ToArray()), e => e.Contains("onChange", StringComparison.Ordinal));
     }
 
+    [Rule("DocValidator.Warnings → flags an undeclared front-matter key without failing validation")]
+    [Fact]
+    public void Warnings_flag_an_undeclared_front_matter_key()
+    {
+        var lines = new[] { "---", "docType: feature-plan", "source: chat", "---", "" };
+        var dt = Catalog.LoadDoctype(EngineRoot, "feature-plan");
+        var fm = InstanceParser.ParseFrontmatter(lines);
+
+        Assert.Contains(DocValidator.Warnings(dt, fm), w => w.Contains("'source'", StringComparison.Ordinal));
+        Assert.DoesNotContain(Validate(lines), e => e.Contains("source", StringComparison.Ordinal));
+    }
+
+    [Rule("DocValidator.Warnings → declared attrs and the universal keys warn nothing")]
+    [Fact]
+    public void Warnings_stay_silent_for_declared_and_universal_keys()
+    {
+        var lines = new[] { "---", "docType: feature-plan", "status: draft", "onChange: scripts/x.sh", "---", "" };
+
+        Assert.Empty(DocValidator.Warnings(
+            Catalog.LoadDoctype(EngineRoot, "feature-plan"),
+            InstanceParser.ParseFrontmatter(lines)));
+    }
+
+    private static readonly string[] PlanWithPhases =
+    {
+        "---", "docType: feature-plan", "---", "",
+        "## Summary", "A plan.", "",
+        "## Phases",
+        "### First", "status: todo", "", "Do it.",
+        "### Second", "status: todo", "", "Prove it.",
+        "",
+        "## Verification", "Run it end to end.",
+    };
+
+    private static IReadOnlyList<string> GradingFor(string[] lines)
+    {
+        var defs = Catalog.LoadBlocks(EngineRoot);
+        var dt = Catalog.LoadDoctype(EngineRoot, InstanceParser.DoctypeOf("doc.md", lines));
+        var (blocks, _) = InstanceParser.Parse(lines, defs);
+        return Grading.Sections(dt, defs, blocks);
+    }
+
+    [Rule("Grading.Sections → the doc section first, then one focused section per block type present")]
+    [Fact]
+    public void Grading_plans_a_doc_section_then_one_per_present_block_type()
+    {
+        var sections = GradingFor(PlanWithPhases);
+
+        Assert.StartsWith("=== doc feature-plan\ncoverage:", sections[0], StringComparison.Ordinal);
+        var phase = Assert.Single(sections, s => s.StartsWith("=== block phase", StringComparison.Ordinal));
+        Assert.Contains("(First; Second)", phase, StringComparison.Ordinal);
+        Assert.Contains("\nreuse-first:", phase, StringComparison.Ordinal);
+        Assert.DoesNotContain("coverage:", phase, StringComparison.Ordinal);
+    }
+
+    [Rule("Grading.Sections → a block type absent from the instance contributes no section")]
+    [Fact]
+    public void Grading_omits_absent_block_types() =>
+        Assert.DoesNotContain(GradingFor(PlanWithPhases), s => s.StartsWith("=== block decision", StringComparison.Ordinal));
+
+    [Rule("Grading.Sections → nested children's block types get their own section")]
+    [Fact]
+    public void Grading_includes_nested_child_sections() =>
+        Assert.Contains(GradingFor(NestedGuide), s => s.StartsWith("=== block step", StringComparison.Ordinal));
+
     [Rule("SchemaChecker.Run → no errors for the shipped catalog")]
     [Fact]
     public void SchemaChecker_passes_the_shipped_catalog() =>
@@ -136,7 +277,7 @@ public sealed class DocEngineValidationTests
     [Rule("Reviewers.Resolve → defaults to the judge for a docType that declares none")]
     [Fact]
     public void Reviewers_default_to_the_judge() =>
-        Assert.Equal(new[] { "judge" }, Reviewers.Resolve(Catalog.LoadDoctype(EngineRoot, "feature-plan")));
+        Assert.Equal(new[] { "judge" }, Reviewers.Resolve(Catalog.LoadDoctype(EngineRoot, "rulebook")));
 
     [Rule("Reviewers.Resolve → returns the docType's declared reviewers when present")]
     [Fact]

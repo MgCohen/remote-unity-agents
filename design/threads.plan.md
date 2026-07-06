@@ -19,10 +19,12 @@ status: draft
 <!-- INDEX:END -->
 
 ## Summary
+<!-- id: b1 -->
 
 Build **Threads**: a workspace-level surface for the ideas that come *before* tasks, bugs, or spikes — quick annotations we park, keep talking about across agent sessions, and eventually turn into work or shelve. A thread carries four sub-surfaces with distinct mutation disciplines: a rewritable **synthesis** (where we are), an append-only **journal** of deliberate entries (what happened, per session or per jot), a disposable **open-points** margin (what's still unresolved), and a per-thread **file drop zone** (session transcripts + arbitrary artifacts). It ships as a fully self-contained vertical slice at `src/Features/Threads` — no `Domain/` folder, no dependency beyond `ABox.Infrastructure` — with HTTP use-cases for capture, annotation, synthesis, open points, state, and files. Done means the slice builds warning-free, its co-located Rulebook tests are green in `dirs.proj`, and a thread's full life — capture → jot → artifact → session receipt → synthesis rewrite → archive → revive — runs end-to-end over HTTP and survives a host restart.
 
 ## Context
+<!-- id: b2 -->
 
 The workspace already has surfaces for work-shaped and interruption-shaped items, but nothing for the stage before either. `src/Features/Inbox` (over `src/Domain/Inbox`) is the transient feed of notifications and decision items — things that arrive, get seen, get completed. `src/Domain/Decisions` gates producers on a human answer. Flows (`src/Features/Flows`) execute committed work. An idea that is *deliberately undecided* — "we keep talking about it until we know what it becomes" — has no home: it either rots in a chat transcript or gets prematurely forced into a task shape.
 
@@ -31,6 +33,7 @@ The building blocks the slice needs all exist. `src/Infrastructure/Storage/JsonR
 ## Scope
 
 ### In scope
+<!-- id: b3 -->
 
 - The `Thread` record and its sub-surfaces: `ThreadEntry` journal, `OpenPoint` margin, `Synthesis` + `SynthesizedAt`, `ThreadState`.
 - The `src/Features/Threads` slice: `ThreadsModule`, `ABox.Threads.Api` leaf, use-case endpoints — Add, Get, List (state filter), Entries/Append, Synthesis/Put, OpenPoints/Add, OpenPoints/Remove, State/Set.
@@ -38,6 +41,7 @@ The building blocks the slice needs all exist. `src/Infrastructure/Storage/JsonR
 - Co-located tests (`src/Features/Threads/Tests`, assembly `ABox.Threads.Tests`) with their Rulebooks.
 
 ### Out of scope
+<!-- id: b4 -->
 
 - **Session choreography** — how an agent session on a thread starts, runs, and wraps up. Sketched as a phase here; its real design is the first open question and gets its own document before that phase starts.
 - **Relations** — no `ProjectId`, no tags/labels in v1. Threads are workspace-global; linking to `src/Features/Projects` (or anything else) is a later decision with its own trade-offs (reference vs nesting vs spanning).
@@ -49,46 +53,57 @@ The building blocks the slice needs all exist. `src/Infrastructure/Storage/JsonR
 ## Decisions
 
 ### The noun is Thread
+<!-- id: b5 -->
 
 Its everyday collisions are aligned — "pick up the thread", "losing the thread" mean exactly this feature — so conversational routing between human and agents stays unambiguous; the one divergent collision (`System.Threading.Thread`) lives in code, where namespaces and the compiler police it mechanically. Rejected: *Topic* (divergent conversational collisions — "research that topic"), *Scratchpad* (collides with agent temp-workspace vocabulary inside this very product, and names the surface, not the unit), *Idea* (names the seed, not the ongoing record).
 
 ### State is a minimal reversible enum
+<!-- id: b6 -->
 
 `ThreadState { Active, Completed, Archived }` — `Completed` = served its purpose (spawned work or reached clarity), `Archived` = shelved, didn't work or not now. Every transition is legal, so the enum is a label, not a state machine — no guard code, no terminal states, no outcome payloads. What a thread *became* is recorded as journal entries (a spawn is an event, not a state — one thread can spawn five features and keep living).
 
 ### An entry is a deliberate annotation, never a transcript dump
+<!-- id: b7 -->
 
 `ThreadEntry(At, Author, Summary, Doc?)` with `Author { Human, Agent }`. The journal is append-only and holds only what someone chose to write down: a quick **jot** (`Doc` null) or a **session receipt** — a one-to-two-line summary plus a `DocRef` to the full transcript stored in the thread's `sessions/` folder. Auto-captured message-by-message logging is explicitly rejected: it produces a journal nobody re-reads, and re-reading is the memory feature.
 
 ### Open points are a disposable margin, not tracked items
+<!-- id: b8 -->
 
 `OpenPoint(Id, At, Text)` — added in one gesture from anywhere ("this reminds me of thread X — must check Y"), removed when resolved. No resolved-flags, no lifecycle, no history in the list: the resolution lands in the journal, the margin forgets. The `Id` exists solely so removal is unambiguous — `At` and `Text` carry no identity, and remove-by-index or remove-by-text behave differently under duplicates. The timestamp is kept only so staleness ("open since May") is visible at rehydration. This is what makes a long-lived thread's next session start with an agenda instead of a journal re-scan.
 
 ### Files live in a per-thread folder behind a port
+<!-- id: b9 -->
 
 `<StorageRoot>/threads/<threadId>/sessions/` and `.../artifacts/` (plus further subfolders as needed), accessed only through `IThreadFiles { Save, Get, List }`. An artifact has exactly one owner, ever — drop-zone semantics — so lifecycle travels with the folder: promote = move it, archive = leave it, remove = delete it, no reference-count lookups. `DocRef(Path)` is relative to the thread's folder and never carries a root, so refs survive folder moves and a future storage-medium swap (filesystem now; blob store or database later is an `IThreadFiles` implementation change touching zero records). One rule replaces an integrity subsystem: **a name, once written, is immutable** — `Save` rejects any overwrite of an existing name, enforced in the port against the filesystem alone (no aggregate lookup), which makes every `DocRef` ever appended permanently valid; a rename or revision is a new file.
 
 ### Synthesis: agent drafts, human owns
+<!-- id: b10 -->
 
 `Synthesis` is a plain mutable string with `SynthesizedAt` — the "where are we" an agent or human reads first when picking the thread back up. At session wrap-up the agent proposes a rewrite; the human accepts, edits, or rewrites at any time. The domain stays dumb (one PUT); authorship is session choreography, not schema.
 
 ### Capture costs one field
+<!-- id: b11 -->
 
 Add takes a `Title` and nothing else. The capture moment is where the feature lives or dies — the whole point is parking a thought in one gesture — so it admits zero ceremony: every other part of the record starts empty or default (`Active`, blank synthesis, empty journal and margin) and accrues later. Duplicate titles are legal — a title is a label, not an identity (unlike the Projects template's unique name), and refusing a duplicate would put a lookup between the thought and the parking.
 
 ### Merge is an archive plus receipts
+<!-- id: b12 -->
 
 Folding thread B into thread A is two ordinary operations, not a mechanism: append an entry to A summarizing what B contributed, append an entry to B pointing at A, set B `Archived`. Nothing moves — B's journal and folder stay intact, so every `DocRef` in both threads survives, and B remains one toggle from revival if the merge was wrong.
 
 ### Extraction copies, never moves
+<!-- id: b13 -->
 
 When a thread spawns work — one feature or five — whatever travels out (notes, artifacts, conclusions) is copied; the thread keeps its complete journal and folder as the provenance of what it spawned, recorded as an entry linking to the spawned work. Spawning changes nothing about the thread; it continues or goes quiet on its own.
 
 ### Fully self-contained slice — no Domain folder, no relations
+<!-- id: b14 -->
 
 Everything the feature owns lives in `src/Features/Threads`: wire DTOs in `ABox.Threads.Api` (ADR 0014), endpoints `internal sealed` behind the one public `ThreadsModule` (ADR 0011), and the records in the impl assembly itself. That last placement is a **deliberate first**, not ADR-ratified — the ADRs place only wire types, and the existing template keeps its record public in `src/Domain/Projects` — so Threads is the first slice with no Domain folder at all. The arch model permits it (`Features → Domain` is an allow-edge, not a requirement), and it carries two owned consequences: the impl grants `InternalsVisibleTo` to `ABox.Threads.Tests` (records are internal under the export-only-Module rule; no feature impl grants this today), and `ThreadState` is declared public in the Api leaf with the impl referencing its own leaf (the Projects pattern), because a dependency-free leaf cannot see an internal enum. v1 depends only on `ABox.Infrastructure` (storage). No `ProjectId`, no `Tags` on the record — threads sit beside projects as a workspace-level surface, the same altitude Inbox occupies; any relation (reference, nesting, or spanning) is a future decision added when a real filtering need exists, not a nullable field parked in v1.
 
 ### The v1 record
+<!-- id: b15 -->
 
 ```csharp
 sealed record Thread(
@@ -110,18 +125,21 @@ One aggregate, persisted whole via `JsonRepository<Thread>` as `thread.json` (th
 ## Phases
 
 ### 1. Slice skeleton, record, storage
+<!-- id: b16 -->
 
 status: done
 
 Reuses the ratified slice shape end-to-end: `src/Features/Projects` as the endpoint/leaf template, `JsonRepository<T>` + `StorageRoot` for persistence (the open-generic `IRepository<>` registration in `src/Host/Composition.cs` already covers `IRepository<Thread>`), and the `new-feature-tests` skill to stand up `src/Features/Threads/Tests` (`ABox.Threads.Tests`) with its Unit Rulebook. Adds the `ABox.Threads` impl project with the v1 records and `InternalsVisibleTo("ABox.Threads.Tests")`, `ThreadsModule` (the one public anchor exposing `EndpointsAssembly`), **and — in this phase, not phase 2 — the `ABox.Threads.Api` leaf plus the `Add/` and `Get/` endpoints**, because the structure/arch guards bind the moment the csproj exists — a feature must carry at least one leaf and at least one endpoint (`tests/Central/Structure` one-impl-plus-leaves rule; the endpoint-count assertion in `tests/Central/Arch/RuleTests.cs`) — and `Get/` rides along because the repo's 201 idiom (`Send.CreatedAtAsync`) needs a Get target for the Location header, and restart survival is only observable over HTTP with a read. Two protected-path touches are inherent to this phase, not accidents: registering the two projects in `ABox.slnx` (review tier) and landing the Rulebook (`src/**/Tests/**/Rulebook.md`, critical tier) — every phase of this plan ships behind owner review by design. **Goal:** a `Thread` is capturable and durable. **Done when:** a thread created over HTTP via Add survives a Host restart; repository round-trip (add, mutate via with-expressions, update, reload) is proven by Rulebook-paired unit tests; `dotnet build ABox.slnx` is warning-free; the full `dotnet test dirs.proj` is green, arch/structure guards included.
 
 ### 2. Use-case endpoints
+<!-- id: b17 -->
 
 status: done
 
 Reuses the `internal sealed` FastEndpoints shape (ADR 0011 D3), the phase-1 leaf, and the Projects endpoint idiom. Adds the remaining verb folders: `List/`, `Entries/Append/` (`At` server-stamped), `Synthesis/Put/` (also stamps `SynthesizedAt`), `OpenPoints/Add/`, `OpenPoints/Remove/` (by `OpenPoint.Id`), `State/Set/`. `List` returns `Active` threads by default; a `state` query parameter selects any single state instead. Concurrency posture, owned explicitly: mutations are read-modify-write over `IRepository<Thread>` with no version check, so a concurrent write can lose an update — accepted for v1 (single-owner workspace, the same posture every existing feature ships), revisited if v2 puts agents and humans on one thread simultaneously. **Goal:** the full thread life is drivable over HTTP. **Done when:** Wire tests cover every endpoint including the append-only guarantee (no entry update/delete surface exists) and List filtering — noting Threads is the first *co-located* Wire suite (today's Wire tests all live in `src/Host/Tests/Wire` on the `WireApp` fixture) — settled at phase start as **reuse**: `ABox.Threads.Tests` references `ABox.Host.Tests` and boots the public `WireApp` fixture, per the `new-feature-tests` skill's ownership rule that a suite needing another owner's fixture references that owner's test assembly (`WireApp` cannot promote to the central Harness, which is zero-dependency by ADR 0015 while `WireApp` references the Host production assembly); the impl assembly's only exported type is its `Module`.
 
 ### 3. The file drop zone
+<!-- id: b18 -->
 
 status: done
 
@@ -130,6 +148,7 @@ The spec pass is settled (the repo had zero file-I/O precedent, so six calls pre
 Reuses `StorageRoot` for pathing and the phase-1/2 endpoint shape. Adds `IThreadFiles` + its filesystem implementation (`threads/<id>/sessions/…`, `threads/<id>/artifacts/…`, further subfolders open), `DocRef` resolution against the owning thread, and `Files/Save/`, `Files/Get/`, `Files/List/` endpoints. **Goal:** transcripts and artifacts drop into the thread and are referenceable from entries. **Done when:** a saved file round-trips by `DocRef`; an entry holding a `DocRef` still resolves after the thread is archived and reactivated; listing separates subfolders; tests pin the no-overwrite rule (`Save` over any existing name is rejected).
 
 ### 4. Session choreography
+<!-- id: b19 -->
 
 status: blocked
 
@@ -138,6 +157,7 @@ status: blocked
 Reuses the existing agent machinery (`src/Domain/Agents` — Claude/Codex drivers, session continuity) strictly through a contract seam, keeping the slice's independence. Adds, at wrap-up: transcript written to `sessions/` via `IThreadFiles`, a receipt `ThreadEntry` appended (summary + `DocRef`), and a proposed `Synthesis` rewrite for the human to accept or edit. Sessions *happen* in machinery that already exists — the slice only stores their receipts, which is why v1–v3 carry no agent dependency at all. **Goal:** picking up a thread launches a conversation that ends with all three artifacts written. **Done when:** one real session on a real thread produces transcript + receipt + synthesis proposal without manual steps.
 
 ### 5. Nudges and recall
+<!-- id: b20 -->
 
 status: todo
 
@@ -146,6 +166,7 @@ caveat: deliberately deferred — do not start until threads have accumulated in
 Reuses the Inbox feed (`src/Features/Inbox`) by making Threads a producer — e.g. "3 open points, untouched for 30 days" falls into the inbox as a note. Adds staleness surfacing and whatever recall the accumulated corpus actually demands (tag/text filter before anything semantic). **Goal:** parked threads resurface themselves instead of relying on human memory. **Done when:** scoped at kickoff from observed usage.
 
 ## Verification
+<!-- id: b21 -->
 
 - `dotnet build ABox.slnx` — warning-free (warnings-as-errors stays on).
 - `dotnet test dirs.proj` — the full suite: the new `ABox.Threads.Tests` Rulebook types (Unit, Wire) discovered via the traversal glob, plus the Arch/Structure guards proving the slice conforms (only `ThreadsModule` exported, endpoints `internal sealed`, leaf purity).
@@ -154,18 +175,21 @@ Reuses the Inbox feed (`src/Features/Inbox`) by making Threads a producer — e.
 ## Open Questions
 
 ### How does an agent session on a thread start, run, and end?
+<!-- id: b22 -->
 
 lean: run sessions on the existing agent/flow machinery and keep Threads a passive store — the session reads Synthesis + OpenPoints at start, and its wrap-up calls the same public endpoints anyone else would (save transcript, append receipt, PUT synthesis proposal); no session state lives in the Threads slice. Design this in its own document when phase 4 opens.
 
 The data structure and purpose are settled; the interaction is not. Options: (a) a dedicated flow in the flow catalog ("thread session") that launches an agent with the thread as context and owns the wrap-up choreography; (b) an ambient capability — any running session can attach to a thread and the wrap-up is a convention the agent follows; (c) a Threads-owned orchestration where the slice itself drives the agent through a contract dependency. Each differs in where control lives and how wrap-up is *enforced* rather than hoped for — the harness's whole premise.
 
 ### Where do thread files live long-term?
+<!-- id: b23 -->
 
 lean: keep the filesystem implementation until a real multi-machine or durability requirement appears; `IThreadFiles` + folder-relative `DocRef` were shaped so the swap touches one class and zero records.
 
 Options: (a) local filesystem indefinitely — sufficient for a single-machine workspace; (b) content in blob/object storage with refs unchanged — the industry-standard shape when durability or multi-machine access arrives; (c) everything in database rows — rejected by default, since large blobs inline in rows is the known anti-pattern; a database would hold metadata/refs at most, with content staying in (b).
 
 ### How do threads relate to projects and labels?
+<!-- id: b24 -->
 
 lean: add a bare `Guid?` project reference (data, not a compile-time edge) the first time "show me threads about X" is a real need; graduate to many-to-many only on demonstrated use. Nesting under projects is the least likely shape — threads are workspace-level memory, sitting beside projects the way Inbox does.
 

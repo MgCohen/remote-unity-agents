@@ -174,6 +174,17 @@
         "type": "markdown"
       }
     },
+    "model": {
+      "type": "model",
+      "description": "The domain shape \u2014 type sketches, interface surfaces, or a diagram; fenced code and ASCII diagrams are welcome here.",
+      "rubric": {
+        "shape-not-prose": "Shows the shape (types, interfaces, a diagram) \u2014 no prose restating what the sketch already says.",
+        "warranted": "Every element fits the doc\u0027s subject or context \u2014 nothing invented that the design neither names, extends, nor implies."
+      },
+      "body": {
+        "type": "markdown"
+      }
+    },
     "open-question": {
       "type": "open-question",
       "collection": "true",
@@ -384,6 +395,7 @@
         "summary",
         "context",
         "scope",
+        "model",
         "decision",
         "phase",
         "verification",
@@ -403,17 +415,24 @@
           "default": "draft"
         }
       },
+      "checks": [
+        "scripts/check-paths-resolve.sh",
+        "scripts/check-index-fresh.sh"
+      ],
       "rubric": {
-        "coverage": "Every load-bearing part of the dump has a block; nothing significant dropped.",
-        "right-type": "Each piece sits in the right block type (settled \u2192 decision, open \u2192 open-question, steps \u2192 phase).",
+        "coverage": "No significant aspect of the subject lacks a block \u2014 a cold reader finds no load-bearing gap.",
+        "right-type": "Each piece sits in the right block type (settled \u2192 decision, open \u2192 open-question, steps \u2192 phase, shapes \u2192 model).",
         "no-filler": "No filler blocks \u2014 each carries real substance.",
-        "standalone": "The doc stands alone \u2014 no references to the dump, prior chat, or earlier drafts.",
+        "standalone": "The doc stands alone \u2014 no references to prior chat, earlier drafts, or material the reader cannot open.",
         "concrete": "Names real files and symbols, not vague gestures.",
-        "reuse-first": "Each phase leads with what it reuses before what it adds.",
-        "open-lean": "Open questions are genuinely open and carry a recommended lean.",
+        "one-home": "Every enumerable fact (a list, layout, inventory, or interface) has one home block \u2014 shapes \u2192 model, boundaries \u2192 scope, choices \u2192 decision, sequencing \u2192 phase; other blocks reference it, never restate it. Narrative overlap is fine; readability outranks purity.",
         "verify-real": "Verification runs a real end-to-end behaviour, not just build/typecheck.",
         "prose": "Prose is substantive where it matters; bold marks labels, not emphasis."
-      }
+      },
+      "reviewers": [
+        "judge",
+        "fact-check"
+      ]
     },
     "guide": {
       "docType": "guide",
@@ -465,17 +484,25 @@
           "default": "draft"
         }
       },
+      "checks": [
+        "scripts/check-paths-resolve.sh",
+        "scripts/check-index-fresh.sh"
+      ],
       "rubric": {
         "coverage": "Every investigated question, key source, and the conclusion has a block.",
         "right-type": "Content sits in the right block (questions \u2192 question, sources \u2192 quotation, conclusion \u2192 outcome).",
         "no-filler": "No filler blocks.",
-        "standalone": "The doc stands alone \u2014 no references to the source, prior chat, or drafts.",
+        "standalone": "The doc stands alone \u2014 no references to prior chat or earlier drafts (cited sources are fine).",
         "sourced": "Every claim ties to a cited source; no unsupported assertions.",
         "headline-first": "The summary leads with the finding, not a buried conclusion.",
         "expectation-vs-outcome": "The outcome says whether the result matched the expected-result.",
         "questions-answered": "Each question is actually answered.",
         "prose": "Prose is substantive; bold marks labels, not emphasis."
-      }
+      },
+      "reviewers": [
+        "judge",
+        "fact-check"
+      ]
     },
     "rubric": {
       "docType": "rubric",
