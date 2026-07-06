@@ -21,8 +21,8 @@ harness: ../../../../../tests/Harness/README.md
 ### Thread persisted through the repository → reloads whole from a fresh repository
 <!-- id: b3 -->
 - **Why:** a thread is one aggregate persisted whole, and a fresh repository over the same store is a host
-  restart — so a thread carrying entries, open points, and a doc ref must round-trip intact, proving the
-  parked idea (nested records and enums included) survives the process.
+  restart — so a thread carrying entries, open points, and an entry link (artifact or session) must
+  round-trip intact, proving the parked idea (polymorphic records and enums included) survives the process.
 
 ### Thread mutated via with-expressions and updated → the reloaded thread is the mutation
 <!-- id: b4 -->
@@ -51,7 +51,7 @@ harness: ../../../../../tests/Harness/README.md
 ### ThreadFiles.List → every file as a folder-prefixed relative path
 <!-- id: b8 -->
 - **Why:** the drop zone is browsable by construction — listing returns paths relative to the thread's
-  folder so subfolders (sessions, artifacts, whatever comes) separate naturally, and a thread with no
+  folder so subfolders (notes, artifacts, whatever comes) separate naturally, and a thread with no
   folder yet lists empty rather than erroring.
 
 ### ThreadFiles refuses to read or write through a symlink out of the folder

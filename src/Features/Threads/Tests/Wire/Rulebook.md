@@ -26,9 +26,10 @@ harness: ../../../../../tests/Harness/README.md
 
 ### POST /threads/{id}/entries → the entry appended server-stamped, rejecting a blank summary or a missing/unknown author
 <!-- id: b4 -->
-- **Why:** the journal is permanent — an entry is a jot (no doc) or a session receipt (summary + doc ref)
-  stamped with a server clock so ordering is trustworthy, and because nothing appended can ever be
-  corrected, a summary-less, author-less, or unknown-author entry must never get in.
+- **Why:** the journal is permanent — an entry is a jot (no link) or an artifact receipt (an EntryLink
+  to a file in the thread's folder) stamped with a server clock so ordering is trustworthy, and because
+  nothing appended can ever be corrected, a summary-less, author-less, or unknown-author entry must never
+  get in.
 
 ### Entries have no update or delete surface
 <!-- id: b5 -->

@@ -43,7 +43,11 @@ public sealed class ThreadTests : IDisposable
             State = ThreadState.Completed,
             Synthesis = "budgets per session, enforced by the guard",
             SynthesizedAt = at,
-            Entries = [new ThreadEntry(at, Author.Agent, "session receipt", new DocRef("sessions/2026-07-01.jsonl"))],
+            Entries =
+            [
+                new ThreadEntry(at, Author.Agent, "session receipt", new EntryLink.Session("sess-2026-07-01")),
+                new ThreadEntry(at, Author.Human, "sketch attached", new EntryLink.Artifact(new DocRef("artifacts/api.md"))),
+            ],
             OpenPoints = [new OpenPoint(Guid.NewGuid(), at, "check the Kestrel body cap")],
         };
         await NewRepository().Add(thread);

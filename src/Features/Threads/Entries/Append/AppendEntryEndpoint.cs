@@ -35,8 +35,10 @@ internal sealed class AppendEntryEndpoint(IRepository<Thread> threads) : Endpoin
             return;
         }
 
-        var doc = string.IsNullOrWhiteSpace(req.Doc) ? null : new DocRef(req.Doc.Trim());
-        var entry = new ThreadEntry(DateTimeOffset.UtcNow, author, summary, doc);
+        EntryLink? link = string.IsNullOrWhiteSpace(req.Artifact)
+            ? null
+            : new EntryLink.Artifact(new DocRef(req.Artifact.Trim()));
+        var entry = new ThreadEntry(DateTimeOffset.UtcNow, author, summary, link);
         var updated = thread with { Entries = [.. thread.Entries, entry] };
         await threads.Update(updated, ct);
 

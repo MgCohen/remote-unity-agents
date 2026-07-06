@@ -53,7 +53,7 @@ public sealed class ThreadsWireTests(WireApp app) : IClassFixture<WireApp>
     {
         var minted = await Capture("rehydrate me");
         await Client.PostAsJsonAsync($"/threads/{minted.Id}/entries",
-            new AppendEntryRequest(minted.Id, Author.Agent, "session receipt", "sessions/first.jsonl"));
+            new AppendEntryRequest(minted.Id, Author.Agent, "sketch attached", "artifacts/first.md"));
         await Client.PostAsJsonAsync($"/threads/{minted.Id}/openpoints",
             new AddOpenPointRequest(minted.Id, "check the body cap"));
         await Client.PutAsJsonAsync($"/threads/{minted.Id}/synthesis",
@@ -67,8 +67,10 @@ public sealed class ThreadsWireTests(WireApp app) : IClassFixture<WireApp>
         Assert.NotNull(fetched.SynthesizedAt);
         var entry = Assert.Single(fetched.Entries);
         Assert.Equal(Author.Agent, entry.Author);
-        Assert.Equal("session receipt", entry.Summary);
-        Assert.Equal("sessions/first.jsonl", entry.Doc);
+        Assert.Equal("sketch attached", entry.Summary);
+        Assert.NotNull(entry.Link);
+        Assert.Equal(EntryLinkKind.Artifact, entry.Link!.Kind);
+        Assert.Equal("artifacts/first.md", entry.Link.Target);
         Assert.Equal("check the body cap", Assert.Single(fetched.OpenPoints).Text);
     }
 
@@ -133,7 +135,7 @@ public sealed class ThreadsWireTests(WireApp app) : IClassFixture<WireApp>
         var entry = Assert.Single(dto!.Entries);
         Assert.Equal(Author.Human, entry.Author);
         Assert.Equal("a quick jot", entry.Summary);
-        Assert.Null(entry.Doc);
+        Assert.Null(entry.Link);
         Assert.InRange(entry.At, before, DateTimeOffset.UtcNow.AddMinutes(1));
     }
 
@@ -334,20 +336,21 @@ public sealed class ThreadsWireTests(WireApp app) : IClassFixture<WireApp>
     public async Task A_receipts_doc_resolves_after_archive_and_revival()
     {
         var thread = await Capture("durable receipts");
-        await Client.PutAsync($"/threads/{thread.Id}/files/sessions/2026-07-05.jsonl",
+        await Client.PutAsync($"/threads/{thread.Id}/files/artifacts/notes.md",
             new StringContent("{\"turn\":1}"));
         await Client.PostAsJsonAsync($"/threads/{thread.Id}/entries",
-            new AppendEntryRequest(thread.Id, Author.Agent, "session receipt", "sessions/2026-07-05.jsonl"));
+            new AppendEntryRequest(thread.Id, Author.Agent, "artifact receipt", "artifacts/notes.md"));
 
         await Client.PutAsJsonAsync($"/threads/{thread.Id}/state", new SetStateRequest(thread.Id, ThreadState.Archived));
 
         var archived = await Client.GetFromJsonAsync<ThreadDto>($"/threads/{thread.Id}", WireJson.Options);
-        var doc = Assert.Single(archived!.Entries).Doc;
+        var link = Assert.Single(archived!.Entries).Link;
+        Assert.Equal(EntryLinkKind.Artifact, link!.Kind);
         Assert.Equal(ThreadState.Archived, archived.State);
-        var whileShelved = await Client.GetStringAsync($"/threads/{thread.Id}/files/{doc}");
+        var whileShelved = await Client.GetStringAsync($"/threads/{thread.Id}/files/{link.Target}");
 
         await Client.PutAsJsonAsync($"/threads/{thread.Id}/state", new SetStateRequest(thread.Id, ThreadState.Active));
-        var afterRevival = await Client.GetStringAsync($"/threads/{thread.Id}/files/{doc}");
+        var afterRevival = await Client.GetStringAsync($"/threads/{thread.Id}/files/{link.Target}");
 
         Assert.Equal("{\"turn\":1}", whileShelved);
         Assert.Equal("{\"turn\":1}", afterRevival);
@@ -369,13 +372,13 @@ public sealed class ThreadsWireTests(WireApp app) : IClassFixture<WireApp>
     public async Task List_files_separates_subfolders()
     {
         var thread = await Capture("browsable drop zone");
-        await Client.PutAsync($"/threads/{thread.Id}/files/sessions/one.jsonl", new StringContent("s"));
+        await Client.PutAsync($"/threads/{thread.Id}/files/notes/one.md", new StringContent("s"));
         await Client.PutAsync($"/threads/{thread.Id}/files/artifacts/sketch.md", new StringContent("a"));
 
         var listed = await Client.GetFromJsonAsync<string[]>($"/threads/{thread.Id}/files", WireJson.Options);
 
         Assert.NotNull(listed);
-        Assert.Equal(["artifacts/sketch.md", "sessions/one.jsonl"], listed);
+        Assert.Equal(["artifacts/sketch.md", "notes/one.md"], listed);
     }
 
     [Rule("GET /threads/{id}/files → every saved file as a folder-prefixed path")]

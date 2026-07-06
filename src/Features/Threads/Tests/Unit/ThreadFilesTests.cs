@@ -34,12 +34,12 @@ public sealed class ThreadFilesTests : IDisposable
     {
         var files = NewFiles();
 
-        var doc = await files.Save(_threadId, "sessions/2026-07-05.jsonl", Bytes("{\"line\":1}"));
+        var doc = await files.Save(_threadId, "notes/2026-07-05.md", Bytes("{\"line\":1}"));
 
-        Assert.Equal("sessions/2026-07-05.jsonl", doc.Path);
+        Assert.Equal("notes/2026-07-05.md", doc.Path);
         using var reader = new StreamReader((await files.Get(_threadId, doc.Path))!);
         Assert.Equal("{\"line\":1}", await reader.ReadToEndAsync());
-        Assert.Null(await files.Get(_threadId, "sessions/absent.jsonl"));
+        Assert.Null(await files.Get(_threadId, "notes/absent.md"));
     }
 
     [Rule("ThreadFiles refuses paths that escape the thread's folder")]
@@ -113,12 +113,12 @@ public sealed class ThreadFilesTests : IDisposable
     {
         var files = NewFiles();
         Assert.Empty(await files.List(_threadId));
-        await files.Save(_threadId, "sessions/one.jsonl", Bytes("s"));
+        await files.Save(_threadId, "notes/one.md", Bytes("s"));
         await files.Save(_threadId, "artifacts/sketch.md", Bytes("a"));
 
         var listed = await files.List(_threadId);
 
-        Assert.Equal(["artifacts/sketch.md", "sessions/one.jsonl"], listed);
+        Assert.Equal(["artifacts/sketch.md", "notes/one.md"], listed);
         Assert.Empty(await NewFiles().List(Guid.NewGuid()));
     }
 
