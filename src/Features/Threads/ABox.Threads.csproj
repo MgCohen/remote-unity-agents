@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Infrastructure\ABox.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Domain\Agents\ABox.Domain.Agents.csproj" />
     <ProjectReference Include="Api\ABox.Threads.Api.csproj" />
   </ItemGroup>
 

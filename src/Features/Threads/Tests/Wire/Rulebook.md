@@ -77,3 +77,17 @@ harness: ../../../../../tests/Harness/README.md
 <!-- id: b12 -->
 - **Why:** the drop zone is browsable — one read shows what the thread holds, subfolders separated by
   their path prefixes, so a session can survey the artifacts before diving into any.
+
+### POST /threads/{id}/open → a session opened on the thread, seeded from its synthesis and open points, 404 when absent
+<!-- id: b13 -->
+- **Why:** picking a thread back up starts a conversation the server seeds — it reads where-we-are
+  (synthesis) and what's unresolved (open points) so the agent opens already oriented, and returns the
+  minted SessionId the client will talk to; open mutates nothing (the journal records a session only on a
+  deliberate save), and an unknown thread opens nothing.
+
+### POST /threads/{id}/save → a session receipt appended and a synthesis proposal returned, rejecting a blank session id, 404 when absent
+<!-- id: b14 -->
+- **Why:** saving is the deliberate act that leaves a trace — the agent's recap lands as an append-only
+  Agent entry linked to the session transcript (EntryLink.Session), and that same recap comes back as a
+  synthesis proposal the human accepts or edits via PUT; a save with no session id has nothing to close
+  out (400), and an unknown thread takes no receipt (404).

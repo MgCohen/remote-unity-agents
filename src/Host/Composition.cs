@@ -55,6 +55,7 @@ internal static class Composition
         services.AddSingleton(ClaudeBox.Confined());
         services.AddSingleton(CodexBox.Confined());
         services.AddSingleton<IAgentFactory, AgentFactory>();
+        services.AddSingleton<ISessionSurface, PendingSessionSurface>();
 
         services.AddThreads();
         services.AddFlows(flows);

@@ -389,4 +389,89 @@ public sealed class ThreadsWireTests(WireApp app) : IClassFixture<WireApp>
 
         Assert.Equal(HttpStatusCode.NotFound, res.StatusCode);
     }
+
+    [Rule("POST /threads/{id}/open → a session opened on the thread, seeded from its synthesis and open points, 404 when absent")]
+    [Fact]
+    public async Task Open_starts_a_session_seeded_from_the_thread()
+    {
+        var thread = await Capture("resume me");
+        await Client.PutAsJsonAsync($"/threads/{thread.Id}/synthesis",
+            new PutSynthesisRequest(thread.Id, "we chose the fake-first order"));
+        await Client.PostAsJsonAsync($"/threads/{thread.Id}/openpoints",
+            new AddOpenPointRequest(thread.Id, "who owns the seam"));
+
+        using var res = await Client.PostAsJsonAsync($"/threads/{thread.Id}/open", new { });
+
+        Assert.Equal(HttpStatusCode.OK, res.StatusCode);
+        var opened = await res.Content.ReadFromJsonAsync<OpenSessionResponse>(WireJson.Options);
+        Assert.NotNull(opened);
+        Assert.False(string.IsNullOrWhiteSpace(opened.SessionId));
+        Assert.Contains("resume me", opened.Reply);
+        Assert.Contains("we chose the fake-first order", opened.Reply);
+        Assert.Contains("who owns the seam", opened.Reply);
+
+        var after = await Client.GetFromJsonAsync<ThreadDto>($"/threads/{thread.Id}", WireJson.Options);
+        Assert.Empty(after!.Entries);
+        Assert.Equal("we chose the fake-first order", after.Synthesis);
+        Assert.Equal("who owns the seam", Assert.Single(after.OpenPoints).Text);
+    }
+
+    [Rule("POST /threads/{id}/open → a session opened on the thread, seeded from its synthesis and open points, 404 when absent")]
+    [Fact]
+    public async Task Open_404s_for_an_unknown_thread()
+    {
+        using var res = await Client.PostAsJsonAsync($"/threads/{Guid.NewGuid()}/open", new { });
+
+        Assert.Equal(HttpStatusCode.NotFound, res.StatusCode);
+    }
+
+    [Rule("POST /threads/{id}/save → a session receipt appended and a synthesis proposal returned, rejecting a blank session id, 404 when absent")]
+    [Fact]
+    public async Task Save_appends_a_session_receipt_and_proposes_synthesis()
+    {
+        var thread = await Capture("close me out");
+        await Client.PostAsJsonAsync($"/threads/{thread.Id}/entries",
+            new AppendEntryRequest(thread.Id, Author.Human, "a prior jot", null));
+        var opened = (await (await Client.PostAsJsonAsync($"/threads/{thread.Id}/open", new { }))
+            .Content.ReadFromJsonAsync<OpenSessionResponse>(WireJson.Options))!;
+
+        using var res = await Client.PostAsJsonAsync($"/threads/{thread.Id}/save",
+            new SaveSessionRequest(thread.Id, opened.SessionId));
+
+        Assert.Equal(HttpStatusCode.OK, res.StatusCode);
+        var saved = await res.Content.ReadFromJsonAsync<SaveSessionResponse>(WireJson.Options);
+        Assert.NotNull(saved);
+        Assert.Equal(2, saved.Thread.Entries.Count);
+        Assert.Equal("a prior jot", saved.Thread.Entries[0].Summary);
+        var entry = saved.Thread.Entries[1];
+        Assert.Equal(Author.Agent, entry.Author);
+        Assert.Equal(EntryLinkKind.Session, entry.Link!.Kind);
+        Assert.Equal(opened.SessionId, entry.Link.Target);
+        Assert.Equal(entry.Summary, saved.ProposedSynthesis);
+        Assert.Contains(opened.SessionId, saved.ProposedSynthesis);
+    }
+
+    [Rule("POST /threads/{id}/save → a session receipt appended and a synthesis proposal returned, rejecting a blank session id, 404 when absent")]
+    [Fact]
+    public async Task Save_rejects_a_blank_session_id()
+    {
+        var thread = await Capture("needs a session");
+
+        using var res = await Client.PostAsJsonAsync($"/threads/{thread.Id}/save",
+            new SaveSessionRequest(thread.Id, "  "));
+
+        Assert.Equal(HttpStatusCode.BadRequest, res.StatusCode);
+    }
+
+    [Rule("POST /threads/{id}/save → a session receipt appended and a synthesis proposal returned, rejecting a blank session id, 404 when absent")]
+    [Fact]
+    public async Task Save_404s_for_an_unknown_thread()
+    {
+        var ghost = Guid.NewGuid();
+
+        using var res = await Client.PostAsJsonAsync($"/threads/{ghost}/save",
+            new SaveSessionRequest(ghost, "fake-session-1"));
+
+        Assert.Equal(HttpStatusCode.NotFound, res.StatusCode);
+    }
 }

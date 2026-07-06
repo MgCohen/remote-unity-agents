@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using ABox.Domain.Agents;
 using ABox.Domain.Flow;
 using ABox.Infrastructure.Paths;
 using ABox.Infrastructure.Storage;
@@ -23,6 +24,7 @@ public sealed class WireApp : WebApplicationFactory<Program>
         {
             services.AddSingleton(new StorageRoot(StorageDir));
             services.AddSingleton<IOrchestratorPaths>(new FakePaths(StorageDir));
+            services.AddSingleton<ISessionSurface, FakeSessionSurface>();
 
             var catalog = new FlowCatalog();
             catalog.Register<StubFlow>(new FlowConfig("stub", "Walking-skeleton stub for wire smoke."));
