@@ -29,15 +29,26 @@ from that directory with `dotnet run --project . -- <command>`. The data
 3. **Pick blocks.** `dotnet run --project . -- catalog <docType>`; choose blocks
    whose `description` matches real content. Required blocks must appear. Only what
    carries substance — no filler.
+   **If content fits no block, do not force it.** A mismatch means the catalog is
+   missing a block type, not that the content belongs in the nearest legal block.
+   Halt authoring, name the gap and the block type it needs, and surface it to the
+   caller (the catalog is owner-reviewed; propose, don't quietly extend). Structure
+   never wins over truth.
 4. **Author each block** to its `blocks/<type>.yaml` `rubric`:
    - Singletons → `## <Type>`; collections → `## <Group>` then `### <title>` members.
-   - A stable `<!-- id: N -->` under each header; scalar attrs as `key: value` lines.
+   - Scalar attrs as `key: value` lines. Don't hand-write ids — step 6 stamps them.
    - Distill, never transcribe; name real files/symbols from the dump; never invent.
-5. **Front matter.** A top `---` block with `docType`, `status: draft`, `source`.
-6. **Gate.** `dotnet run --project . -- validate <dest>`; fix every violation until it PASSes.
-7. **Index.** `dotnet run --project . -- outline <dest> --write`.
-8. **Grade.** The judge marks each line of the doc type's `rubric` (in
-   `doctypes/<docType>.yaml`) pass/fail; address fails, then re-validate.
+5. **Front matter.** A top `---` block with `docType` plus the attrs the doc type
+   declares (e.g. `status: draft`) — nothing it doesn't.
+6. **Stamp ids.** `dotnet run --project . -- ids <dest> --write` gives every block a
+   stable `<!-- id: … -->` handle (required — a client addresses a block by it). Ids are
+   frozen once written; override one only to rename its handle or break a collision.
+7. **Gate.** `dotnet run --project . -- validate <dest>`; fix every violation until it
+   PASSes, and resolve any `!` warning it prints.
+8. **Index.** `dotnet run --project . -- outline <dest> --write`.
+9. **Grade.** `dotnet run --project . -- grading <dest>` emits one section per scope
+   (the doc against the doctype rubric, each present block type against its own); the
+   judge marks each section's lines pass/fail. Address fails, then re-validate.
 
 Output path `<dest>`: the document's **home folder** in the repo — where that kind
 of document belongs (e.g. a plan under `PLANS/<slug>.plan.md`, an ADR under

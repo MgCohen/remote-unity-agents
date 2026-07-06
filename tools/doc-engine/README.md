@@ -79,14 +79,19 @@ dotnet run --project . -- catalog                              # decision matric
 dotnet run --project . -- catalog feature-plan                 # blocks available to one doc type
 dotnet run --project . -- outline <path/to/doc.md>             # print derived views
 dotnet run --project . -- outline <path/to/doc.md> --write     # inject the index in place
+dotnet run --project . -- ids <path/to/doc.md>                # list each block's stable id
+dotnet run --project . -- ids <path/to/doc.md> --write        # stamp an opaque <!-- id: bN --> into every block that lacks one
 dotnet run --project . -- onchange <path/to/doc.md>            # the instance's onChange script handler, if any
 dotnet run --project . -- reviewers <path/to/doc.md>           # fresh agents that review a change (judge by default)
 dotnet run --project . -- checks <path/to/doc.md>              # deterministic check scripts that block a change
-dotnet run --project . -- rubric <path/to/doc.md>              # the doctype's rubric criteria (fed to the judge)
+dotnet run --project . -- rubric <path/to/doc.md>              # the doctype's rubric criteria
+dotnet run --project . -- grading <path/to/doc.md>             # the grading plan: one judge section per scope (doc, then each present block type)
 ```
 
-The last three drive the **on-change reaction pipeline** — `validate` (structure) then
-`checks` (deterministic scripts) both **block**, then `reviewers` (fresh agents) **advise**,
+The last four drive the **on-change reaction pipeline** — `validate` (structure) then
+`checks` (deterministic scripts) both **block**, then `reviewers` (fresh agents) **advise** —
+the judge spawned once per `grading` section, so each call grades one scope against one
+small rubric (the doc against the doctype's, each present block type against its own) —
 all fed back to the session. A doc type opts in via its `reviewers:`/`checks:` fields; see the
 "Wire a doc type's on-change reactions" action in `guides/extend-the-doc-engine.guide.md`.
 

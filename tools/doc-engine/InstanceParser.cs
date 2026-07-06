@@ -10,6 +10,7 @@ public static class InstanceParser
     // deeper than a plain sub-block, so the nesting reads at a glance in raw markdown. See ADR 0017.
     private static readonly Regex H5 = new(@"^#####\s+(.+?)\s*$");
     private static readonly Regex AttrRe = new(@"^([\w-]+):\s*(.+?)\s*$");
+    private static readonly Regex IdComment = new(@"^<!--\s*id:\s*([\w-]+)\s*-->\s*$");
     private static readonly Regex LabelBulletRe = new(@"^-?\s*\*\*(?<label>[^:*]+):\*\*");
 
     public static IReadOnlyDictionary<string, object?> ParseFrontmatter(IReadOnlyList<string> lines)
@@ -131,6 +132,7 @@ public static class InstanceParser
             }
             var tgt = child ?? cur;
             if (tgt is null) continue;
+            if (IdComment.Match(line) is { Success: true } idm) { tgt.Attrs["id"] = idm.Groups[1].Value; continue; }
             if (meta)
             {
                 if (line.Trim().Length == 0) { meta = false; continue; }
