@@ -46,6 +46,24 @@ copy machinery, nothing credential-bearing at rest on a mount). Non-secret onboa
 onboarding-complete) still rides a per-turn `HomeSkeleton` mount so `claude` skips its first-run
 dialogs; no credential lives there. Everything else in the ADR (and Amendment-1) stands.
 
+## Amendment-3 (2026-07-08) — transport: headless `docker exec -i`, no PTY
+
+Amendment-1 kept the host PTY choreography (dialog dismissal, prompt-ready detection, submit) and launched
+in-box `claude` over `docker exec -it`, because `isatty` had to be true for **subscription** billing (oracle
+A2). That constraint was rolled back: a `CLAUDE_CODE_OAUTH_TOKEN` now bills the subscription under headless
+**`claude --print`**, no TTY required. So **decision 3's PTY drive and Amendment-1 are superseded** — `claude`
+runs headless over a non-PTY `docker exec -i` pipe: the prompt is fed on stdin, permission requests are
+resolved concurrently while it runs, and the Stop hook + JSONL deliver the result exactly as before. This
+matches how `codex exec` was already driven, so both providers share one transport (`ISandbox.PipeExecLine` +
+`SubprocessSession`). `PtySession`, the ConPTY dependency (`Porta.Pty`), and the startup-dialog machinery are
+removed; oracle A2/A4/A5/A7 no longer bind.
+
+**Everything about billing and the credential is unchanged.** We still bill the **subscription**: the
+`setup-token` OAuth credential still rides per turn via the credential launcher (now off the plain `docker
+exec` line rather than a PTY-echoed one), `SubscriptionGuard`/`EnvScrub` still keep a metered `ANTHROPIC_API_KEY`
+out of the child, and decision 4's egress boundary still confines the credentialed box. Only the *interactive
+transport* changed.
+
 ## Context
 
 Today the orchestrator and the agent CLI run on the **same machine**:

@@ -45,12 +45,19 @@ ANTHROPIC_API_KEY, CLAUDE_API_KEY, OPENAI_API_KEY
 To get subscription billing, the child must NOT see these. Whatever the rebuild
 does, this is non-negotiable.
 
-## A2. The ConPTY `isatty()` trick
+## A2. The ConPTY `isatty()` trick — SUPERSEDED (subscription now bills headless)
 
-`claude` enables Max-subscription billing **only when `isatty()` is true on
-both stdin and stdout**. A plain `Process` reports false; ConPTY reports true.
-So Claude must be driven through a pseudo-terminal to bill on the subscription —
-this is a hard external constraint, not a stylistic choice.
+`claude` used to enable Max-subscription billing **only when `isatty()` is true
+on both stdin and stdout** — so a plain `Process` (false) wouldn't bill the
+subscription and Claude had to be driven through a pseudo-terminal.
+
+**No longer binds (2026-07).** The policy that blocked using the subscription
+non-interactively was rolled back: a `CLAUDE_CODE_OAUTH_TOKEN` (from `claude
+setup-token`) now bills the subscription under headless **`claude --print`**, no
+TTY required. So Claude is driven headless over a plain `docker exec -i` pipe and
+the ConPTY machinery is gone. **A1 still holds** — an `ANTHROPIC_API_KEY` visible
+to the child still overrides the OAuth token and bills the metered API, so it must
+stay scrubbed. A4/A5/A7 below (the interactive-TUI facts) are retired with the PTY.
 
 `codex exec` is officially supported non-interactively (since April 2026) and
 does **not** need the PTY trick — a plain process is fine.
@@ -63,6 +70,9 @@ codex invocation that wants subscription billing must pass `--model gpt-5.5` (or
 another subscription-eligible model) explicitly.
 
 ## A4. The cmd→claude silent gap
+
+> Retired in headless mode (see A2): `claude --print` reads the prompt from stdin
+> and needs no readiness detection. Kept as a record of the interactive TUI.
 
 There is a **~2 second silent gap** between `cmd.exe` echoing the `claude`
 command and `claude.exe` actually starting to paint. Any "wait until the
@@ -79,6 +89,9 @@ mid-startup lull is byte-identical to a settled prompt. The reliable signal is
 stability window, not until output stops. This supersedes the floor mitigation.
 
 ## A5. Claude TUI input is paste-sensitive
+
+> Retired in headless mode (see A2): the prompt is fed on stdin, not typed into
+> the TUI, so there is no paste/submit race. Kept as a record of the TUI.
 
 Pressing Enter too quickly after typing into Claude's TUI causes the input to be
 treated as a **bracketed paste** — it lands in the multi-line buffer instead of
@@ -110,6 +123,10 @@ the file's location and shape are fixed by Claude Code:
   EOF, so re-reading a growing file requires re-opening it, not seeking.
 
 ## A7. Claude startup dialogs
+
+> Retired in headless mode (see A2): `claude --print` suppresses the trust /
+> bypass-warning dialogs (no TTY to show them), so there is nothing to detect or
+> dismiss. Kept as a record of the interactive TUI.
 
 Claude may interrupt startup with one of these dialogs. **The TUI positions each
 glyph with cursor-move escapes, so the ANSI-stripped buffer has no inter-word

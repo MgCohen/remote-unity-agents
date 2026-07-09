@@ -5,8 +5,4 @@
     <ProjectReference Include="..\..\Infrastructure\ABox.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Porta.Pty" Version="1.0.7" />
-  </ItemGroup>
-
 </Project>

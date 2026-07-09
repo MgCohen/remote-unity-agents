@@ -45,10 +45,10 @@ public class RuleTests
                 .ResideInNamespaceMatching(@"^ABox\.Domain\.Flow(\.|$)").As("the flow engine"))
             .Check(Architecture);
 
-    [Rule("The agent spawn and billing primitives are internal to Domain.Agents")]
+    [Rule("The subscription billing primitive is internal to Domain.Agents")]
     [Fact]
     public void AgentRuntimePrimitivesAreInternal() =>
-        Classes().That().HaveName("PtySession").Or().HaveName("SubscriptionGuard").Should()
+        Classes().That().HaveName("SubscriptionGuard").Should()
             .BeInternal()
             .Check(Architecture);
 

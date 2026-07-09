@@ -74,42 +74,13 @@ public class ClaudeProtocolTests
         Assert.DoesNotContain("--append-system-prompt-file", args);
     }
 
-    [Rule("IsPromptReady given the input-bar footer in any permission mode → true")]
-    [Theory]
-    [InlineData("⏵⏵ bypass permissions on (shift+tab to cycle)")]
-    [InlineData("? for shortcuts · ← for agents")]
-    public void IsPromptReady_recognizes_the_input_bar_in_either_permission_mode(string footer)
-        => Assert.True(ClaudeProtocol.IsPromptReady(footer));
-
-    [Rule("IsPromptReady given a startup-dialog screen → false")]
+    [Rule("BuildArgs → runs claude headless with --print")]
     [Fact]
-    public void IsPromptReady_is_false_for_a_startup_dialog()
-        => Assert.False(ClaudeProtocol.IsPromptReady("Is this a project you trust? Enter to confirm · Esc to cancel"));
-
-    [Rule("DetectStartupDialog given a known dialog's text → its StartupDialog classification")]
-    [Theory]
-    [InlineData("Do you trust this folder?", StartupDialog.Trust)]
-    [InlineData("Is this a project you want to open?", StartupDialog.Trust)]
-    [InlineData("Bypass Permissions mode", StartupDialog.BypassWarning)]
-    [InlineData("Yes, I accept the risk", StartupDialog.BypassWarning)]
-    public void DetectStartupDialog_classifies_known_dialogs(string buffer, StartupDialog expected)
+    public void BuildArgs_runs_headless_with_print()
     {
-        Assert.Equal(expected, ClaudeProtocol.DetectStartupDialog(buffer));
-    }
+        var args = ClaudeProtocol.BuildArgs("sess-1", isResume: false, "", "", "");
 
-    [Rule("DetectStartupDialog given ordinary output → null")]
-    [Fact]
-    public void DetectStartupDialog_returns_null_for_ordinary_output()
-    {
-        Assert.Null(ClaudeProtocol.DetectStartupDialog("Welcome to Claude Code"));
-    }
-
-    [Rule("DetectStartupDialog given dialog text split by ANSI escapes → still classifies it")]
-    [Fact]
-    public void DetectStartupDialog_matches_through_ansi_noise()
-    {
-        var buffer = "\x1b[1m\x1b[32mDo you \x1b[0mtrust this folder\x1b[0m?";
-        Assert.Equal(StartupDialog.Trust, ClaudeProtocol.DetectStartupDialog(buffer));
+        Assert.Contains("--print", args);
     }
 
     [Rule("BuildCredentialLauncher → reads the OAuth token from the mount file in-box and never embeds the token value")]

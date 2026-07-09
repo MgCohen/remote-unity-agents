@@ -43,14 +43,14 @@ Scoped to `Domain.Git` — the first capability to fully shed the edge. `Domain.
 sheds it. An *intra*-`Domain` directional decision, so it stays its own named rule like "Features must not
 depend on each other."
 
-### The agent spawn and billing primitives are internal to Domain.Agents
-- **Why:** `PtySession` (the ConPTY spawn door) and `SubscriptionGuard` (the subscription billing key-scrub)
-  are the hard-won, dangerous primitives of the agent runtime — oracle Tier-A bits. Keeping them `internal`
-  makes the compiler, not convention, the wall: nothing outside the agent runtime can `new` a raw spawn or skip
-  the billing check, so both are reached only through Domain.Agents' public port.
+### The subscription billing primitive is internal to Domain.Agents
+- **Why:** `SubscriptionGuard` (the subscription billing key-scrub) is a hard-won, dangerous primitive of the
+  agent runtime — an oracle Tier-A bit. Keeping it `internal` makes the compiler, not convention, the wall:
+  nothing outside the agent runtime can skip the billing check, so it is reached only through Domain.Agents'
+  public port.
 
-A named visibility rule, not a dependency edge — `BeInternal()` on each named primitive; if a wall is reopened
-or a primitive renamed, this fails. Add a primitive to the rule's name list as the agent runtime grows.
+A named visibility rule, not a dependency edge — `BeInternal()` on the named primitive; if the wall is reopened
+or the primitive renamed, this fails. Add a primitive to the rule's name list as the agent runtime grows.
 
 ### Feature endpoints are internal sealed
 - **Why:** The canonical slice (ADR 0011 D3) forfeits verb↔verb compile isolation — a feature's verbs share one

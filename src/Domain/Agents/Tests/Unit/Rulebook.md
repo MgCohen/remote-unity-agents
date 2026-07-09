@@ -203,20 +203,8 @@ harness: ../../../../../tests/Harness/README.md
 ### BuildArgs with blank optional fields → omits --permission-mode, --model, and --append-system-prompt-file
 - **Why:** blank values must not surface as empty-string flags, which the CLI would reject or misinterpret rather than fall back to its defaults.
 
-### IsPromptReady given the input-bar footer in any permission mode → true
-- **Why:** readiness is detected from the footer text, which differs between bypass and default modes, so both renderings must be recognized or the orchestrator stalls waiting to send input.
-
-### IsPromptReady given a startup-dialog screen → false
-- **Why:** sending input while a trust/confirmation dialog is up would type into the dialog, so readiness must not fire until the real input bar appears.
-
-### DetectStartupDialog given a known dialog's text → its StartupDialog classification
-- **Why:** each dialog needs a different automated response, so misclassifying trust vs bypass-warning would dismiss the wrong prompt and stall or mis-configure the run.
-
-### DetectStartupDialog given ordinary output → null
-- **Why:** normal CLI chatter must not be mistaken for a dialog, or the orchestrator would inject phantom keystrokes into a live session.
-
-### DetectStartupDialog given dialog text split by ANSI escapes → still classifies it
-- **Why:** the terminal interleaves color/style escape codes through the prompt text, so detection must see past the noise or it would miss real dialogs on a styled terminal.
+### BuildArgs → runs claude headless with --print
+- **Why:** the turn is driven non-interactively over a stdin/stdout pipe, so `--print` must be present or claude launches its interactive TUI and the pipe transport never completes.
 
 ### EnvScrub maps each agent to its own billing keys → claude scrubs the Anthropic keys, codex the OpenAI key
 - **Why:** oracle A1 — each CLI bills the metered API instead of the subscription if its billing key is visible, so codex must guard OPENAI_API_KEY just as claude guards the Anthropic keys; the lists are per-agent so a stray key for one CLI never blocks the other.

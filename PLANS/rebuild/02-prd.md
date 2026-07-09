@@ -122,9 +122,10 @@ acceptance criteria (AC).
   with Unity-specific fix wording.
 
 ### 3.3 Agents, tools, invariants
-- **FR-C1 · implementer (Claude).** THE SYSTEM SHALL drive `claude` via ConPTY
-  (subscription billing) and SHALL return last-turn text + a resumable session
-  id; WHEN a startup dialog appears, THE SYSTEM SHALL dismiss it invisibly.
+- **FR-C1 · implementer (Claude).** THE SYSTEM SHALL drive `claude` headless via
+  `claude --print` over a `docker exec -i` pipe (subscription billing) and SHALL
+  return last-turn text + a resumable session id. *(Was ConPTY + startup-dialog
+  dismissal; headless `--print` needs no TTY and suppresses those dialogs — oracle A2.)*
 - **FR-C2 · reviewer (Codex).** THE SYSTEM SHALL drive `codex exec` via
   subprocess and SHALL return final text + session id.
 - **FR-C3 · Session continuity.** WHEN a flow resumes an agent across steps
