@@ -1,5 +1,3 @@
-using System.Text.RegularExpressions;
-using Porta.Pty;
 using ABox.Infrastructure.CommandLine;
 using ABox.Infrastructure.Sandbox;
 
@@ -7,13 +5,7 @@ namespace ABox.Domain.Agents.Claude;
 
 public sealed class ClaudeProvider(ClaudeConfig config, IDecisionResolver resolver, AutoPolicy autoPolicy, SandboxSettings sandbox) : IProvider, IAsyncDisposable
 {
-    private const int Cols = 120;
-    private const int Rows = 40;
-    private const int PollMs = 150;
-    private const int StartupCapMs = 30_000;           // cold start + plugins + remote-control attach
-    private const int ReadySettleMs = 1_200;
-    private const int SubmitSettleMs = 500;            // oracle A5: anti-paste pause
-    private const int ResponseStopPollMs = 500;
+    private const int PermissionPollMs = 200;
     private const int ResponseCapMs = 5 * 60_000;
     private const int ResolveTimeoutMs = 2_000;
     private const int ResolvePollMs = 100;
@@ -40,8 +32,8 @@ public sealed class ClaudeProvider(ClaudeConfig config, IDecisionResolver resolv
 
         using var hook = ClaudeHooks.Create(gatePermissions: config.Policy != PermissionPolicy.Bypass, boxDir: DockerSandbox.SessionMount);
 
-        // The system prompt travels as a file on the /session mount (oracle A-Win: a
-        // multiline prompt can't be an inline arg), referenced by its in-box path.
+        // The system prompt travels as a file on the /session mount (a multiline prompt is not a
+        // clean inline arg), referenced by its in-box path.
         var sysPromptName = $"sysprompt-{Guid.NewGuid():N}.txt";
         File.WriteAllText(Path.Combine(hook.HostDir, sysPromptName),
             AgentDirective.ComposeSystemPrompt(config.SystemPrompt, config.Resolution));
@@ -65,22 +57,20 @@ public sealed class ClaudeProvider(ClaudeConfig config, IDecisionResolver resolv
             RequireInternalNetwork: sandbox.SetupToken is not null);
         await using var box = await DockerSandbox.OpenAsync(options, dct);
 
-        var launchLine = box.InteractiveExecLine(launchCommand, BoxEnv(hook));
+        // Headless: `claude --print` runs the turn non-interactively over a `docker exec -i`
+        // pipe (no PTY/TUI). The prompt goes in on stdin; permission requests are resolved
+        // concurrently while claude runs; the Stop hook + JSONL deliver the result as before.
+        var psi = Shell.Command(box.PipeExecLine(launchCommand, BoxEnv(hook)));
+        psi.RedirectStandardInput = true;
+        await using var session = SubprocessSession.Start(psi, dct);
 
-        var pty = await PtyProvider.SpawnAsync(BuildPtyOptions(), dct);
-        await using var session = new PtySession(pty, dct);
+        await session.StandardInput.WriteAsync(request.Prompt);
+        session.CompleteStdin();
 
-        await session.WriteLineAsync(launchLine, dct);
-        await DismissStartupDialogsAsync(session, dct);
+        var pump = PumpPermissionsAsync(hook, session, dct);
+        await session.WaitForExitAsync(ResponseCapMs, dct);
+        await pump;
 
-        // Wait for the input-bar marker, not for silence: a mid-startup re-render is indistinguishable from a settled idle.
-        if (!await session.WaitUntilAsync(ClaudeProtocol.IsPromptReady, ReadySettleMs, StartupCapMs, PollMs, dct))
-            throw new InvalidOperationException(
-                "Claude input bar did not become ready in time; cannot submit the prompt. " +
-                $"Last screen:\n{Tail(session.Buffer)}");
-
-        await session.SubmitAsync(request.Prompt, SubmitSettleMs, dct);
-        await PumpUntilStopAsync(hook, dct);
         hook.EmitTurnEnded(request.ProjectDir, sessionId);
 
         // Stop fired across the /session mount, so the final message + JSONL are on disk;
@@ -91,7 +81,7 @@ public sealed class ClaudeProvider(ClaudeConfig config, IDecisionResolver resolv
             text = await ResolveTextFallbackAsync(sessionId, request.Prompt, projectsRoot, dct);
         var transcript = ClaudeJsonl.TryReadLastTurnTranscript(sessionId, request.Prompt, projectsRoot) ?? [];
         var exitCode = hook.HasFired || !string.IsNullOrWhiteSpace(text) ? 0 : 1;
-        return new DriveResult(text ?? "", sessionId, exitCode, session.Buffer, transcript);
+        return new DriveResult(text ?? "", sessionId, exitCode, session.RawStdout, transcript);
     }
 
     // The session HOME outlives each turn (resume re-mounts it), so cleanup is the provider's
@@ -105,7 +95,7 @@ public sealed class ClaudeProvider(ClaudeConfig config, IDecisionResolver resolv
 
     // The session HOME: a temp dir (writable mount where claude writes the JSONL) seeded once
     // from the non-secret onboarding skeleton so the first-run dialogs don't appear. The
-    // credential is NOT here — it rides the box env per turn.
+    // credential is NOT here — it rides the box per turn via the credential launcher.
     private DirectoryInfo PrepareHome()
     {
         var home = Directory.CreateTempSubdirectory("ra-claude-home-");
@@ -127,9 +117,9 @@ public sealed class ClaudeProvider(ClaudeConfig config, IDecisionResolver resolv
         ClaudeProtocol.BuildBoxEnv(
             DockerSandbox.HomeMount, hook.SignalPathInBox, hook.PermissionDirInBox, sandbox.ProxyUrl);
 
-    // Unbilled turn → launch claude directly. Billed turn → write the token to a 0600 file on
-    // the /session mount and launch a tiny script that reads it into the env in-box, so the
-    // value never lands on the PTY-echoed exec line nor in the container's `docker inspect` env.
+    // Unbilled turn → launch claude directly. Billed turn → write the token to a 0600 file on the
+    // /session mount and launch a tiny script that reads it into the env in-box, so the value
+    // never lands on the docker exec line nor in the container's `docker inspect` env.
     private static string BuildLaunchCommand(ClaudeHooks hook, List<string> args, string? setupToken)
     {
         var quotedArgs = string.Join(' ', args.Select(Shell.Quote));
@@ -151,55 +141,20 @@ public sealed class ClaudeProvider(ClaudeConfig config, IDecisionResolver resolv
         catch { /* best-effort: temp cleanup is non-fatal */ }
     }
 
-    private static readonly Regex OAuthToken = new(@"sk-ant-\S+", RegexOptions.Compiled);
-
-    // Surface what Claude rendered when a startup wait times out — ANSI-stripped and
-    // tail-trimmed. The credential is read from a mount file in-box, not echoed on the exec
-    // line, so it no longer enters this buffer; the scrub stays as defense-in-depth.
-    private static string Tail(string buffer)
+    // A gated tool raises a PreToolUse request mid-turn and its shim blocks until we answer,
+    // so the resolver must run concurrently with the headless `claude` process. Poll-drain
+    // and resolve each request until claude exits, then drain once more for the ledger.
+    private async Task PumpPermissionsAsync(ClaudeHooks hook, SubprocessSession session, CancellationToken ct)
     {
-        var text = OAuthToken.Replace(AnsiHelpers.StripAnsi(buffer), "sk-ant-***");
-        return text.Length <= 1500 ? text : text[^1500..];
-    }
-
-    // Dismiss each dialog kind at most once: a repeated keystroke would land in the next screen and corrupt the prompt.
-    private static async Task DismissStartupDialogsAsync(PtySession session, CancellationToken ct)
-    {
-        var dismissed = new HashSet<StartupDialog>();
-        var deadline = DateTimeOffset.UtcNow.AddMilliseconds(StartupCapMs);
-        while (DateTimeOffset.UtcNow < deadline)
-        {
-            if (ClaudeProtocol.IsPromptReady(session.Buffer)) return;
-
-            if (ClaudeProtocol.DetectStartupDialog(session.Buffer) is { } dialog && dismissed.Add(dialog))
-                await session.WriteAsync(DialogKeys(dialog), ct);
-
-            await Task.Delay(PollMs, ct);
-        }
-    }
-
-    private static string DialogKeys(StartupDialog dialog) => dialog switch
-    {
-        StartupDialog.Trust => "\r",
-        StartupDialog.BypassWarning => "2\r",
-        _ => "",
-    };
-
-    // Pump the turn: the Stop hook fires once when Claude truly ends (oracle
-    // A-Stop), but a gated tool can raise a mid-turn PreToolUse request first.
-    // Drain and resolve each before treating Stop as terminal (plan §6).
-    private async Task PumpUntilStopAsync(ClaudeHooks hook, CancellationToken ct)
-    {
-        var deadline = DateTimeOffset.UtcNow.AddMilliseconds(ResponseCapMs);
-        while (DateTimeOffset.UtcNow < deadline)
+        while (!session.HasExited)
         {
             foreach (var pending in hook.DrainRequests())
                 await ResolvePermissionAsync(hook, pending, ct);
-
-            if (hook.HasFired) return;
-            try { await Task.Delay(ResponseStopPollMs, ct); }
+            try { await Task.Delay(PermissionPollMs, ct); }
             catch (OperationCanceledException) { return; }
         }
+        foreach (var pending in hook.DrainRequests())
+            await ResolvePermissionAsync(hook, pending, ct);
     }
 
     // Auto applies the guardrail policy with no human in the loop (allow unless a
@@ -231,25 +186,5 @@ public sealed class ClaudeProvider(ClaudeConfig config, IDecisionResolver resolv
             catch (OperationCanceledException) { break; }
         }
         return "";
-    }
-
-    // The host PTY runs a shell that types the `docker exec -it` launch line; the
-    // box env (HOME, RA_* hooks, credential) is injected via -e, not here, so the
-    // host shell env stays a plain passthrough.
-    private static PtyOptions BuildPtyOptions()
-    {
-        var env = new Dictionary<string, string>();
-        foreach (System.Collections.DictionaryEntry kv in Environment.GetEnvironmentVariables())
-            if (kv.Key is string k && kv.Value is string v) env[k] = v;
-
-        return new PtyOptions
-        {
-            Name = "claude-agent",
-            Cols = Cols,
-            Rows = Rows,
-            Cwd = Environment.CurrentDirectory,
-            App = Shell.Executable,
-            Environment = env,
-        };
     }
 }

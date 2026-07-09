@@ -65,7 +65,7 @@ is an implementation-plan call — the behavior of each flow is what's locked.
 
 | # | Feature | Observable behavior / output | Move |
 |---|---|---|---|
-| C1 | **Claude agent** | Drives `claude` via ConPTY (subscription billing). Returns last-turn assistant text, a session id (for resume), and a per-turn transcript. Handles trust/bypass dialogs invisibly. | PORT |
+| C1 | **Claude agent** | Drives `claude` headless (`claude --print` over a pipe, subscription billing). Returns last-turn assistant text, a session id (for resume), and a per-turn transcript. | PORT |
 | C2 | **Codex agent** | Drives `codex exec` via subprocess. Returns final message text, session id, transcript. | PORT |
 | C3 | **Session continuity** | A flow can resume the same agent session across steps (fix loop, revise) by passing the session id back. | PORT |
 | C4 | **Review verdict** | Reviewer prompt asks for `APPROVE: <reason>` / `REVISE: <issues>`; parsed to Approve/Revise/Unclear. Unclear ⇒ refuse commit. | PORT |

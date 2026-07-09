@@ -52,11 +52,7 @@ public sealed class DockerSandbox : ISandbox
     }
 
     // The container already runs as UserFlag's uid (set on `docker run`); exec inherits it.
-    // Interactive (-it): a PTY-driven CLI that needs a tty (claude). Pipe (-i): a CLI driven
-    // over stdin/stdout with no tty (codex exec).
-    public string InteractiveExecLine(string command, IReadOnlyDictionary<string, string>? env = null) =>
-        ExecLine("-it", command, env);
-
+    // Pipe (-i): the CLI is driven headless over stdin/stdout with no tty (claude --print, codex exec).
     public string PipeExecLine(string command, IReadOnlyDictionary<string, string>? env = null) =>
         ExecLine("-i", command, env);
 
