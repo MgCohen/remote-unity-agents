@@ -41,8 +41,9 @@
 - **"Hard-locking" is mostly aspirational.** In practice these artifacts are enforced
   as **advisory guardrails + CI drift-gates / JSON-Schema validation**, not literal
   immutability. Claims that machine-enforced *blocking-merge-on-drift* is the real
-  novelty were **refuted**. Freeze the *intent*, gate the *drift* — don't pretend the
-  file is immutable. **[H]**
+  novelty were **refuted**. **Our stance (§6.7): soft-lock** — no auto-mutation, every
+  artifact change gated on human review + hard approval; the value is anchor integrity
+  over the project's life, not per-task output quality. **[H]**
 - **Non-functional constraints are the field's blind spot.** A 2,303-file corpus of
   real CLAUDE.md/AGENTS.md shows context files skew functional (Testing 75%,
   Architecture 68%) while **security and performance appear in only 14.5% each** —
@@ -230,10 +231,23 @@ Concrete, lowest-risk → highest-leverage:
    *structured but bounded*, and over-authoring re-introduces the brittleness the
    prior report warned about. Our existing "a Box's ICS is not a PRD" line is correct;
    this research *reinforces* it rather than pushing toward maximalism.
-7. **Frame the "lock" honestly as freeze-intent + gate-drift**, not immutability.
-   Matches how the whole field actually enforces these (CI schema-validation / drift
-   gates), and matches our spec-anchored (not spec-as-source) stance from the prior
-   report.
+7. **Soft-lock the ICS — this is our decision, and it reframes the "freezing"
+   question.** The research measured *per-task output quality*, where freezing may
+   not beat mere presence. But that is the wrong axis. Freezing buys **anchor
+   integrity over the project's life** and **lower mental load** — you need to know
+   your anchor is safe and clear. The failure mode it prevents is the important one:
+   if the artifact can mutate freely, accumulated drift **leaks back into the anchor
+   itself**, and you steer the wrong way while still trusting it. A
+   *present-but-corrupted* anchor is worse than a stable one — "presence beats
+   content" only holds while the present thing stays true. So:
+   - **No auto-mutation.** The agent never edits the ICS as a side effect of shipping.
+   - **Every change requires human review + hard approval** — a conscious, logged
+     decision that we are moving a guardrail, never the first-resort move.
+   - **Default is work-within-the-anchor**, not amend-the-anchor.
+
+   This is not a new mechanism: it is exactly the **protected-paths + required-PR-review**
+   soft-lock the repo already applies to its enforcement surface (ADRs, harness, CI).
+   The ICS inherits that governance rather than inventing one.
 
 ---
 
@@ -241,8 +255,14 @@ Concrete, lowest-risk → highest-leverage:
 
 1. **Does *freezing* an authored artifact beat letting it evolve mid-task — or does
    only *presence* matter?** The 63.8% random==curated result suggests presence may
-   dominate content. No head-to-head isolates tightness-of-authoring. **This is the
-   crux of the owner's "I saw better work" observation and remains unproven.**
+   dominate content *on per-task output quality*. But that axis misframes the
+   question (see §6.7): freezing's payoff is **anchor integrity over the project's
+   life** — preventing drift from silently corrupting the artifact you steer by —
+   which no study here measures. Our resolution is not to freeze harder for output
+   quality, but to **soft-lock** for drift-integrity: no auto-mutation, human-approved
+   changes only. The open empirical question narrows to: *how much does an unfrozen
+   anchor degrade over a long project, and does soft-lock measurably reduce that
+   drift?*
 2. **Optimal ICS granularity/length?** Eisele implies a sweet spot but nobody
    quantifies where over-specification starts hurting.
 3. **Are ProductSpec / IntentSpec / SPEC.md converging or fragmenting?** No consortium
