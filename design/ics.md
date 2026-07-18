@@ -7,6 +7,8 @@
 > [`the-box.md`](the-box.md) as **exploration on top of** the L1→L12 rebuild — a
 > proposal until promoted to a PRD/ADR. The fill-in artifact is
 > [`ics-template.md`](ics-template.md); this doc is the *why and how* behind it.
+> A rendered, diagram-forward version is [`ics.html`](ics.html) (open in a browser) —
+> same content with the freeze, drift, gating, and nesting flows drawn out.
 
 ---
 
