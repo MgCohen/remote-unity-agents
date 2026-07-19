@@ -154,6 +154,30 @@
   .stat .l { font-size: 13px; color: var(--muted); margin-top: 7px; line-height: 1.46; }
   .stat .s { font-family: var(--mono); font-size: 10.5px; color: var(--faint); margin-top: 9px; display: block; }
 
+  /* Fig. 1 — animated context bloat */
+  #figstory .chip, #figstory .endgrp { opacity: 0; }
+  #figstory .c1 { animation: sRev1 13s ease-in-out infinite; }
+  #figstory .c2 { animation: sRev2 13s ease-in-out infinite; }
+  #figstory .c3 { animation: sRev3 13s ease-in-out infinite; }
+  #figstory .c4 { animation: sRev4 13s ease-in-out infinite; }
+  #figstory .c5 { animation: sRev5 13s ease-in-out infinite; }
+  #figstory .endgrp { animation: sRev6 13s ease-in-out infinite; }
+  #figstory .ph { animation: sPh 13s ease-in-out infinite; }
+  @keyframes sRev1 { 0%,6%{opacity:0} 9%,93%{opacity:1} 100%{opacity:0} }
+  @keyframes sRev2 { 0%,20%{opacity:0} 23%,93%{opacity:1} 100%{opacity:0} }
+  @keyframes sRev3 { 0%,34%{opacity:0} 37%,93%{opacity:1} 100%{opacity:0} }
+  @keyframes sRev4 { 0%,48%{opacity:0} 51%,93%{opacity:1} 100%{opacity:0} }
+  @keyframes sRev5 { 0%,62%{opacity:0} 65%,93%{opacity:1} 100%{opacity:0} }
+  @keyframes sRev6 { 0%,76%{opacity:0} 79%,93%{opacity:1} 100%{opacity:0} }
+  @keyframes sPh {
+    0%,6%{transform:translateY(0)} 20%{transform:translateY(34px)} 34%{transform:translateY(68px)}
+    48%{transform:translateY(102px)} 62%{transform:translateY(136px)} 76%,100%{transform:translateY(170px)}
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #figstory .chip, #figstory .endgrp { opacity: 1; animation: none; }
+    #figstory .ph { animation: none; transform: translateY(170px); }
+  }
+
   footer { border-top: 1px solid var(--hairline); margin-top: 20px; }
   footer .in { max-width: 1240px; margin: 0 auto; padding: 28px 32px 60px; }
   footer p { font-family: var(--mono); font-size: 12.5px; color: var(--faint); line-height: 1.7; max-width: 90ch; margin: 0; }
@@ -204,11 +228,43 @@
     <section id="drift">
       <span class="sec-num">01</span>
       <h2>The drift problem</h2>
-      <p class="lead">Set an agent a real goal and it doesn't just execute — it <span class="hl">discovers</span>. And what it discovers has to go somewhere.</p>
-      <p>Every long run turns up something you couldn't see up front: a limitation, a correction, a better idea. Sensibly, you write it down — into the goal, into the guardrails. But each note nudges the instructions a little, and the notes compound. Lap after lap, the thing you're steering by absorbs the very drift it was meant to prevent, until a guardrail has been quietly rewritten and you can no longer trust it. The failure isn't a bad first plan — it's a good one that <strong>rotted as it grew</strong>.</p>
+      <p class="lead">You set it up — the goal, the guardrails, the plan — and you say <span class="hl">go</span>.</p>
+      <p>And it goes: task, task, task. Then it learns something — a limit it hit, a call it had to make, a better idea — and it writes that down, into the context. Reasonable, once. But it keeps happening, and the context keeps growing. Before every new task the agent reads it back, and by now it's reading a <em>pile</em>: the original plan, plus every insight, tweak, and appended instruction since.</p>
+      <p>Somewhere in that pile a guardrail got reworded, an instruction picked up a near-duplicate that says something slightly different, the original intent slipped under its own footnotes. Now neither of you can point to the line that's actually true. The plan didn't fail — it <strong>drowned</strong>.</p>
 
       <div class="figure">
-        <div class="cap"><b>Fig. 1</b> &nbsp;·&nbsp; the loop that corrupts the anchor</div>
+        <div class="cap"><b>Fig. 1</b> &nbsp;·&nbsp; the context fills, task by task</div>
+        <div class="svgwrap">
+          <svg id="figstory" viewBox="0 0 720 300" role="img" aria-label="You start the agent and it works task by task. With each task the context gains another chip — an insight, a tweak, an appended instruction — until the original plan is buried and it is unclear which line is real.">
+            <text x="34" y="30" class="t-tiny">tasks</text>
+            <rect class="ph" x="34" y="44" width="180" height="28" rx="6" fill="var(--anchor-soft)"/>
+            <text x="52" y="63" class="t-small" font-weight="600">task 1</text>
+            <text x="52" y="97" class="t-small">task 2</text>
+            <text x="52" y="131" class="t-small">task 3</text>
+            <text x="52" y="165" class="t-small">task 4</text>
+            <text x="52" y="199" class="t-small">task 5</text>
+            <text x="52" y="233" class="t-small">task 6</text>
+
+            <text x="250" y="30" class="t-small" font-weight="600">the context</text>
+            <rect x="250" y="40" width="430" height="248" rx="10" fill="none" class="stroke-line"/>
+
+            <g class="chip c1"><rect x="270" y="248" width="390" height="34" rx="7" fill="var(--anchor-soft)" stroke="var(--anchor)"/><text x="286" y="270" class="t-small">the plan + guardrails</text></g>
+            <g class="chip c2"><rect x="270" y="210" width="390" height="34" rx="7" class="fill-s2" stroke="var(--drift)"/><text x="286" y="232" class="t-small">+ an insight</text></g>
+            <g class="chip c3"><rect x="270" y="172" width="390" height="34" rx="7" class="fill-s2" stroke="var(--drift)"/><text x="286" y="194" class="t-small">+ a tweak</text></g>
+            <g class="chip c4"><rect x="270" y="134" width="390" height="34" rx="7" fill="var(--breach-soft)" stroke="var(--breach)"/><text x="286" y="156" class="t-small">+ an exception</text></g>
+            <g class="chip c5"><rect x="270" y="96" width="390" height="34" rx="7" fill="var(--breach-soft)" stroke="var(--breach)"/><text x="286" y="118" class="t-small">+ another instruction</text></g>
+
+            <g class="endgrp">
+              <rect x="270" y="248" width="390" height="34" rx="7" fill="none" stroke="var(--breach)" stroke-width="2"/>
+              <text x="465" y="70" class="t-small t-breach" text-anchor="middle" font-weight="600">which line is the real one?</text>
+            </g>
+          </svg>
+        </div>
+        <div class="note">Press go, and every task appends to the context. By the end the original is buried under look-alikes — and neither you nor the agent is sure which line still holds.</div>
+      </div>
+
+      <div class="figure">
+        <div class="cap"><b>Fig. 2</b> &nbsp;·&nbsp; the loop that corrupts the anchor</div>
         <div class="svgwrap">
           <svg viewBox="0 0 720 260" role="img" aria-label="A four-step loop: build and work, discover something, write it into the anchor, the anchor drifts — then back to build. Each lap corrupts the anchor further.">
             <defs>
@@ -274,7 +330,7 @@
       <p>A slice sits inside a feature, inside a domain, inside the project. Anchors can nest along that line: the higher ones are broad and rarely move; the deeper ones are specific and <strong>more ephemeral</strong>, thrown away when the slice is done. When you start a piece of work, you can <strong>compile</strong> the stack — walk up the scope, gather each anchor, and reconcile them into one that governs this task.</p>
 
       <div class="figure">
-        <div class="cap"><b>Fig. 2</b> &nbsp;·&nbsp; climb the scope, compile the anchors into one</div>
+        <div class="cap"><b>Fig. 3</b> &nbsp;·&nbsp; climb the scope, compile the anchors into one</div>
         <div class="svgwrap">
           <svg viewBox="0 0 720 250" role="img" aria-label="Starting at a slice, climb up through feature, domain, and project, gather each anchor, and compile them into one anchor that governs the work.">
             <defs>
@@ -318,7 +374,7 @@
       <p>But it can't be frozen solid — you started the run <em>because</em> you don't know everything yet, and real discoveries should be able to move it. The agent will reach to fold each new insight straight into the anchor. So the guardrail sits on that reach: it <strong>detects the attempt, stops it, and warns you to decide</strong>. Nothing changes the anchor silently, and you're not left to catch it later by reviewing thousands of files.</p>
 
       <div class="figure">
-        <div class="cap"><b>Fig. 3</b> &nbsp;·&nbsp; an edit to the anchor is caught, not waved through</div>
+        <div class="cap"><b>Fig. 4</b> &nbsp;·&nbsp; an edit to the anchor is caught, not waved through</div>
         <div class="svgwrap">
           <svg viewBox="0 0 720 150" role="img" aria-label="The agent tries to edit the anchor; the attempt is detected and you are warned to decide. Approve and the anchor moves and the plan regenerates; deny and the anchor holds.">
             <defs>
