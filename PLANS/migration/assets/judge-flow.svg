@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 430" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif" role="img" aria-label="Judge: an artifact plus criteria in, one evidenced verdict per criterion out; one generic engine behind thin adapters">
+  <rect x="1" y="1" width="918" height="428" rx="14" fill="#ffffff" stroke="#d0d7de" stroke-width="1.5"/>
+  <text x="460" y="38" text-anchor="middle" font-size="19" font-weight="700" fill="#1f2328">Judge — the semantic evaluator</text>
+  <text x="460" y="60" text-anchor="middle" font-size="12" fill="#57606a">one generic rubric engine: an artifact + criteria in, one evidenced verdict per criterion out</text>
+
+  <!-- inputs -->
+  <text x="130" y="98" text-anchor="middle" font-size="11" font-weight="700" letter-spacing="0.05em" fill="#8c959f">IN</text>
+  <rect x="40" y="112" width="185" height="50" rx="9" fill="#f6f8fa" stroke="#57606a" stroke-width="1.4"/>
+  <text x="132" y="132" text-anchor="middle" font-size="12" font-weight="650" fill="#1f2328">context</text>
+  <text x="132" y="150" text-anchor="middle" font-size="10.5" fill="#8c959f">the artifact + its standard</text>
+  <rect x="40" y="176" width="185" height="50" rx="9" fill="#dbf1ef" stroke="#0f766e" stroke-width="1.5"/>
+  <text x="132" y="196" text-anchor="middle" font-size="12" font-weight="650" fill="#1f2328">criteria</text>
+  <text x="132" y="214" text-anchor="middle" font-size="10.5" fill="#0f766e">{ id, description } list</text>
+  <rect x="40" y="240" width="185" height="50" rx="9" fill="#fbfcfe" stroke="#c4ccd6" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <text x="132" y="260" text-anchor="middle" font-size="12" font-weight="650" fill="#57606a">files</text>
+  <text x="132" y="278" text-anchor="middle" font-size="10.5" fill="#8c959f">optional, read if needed</text>
+
+  <!-- judge -->
+  <rect x="300" y="150" width="180" height="100" rx="11" fill="#c9ebe7" stroke="#0f766e" stroke-width="1.8"/>
+  <text x="390" y="188" text-anchor="middle" font-size="15" font-weight="700" fill="#1f2328">Judge</text>
+  <text x="390" y="210" text-anchor="middle" font-size="10.5" fill="#0f766e">impartial, evidence-</text>
+  <text x="390" y="226" text-anchor="middle" font-size="10.5" fill="#0f766e">anchored grader</text>
+  <line x1="225" y1="137" x2="298" y2="180" stroke="#8c959f" stroke-width="1.6" marker-end="url(#jd)"/>
+  <line x1="225" y1="201" x2="298" y2="201" stroke="#8c959f" stroke-width="1.6" marker-end="url(#jd)"/>
+  <line x1="225" y1="265" x2="298" y2="222" stroke="#8c959f" stroke-width="1.6" marker-end="url(#jd)"/>
+
+  <!-- outputs -->
+  <text x="700" y="98" text-anchor="middle" font-size="11" font-weight="700" letter-spacing="0.05em" fill="#8c959f">OUT — one result per criterion</text>
+  <rect x="560" y="112" width="320" height="40" rx="8" fill="#dafbe1" stroke="#1a7f37" stroke-width="1.3"/>
+  <text x="576" y="137" font-size="12" fill="#1f2328"><tspan font-weight="700" fill="#1a7f37">pass</tspan> — cites the satisfying construct</text>
+  <rect x="560" y="158" width="320" height="40" rx="8" fill="#fce9e7" stroke="#cf222e" stroke-width="1.3"/>
+  <text x="576" y="183" font-size="12" font-weight="700" fill="#1f2328"><tspan fill="#cf222e">fail</tspan> — quotes the offending file:line</text>
+  <rect x="560" y="204" width="320" height="40" rx="8" fill="#f6f8fa" stroke="#57606a" stroke-width="1.3"/>
+  <text x="576" y="229" font-size="12" fill="#1f2328"><tspan font-weight="700" fill="#57606a">indeterminate</tspan> — names the missing material</text>
+  <rect x="560" y="250" width="320" height="34" rx="8" fill="#fbfcfe" stroke="#e1e6eb"/>
+  <text x="576" y="272" font-size="11.5" font-style="italic" fill="#57606a">+ generalFeedback (no new verdicts)</text>
+  <line x1="480" y1="200" x2="556" y2="175" stroke="#8c959f" stroke-width="1.8" marker-end="url(#jd)"/>
+
+  <!-- adapters -->
+  <rect x="40" y="320" width="840" height="80" rx="10" fill="#fbfcfe" stroke="#e1e6eb"/>
+  <text x="60" y="346" font-size="12" font-weight="700" fill="#1f2328">One engine, thin adapters — grade any artifact against its own standard</text>
+  <text x="60" y="368" font-size="11.5" fill="#57606a"><tspan font-weight="650" fill="#1f2328">/judge</tspan> test vs Rulebook   ·   <tspan font-weight="650" fill="#1f2328">/judge-authoring</tspan> test-body craft   ·   <tspan font-weight="650" fill="#1f2328">/judge-rulebook</tspan> Rules vs template   ·   <tspan font-weight="650" fill="#1f2328">Doc Engine reviewers</tspan> = judge</text>
+  <text x="60" y="388" font-size="10.5" font-style="italic" fill="#8250df">Today a .claude agent + workflow (its schema is "a future C# record") — generic engine central, the rubrics are the specific content.</text>
+
+  <defs><marker id="jd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8c959f"/></marker></defs>
+</svg>

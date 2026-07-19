@@ -1,75 +1,83 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 560" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif" role="img" aria-label="Governance is the main system managing four subsystems, all expressing structure over prose">
-  <rect x="1" y="1" width="918" height="558" rx="14" fill="#ffffff" stroke="#d0d7de" stroke-width="1.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 600" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif" role="img" aria-label="Governance is a declared prose policy, guarded by human review, enforced by five peer tech layers, under two principles">
+  <rect x="1" y="1" width="918" height="598" rx="14" fill="#ffffff" stroke="#d0d7de" stroke-width="1.5"/>
 
-  <!-- Thesis band -->
-  <rect x="26" y="26" width="868" height="58" rx="10" fill="#eef2f8" stroke="#9aa8bd" stroke-width="1.3"/>
-  <text x="460" y="52" text-anchor="middle" font-size="16" font-weight="700" fill="#1f2328">STRUCTURE OVER PROSE</text>
-  <text x="460" y="72" text-anchor="middle" font-size="12" fill="#57606a">the agent-first wager — rules are structure the machine checks, not prose humans are trusted to follow</text>
+  <!-- Two principles -->
+  <rect x="26" y="24" width="430" height="60" rx="10" fill="#eef2f8" stroke="#9aa8bd" stroke-width="1.3"/>
+  <text x="241" y="49" text-anchor="middle" font-size="14.5" font-weight="700" fill="#1f2328">STRUCTURE OVER PROSE</text>
+  <text x="241" y="70" text-anchor="middle" font-size="11" fill="#57606a">rules are structure the machine checks, not prose to trust</text>
+  <rect x="464" y="24" width="430" height="60" rx="10" fill="#f1ecfa" stroke="#a98fd6" stroke-width="1.3"/>
+  <text x="679" y="49" text-anchor="middle" font-size="14.5" font-weight="700" fill="#1f2328">OWN THE INTERFACE</text>
+  <text x="679" y="70" text-anchor="middle" font-size="11" fill="#57606a">own the seam so providers stay swappable; the workflow is the asset</text>
 
-  <!-- Governance (main system) -->
-  <rect x="300" y="112" width="320" height="72" rx="11" fill="#dfe7f5" stroke="#2457c5" stroke-width="2"/>
-  <text x="460" y="142" text-anchor="middle" font-size="17" font-weight="750" fill="#1f2328">GOVERNANCE</text>
-  <text x="460" y="164" text-anchor="middle" font-size="12" fill="#57606a">the main system — one policy (protected-paths), one shared checker</text>
+  <!-- Governance = policy root -->
+  <rect x="286" y="108" width="348" height="80" rx="11" fill="#dfe7f5" stroke="#2457c5" stroke-width="2"/>
+  <text x="460" y="136" text-anchor="middle" font-size="16" font-weight="750" fill="#1f2328">GOVERNANCE — the declared policy</text>
+  <text x="460" y="157" text-anchor="middle" font-size="11.5" fill="#57606a">prose, not tech: protected-paths + conventions (how things organize)</text>
+  <text x="460" y="176" text-anchor="middle" font-size="11" font-style="italic" fill="#b42318">the root — guarded by human review</text>
 
-  <text x="460" y="206" text-anchor="middle" font-size="11.5" font-style="italic" fill="#8250df">manages ▾</text>
+  <text x="460" y="214" text-anchor="middle" font-size="11.5" font-style="italic" fill="#8250df">enforced by ▾ — its tech IS these five peer layers</text>
 
-  <!-- Subsystems -->
+  <!-- 5 peer layers -->
   <g>
-    <rect x="34" y="228" width="200" height="150" rx="10" fill="#ddf4ff" stroke="#0969da" stroke-width="1.6"/>
-    <text x="134" y="256" text-anchor="middle" font-size="14.5" font-weight="700" fill="#1f2328">Test Harness</text>
-    <text x="134" y="274" text-anchor="middle" font-size="11" fill="#0969da" font-weight="600">Rulebook discipline</text>
-    <line x1="52" y1="286" x2="216" y2="286" stroke="#0969da" stroke-opacity="0.25"/>
-    <text x="134" y="306" text-anchor="middle" font-size="11" fill="#57606a">declare a guarantee</text>
-    <text x="134" y="323" text-anchor="middle" font-size="11" fill="#57606a">as a Rule → prove it</text>
-    <text x="134" y="340" text-anchor="middle" font-size="11" fill="#57606a">with a [Rule] test.</text>
-    <text x="134" y="362" text-anchor="middle" font-size="10.5" font-style="italic" fill="#8c959f">ParityGuard keeps lockstep</text>
+    <rect x="36" y="234" width="160" height="150" rx="10" fill="#ddf4ff" stroke="#0969da" stroke-width="1.6"/>
+    <text x="116" y="262" text-anchor="middle" font-size="13.5" font-weight="700" fill="#1f2328">Test Harness</text>
+    <line x1="52" y1="274" x2="180" y2="274" stroke="#0969da" stroke-opacity="0.25"/>
+    <text x="116" y="298" text-anchor="middle" font-size="11" fill="#57606a">Rule ⇄ proof,</text>
+    <text x="116" y="315" text-anchor="middle" font-size="11" fill="#57606a">kept in lockstep</text>
+    <text x="116" y="332" text-anchor="middle" font-size="11" fill="#57606a">by parity.</text>
+    <text x="116" y="366" text-anchor="middle" font-size="10" font-style="italic" fill="#8c959f">deterministic</text>
   </g>
   <g>
-    <rect x="248" y="228" width="200" height="150" rx="10" fill="#f3ebfc" stroke="#8250df" stroke-width="1.6"/>
-    <text x="348" y="256" text-anchor="middle" font-size="14.5" font-weight="700" fill="#1f2328">Doc Engine</text>
-    <text x="348" y="274" text-anchor="middle" font-size="11" fill="#8250df" font-weight="600">structure for documents</text>
-    <line x1="266" y1="286" x2="430" y2="286" stroke="#8250df" stroke-opacity="0.25"/>
-    <text x="348" y="306" text-anchor="middle" font-size="11" fill="#57606a">kinds → doctypes →</text>
-    <text x="348" y="323" text-anchor="middle" font-size="11" fill="#57606a">block instances →</text>
-    <text x="348" y="340" text-anchor="middle" font-size="11" fill="#57606a">validate in place.</text>
-    <text x="348" y="362" text-anchor="middle" font-size="10.5" font-style="italic" fill="#8c959f">defines a Rulebook's shape</text>
+    <rect x="208" y="234" width="160" height="150" rx="10" fill="#f3ebfc" stroke="#8250df" stroke-width="1.6"/>
+    <text x="288" y="262" text-anchor="middle" font-size="13.5" font-weight="700" fill="#1f2328">Doc Engine</text>
+    <line x1="224" y1="274" x2="352" y2="274" stroke="#8250df" stroke-opacity="0.25"/>
+    <text x="288" y="298" text-anchor="middle" font-size="11" fill="#57606a">doc structure:</text>
+    <text x="288" y="315" text-anchor="middle" font-size="11" fill="#57606a">kinds → doctypes</text>
+    <text x="288" y="332" text-anchor="middle" font-size="11" fill="#57606a">→ validate.</text>
+    <text x="288" y="366" text-anchor="middle" font-size="10" font-style="italic" fill="#8c959f">deterministic</text>
   </g>
   <g>
-    <rect x="462" y="228" width="200" height="150" rx="10" fill="#dafbe1" stroke="#1a7f37" stroke-width="1.6"/>
-    <text x="562" y="256" text-anchor="middle" font-size="14.5" font-weight="700" fill="#1f2328">CODEOWNERS / CI</text>
-    <text x="562" y="274" text-anchor="middle" font-size="11" fill="#1a7f37" font-weight="600">server-side gate</text>
-    <line x1="480" y1="286" x2="644" y2="286" stroke="#1a7f37" stroke-opacity="0.25"/>
-    <text x="562" y="306" text-anchor="middle" font-size="11" fill="#57606a">required review =</text>
-    <text x="562" y="323" text-anchor="middle" font-size="11" fill="#57606a">merge gate of record;</text>
-    <text x="562" y="340" text-anchor="middle" font-size="11" fill="#57606a">CI labels + alerts.</text>
-    <text x="562" y="362" text-anchor="middle" font-size="10.5" font-style="italic" fill="#8c959f">+ bot/owner identity split</text>
+    <rect x="380" y="234" width="160" height="150" rx="10" fill="#dbf1ef" stroke="#0f766e" stroke-width="1.6"/>
+    <text x="460" y="262" text-anchor="middle" font-size="13.5" font-weight="700" fill="#1f2328">Judge</text>
+    <line x1="396" y1="274" x2="524" y2="274" stroke="#0f766e" stroke-opacity="0.3"/>
+    <text x="460" y="298" text-anchor="middle" font-size="11" fill="#57606a">rubric + evidence</text>
+    <text x="460" y="315" text-anchor="middle" font-size="11" fill="#57606a">grading:</text>
+    <text x="460" y="332" text-anchor="middle" font-size="11" fill="#57606a">"is it good?"</text>
+    <text x="460" y="366" text-anchor="middle" font-size="10" font-style="italic" fill="#0f766e">semantic</text>
   </g>
   <g>
-    <rect x="676" y="228" width="200" height="150" rx="10" fill="#f6f8fa" stroke="#57606a" stroke-width="1.6"/>
-    <text x="776" y="256" text-anchor="middle" font-size="14.5" font-weight="700" fill="#1f2328">Hooks</text>
-    <text x="776" y="274" text-anchor="middle" font-size="11" fill="#57606a" font-weight="600">unified reaction surface</text>
-    <line x1="694" y1="286" x2="858" y2="286" stroke="#57606a" stroke-opacity="0.25"/>
-    <text x="776" y="306" text-anchor="middle" font-size="11" fill="#57606a">commit + turn-end events</text>
-    <text x="776" y="323" text-anchor="middle" font-size="11" fill="#57606a">→ declarative .hook</text>
-    <text x="776" y="340" text-anchor="middle" font-size="11" fill="#57606a">reactions, any source.</text>
-    <text x="776" y="362" text-anchor="middle" font-size="10.5" font-style="italic" fill="#8c959f">repo-hooks · abox-hooks</text>
+    <rect x="552" y="234" width="160" height="150" rx="10" fill="#dafbe1" stroke="#1a7f37" stroke-width="1.6"/>
+    <text x="632" y="262" text-anchor="middle" font-size="13.5" font-weight="700" fill="#1f2328">CODEOWNERS/CI</text>
+    <line x1="568" y1="274" x2="696" y2="274" stroke="#1a7f37" stroke-opacity="0.25"/>
+    <text x="632" y="298" text-anchor="middle" font-size="11" fill="#57606a">gate + classifier:</text>
+    <text x="632" y="315" text-anchor="middle" font-size="11" fill="#57606a">who reviews,</text>
+    <text x="632" y="332" text-anchor="middle" font-size="11" fill="#57606a">at what danger.</text>
+    <text x="632" y="366" text-anchor="middle" font-size="10" font-style="italic" fill="#8c959f">merge + triage</text>
+  </g>
+  <g>
+    <rect x="724" y="234" width="160" height="150" rx="10" fill="#f4f6f8" stroke="#64748b" stroke-width="1.6"/>
+    <text x="804" y="262" text-anchor="middle" font-size="13.5" font-weight="700" fill="#1f2328">Hooks</text>
+    <line x1="740" y1="274" x2="868" y2="274" stroke="#64748b" stroke-opacity="0.3"/>
+    <text x="804" y="298" text-anchor="middle" font-size="11" fill="#57606a">automatic reactions</text>
+    <text x="804" y="315" text-anchor="middle" font-size="11" fill="#57606a">on events, any</text>
+    <text x="804" y="332" text-anchor="middle" font-size="11" fill="#57606a">provider.</text>
+    <text x="804" y="366" text-anchor="middle" font-size="10" font-style="italic" fill="#8c959f">automation</text>
   </g>
 
-  <!-- manage arrows -->
-  <line x1="400" y1="184" x2="134" y2="226" stroke="#8c959f" stroke-width="1.6" marker-end="url(#gm)"/>
-  <line x1="435" y1="184" x2="348" y2="226" stroke="#8c959f" stroke-width="1.6" marker-end="url(#gm)"/>
-  <line x1="485" y1="184" x2="562" y2="226" stroke="#8c959f" stroke-width="1.6" marker-end="url(#gm)"/>
-  <line x1="520" y1="184" x2="776" y2="226" stroke="#8c959f" stroke-width="1.6" marker-end="url(#gm)"/>
+  <line x1="400" y1="188" x2="116" y2="232" stroke="#8c959f" stroke-width="1.5" marker-end="url(#gm)"/>
+  <line x1="430" y1="188" x2="288" y2="232" stroke="#8c959f" stroke-width="1.5" marker-end="url(#gm)"/>
+  <line x1="460" y1="188" x2="460" y2="232" stroke="#8c959f" stroke-width="1.5" marker-end="url(#gm)"/>
+  <line x1="490" y1="188" x2="632" y2="232" stroke="#8c959f" stroke-width="1.5" marker-end="url(#gm)"/>
+  <line x1="520" y1="188" x2="804" y2="232" stroke="#8c959f" stroke-width="1.5" marker-end="url(#gm)"/>
 
-  <!-- governed vs distributed note -->
-  <rect x="34" y="410" width="842" height="118" rx="10" fill="#fbfcfe" stroke="#e1e6eb"/>
-  <text x="52" y="436" font-size="12.5" font-weight="700" fill="#1f2328">The one seam to remember</text>
-  <text x="52" y="459" font-size="12" fill="#57606a">Declarations are governed; proof is distributed. Every Rulebook, rubric, and doctype is protected (central,</text>
-  <text x="52" y="477" font-size="12" fill="#57606a">owner-reviewed) — the Rules live inside governance. The only thing that lives outside the wall is the</text>
-  <text x="52" y="495" font-size="12" fill="#57606a">specific [Rule] test code, co-located with the feature it protects.</text>
-  <text x="52" y="518" font-size="11.5" font-style="italic" fill="#8250df">Port the machinery; re-author the content. The Rules describe the old product — rewrite them, don't copy.</text>
+  <!-- note -->
+  <rect x="34" y="418" width="852" height="150" rx="10" fill="#fbfcfe" stroke="#e1e6eb"/>
+  <text x="52" y="444" font-size="12.5" font-weight="700" fill="#1f2328">Two things to carry across</text>
+  <text x="52" y="467" font-size="12" fill="#57606a"><tspan font-weight="700" fill="#1f2328">Peers, no boss.</tspan> Five generic primitives, each a different kind of thing, each building the repo's infrastructure. They</text>
+  <text x="52" y="485" font-size="12" fill="#57606a">connect three ways — a shared artifact, a direct call, or an event (Hooks) — not through one hub.</text>
+  <text x="52" y="510" font-size="12" fill="#57606a"><tspan font-weight="700" fill="#1f2328">Declarations governed; proof distributed.</tspan> Every Rulebook, rubric, doctype, and the judge's criteria are protected</text>
+  <text x="52" y="528" font-size="12" fill="#57606a">(central, owner-reviewed). The specific tests, docs, and artifacts they act on live outside, with the code.</text>
+  <text x="52" y="553" font-size="11.5" font-style="italic" fill="#8250df">Port the machinery; re-author the content — the Rules describe the old product, so rewrite them, don't copy.</text>
 
-  <defs>
-    <marker id="gm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8c959f"/></marker>
-  </defs>
+  <defs><marker id="gm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8c959f"/></marker></defs>
 </svg>
