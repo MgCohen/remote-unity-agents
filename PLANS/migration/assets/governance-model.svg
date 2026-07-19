@@ -47,12 +47,12 @@
   <g>
     <rect x="676" y="228" width="200" height="150" rx="10" fill="#f6f8fa" stroke="#57606a" stroke-width="1.6"/>
     <text x="776" y="256" text-anchor="middle" font-size="14.5" font-weight="700" fill="#1f2328">Hooks</text>
-    <text x="776" y="274" text-anchor="middle" font-size="11" fill="#57606a" font-weight="600">local catch</text>
+    <text x="776" y="274" text-anchor="middle" font-size="11" fill="#57606a" font-weight="600">unified reaction surface</text>
     <line x1="694" y1="286" x2="858" y2="286" stroke="#57606a" stroke-opacity="0.25"/>
-    <text x="776" y="306" text-anchor="middle" font-size="11" fill="#57606a">pre-commit / pre-push</text>
-    <text x="776" y="323" text-anchor="middle" font-size="11" fill="#57606a">block protected edits</text>
-    <text x="776" y="340" text-anchor="middle" font-size="11" fill="#57606a">before they're pushed.</text>
-    <text x="776" y="362" text-anchor="middle" font-size="10.5" font-style="italic" fill="#8c959f">opt-in, bypassable</text>
+    <text x="776" y="306" text-anchor="middle" font-size="11" fill="#57606a">commit + turn-end events</text>
+    <text x="776" y="323" text-anchor="middle" font-size="11" fill="#57606a">→ declarative .hook</text>
+    <text x="776" y="340" text-anchor="middle" font-size="11" fill="#57606a">reactions, any source.</text>
+    <text x="776" y="362" text-anchor="middle" font-size="10.5" font-style="italic" fill="#8c959f">repo-hooks · abox-hooks</text>
   </g>
 
   <!-- manage arrows -->

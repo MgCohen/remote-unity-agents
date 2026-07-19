@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 540" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif" role="img" aria-label="Repo-hooks: many event sources funnel into one stream and controller, which fans out to declarative hook reactions">
+  <rect x="1" y="1" width="918" height="538" rx="14" fill="#ffffff" stroke="#d0d7de" stroke-width="1.5"/>
+  <text x="460" y="40" text-anchor="middle" font-size="19" font-weight="700" fill="#1f2328">Hooks — one surface for every repo &amp; agent reaction</text>
+  <text x="460" y="62" text-anchor="middle" font-size="12" fill="#57606a">any source funnels in · one stream · reactions fan out — declarative, no build, no registration</text>
+
+  <!-- Sources -->
+  <text x="120" y="100" text-anchor="middle" font-size="11" font-weight="700" letter-spacing="0.05em" fill="#8c959f">EVENT SOURCES</text>
+  <g>
+    <rect x="36" y="118" width="168" height="52" rx="9" fill="#f6f8fa" stroke="#57606a" stroke-width="1.4"/>
+    <text x="120" y="140" text-anchor="middle" font-size="12.5" font-weight="650" fill="#1f2328">git post-commit</text>
+    <text x="120" y="158" text-anchor="middle" font-size="11" fill="#1a7f37" font-weight="600">CommitLanded</text>
+  </g>
+  <g>
+    <rect x="36" y="196" width="168" height="52" rx="9" fill="#f6f8fa" stroke="#57606a" stroke-width="1.4"/>
+    <text x="120" y="218" text-anchor="middle" font-size="12.5" font-weight="650" fill="#1f2328">Claude turn ends</text>
+    <text x="120" y="236" text-anchor="middle" font-size="11" fill="#0969da" font-weight="600">TurnEnded</text>
+  </g>
+  <g>
+    <rect x="36" y="274" width="168" height="52" rx="9" fill="#fbfcfe" stroke="#c4ccd6" stroke-width="1.3" stroke-dasharray="4 3"/>
+    <text x="120" y="296" text-anchor="middle" font-size="12.5" font-weight="650" fill="#57606a">codex / others</text>
+    <text x="120" y="314" text-anchor="middle" font-size="11" fill="#8c959f" font-weight="600">source-agnostic</text>
+  </g>
+
+  <!-- Stream -->
+  <rect x="268" y="176" width="150" height="94" rx="10" fill="#ddf4ff" stroke="#0969da" stroke-width="1.6"/>
+  <text x="343" y="206" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1f2328">.abox/</text>
+  <text x="343" y="224" text-anchor="middle" font-size="12.5" font-family="monospace" fill="#1f2328">hooks.jsonl</text>
+  <text x="343" y="248" text-anchor="middle" font-size="10.5" fill="#57606a">one event stream</text>
+
+  <!-- funnel arrows -->
+  <line x1="204" y1="144" x2="266" y2="196" stroke="#8c959f" stroke-width="1.6" marker-end="url(#hk)"/>
+  <line x1="204" y1="222" x2="266" y2="222" stroke="#8c959f" stroke-width="1.6" marker-end="url(#hk)"/>
+  <line x1="204" y1="300" x2="266" y2="248" stroke="#8c959f" stroke-width="1.6" marker-end="url(#hk)"/>
+
+  <!-- Controller -->
+  <rect x="446" y="176" width="150" height="94" rx="10" fill="#fff8c5" stroke="#9a6700" stroke-width="1.6"/>
+  <text x="521" y="204" text-anchor="middle" font-size="13" font-weight="700" fill="#1f2328">abox-hooks</text>
+  <text x="521" y="222" text-anchor="middle" font-size="10.5" fill="#57606a">controller</text>
+  <text x="521" y="242" text-anchor="middle" font-size="10" fill="#57606a">globs .hook files,</text>
+  <text x="521" y="256" text-anchor="middle" font-size="10" fill="#57606a">matches on: / when:</text>
+  <line x1="418" y1="223" x2="444" y2="223" stroke="#8c959f" stroke-width="1.8" marker-end="url(#hk)"/>
+
+  <!-- Reactions -->
+  <text x="742" y="100" text-anchor="middle" font-size="11" font-weight="700" letter-spacing="0.05em" fill="#8c959f">.hook REACTIONS</text>
+  <g>
+    <rect x="628" y="112" width="256" height="46" rx="9" fill="#f3ebfc" stroke="#8250df" stroke-width="1.4"/>
+    <text x="644" y="132" font-size="12" font-weight="650" fill="#1f2328">doc-engine — validate changed docs</text>
+    <text x="644" y="149" font-size="10.5" fill="#8250df">run: · blocks the turn if a doc is invalid</text>
+  </g>
+  <g>
+    <rect x="628" y="166" width="256" height="46" rx="9" fill="#fce9e7" stroke="#cf222e" stroke-width="1.4"/>
+    <text x="644" y="186" font-size="12" font-weight="650" fill="#1f2328">protected-path guard</text>
+    <text x="644" y="203" font-size="10.5" fill="#cf222e">run: protected-paths-check.sh</text>
+  </g>
+  <g>
+    <rect x="628" y="220" width="256" height="46" rx="9" fill="#dafbe1" stroke="#1a7f37" stroke-width="1.4"/>
+    <text x="644" y="240" font-size="12" font-weight="650" fill="#1f2328">fresh reviewer agent</text>
+    <text x="644" y="257" font-size="10.5" fill="#1a7f37">agent: · any prompt, no code</text>
+  </g>
+  <g>
+    <rect x="628" y="274" width="256" height="46" rx="9" fill="#f6f8fa" stroke="#57606a" stroke-width="1.4"/>
+    <text x="644" y="294" font-size="12" font-weight="650" fill="#1f2328">any feature .hook</text>
+    <text x="644" y="311" font-size="10.5" fill="#57606a">run: · event as JSON on stdin, any language</text>
+  </g>
+  <line x1="596" y1="215" x2="626" y2="135" stroke="#8c959f" stroke-width="1.5" marker-end="url(#hk)"/>
+  <line x1="596" y1="219" x2="626" y2="189" stroke="#8c959f" stroke-width="1.5" marker-end="url(#hk)"/>
+  <line x1="596" y1="227" x2="626" y2="243" stroke="#8c959f" stroke-width="1.5" marker-end="url(#hk)"/>
+  <line x1="596" y1="231" x2="626" y2="297" stroke="#8c959f" stroke-width="1.5" marker-end="url(#hk)"/>
+
+  <!-- Modes strip -->
+  <rect x="36" y="372" width="848" height="72" rx="10" fill="#fbfcfe" stroke="#e1e6eb"/>
+  <text x="52" y="396" font-size="12" font-weight="700" fill="#1f2328">Every hook picks a mode</text>
+  <text x="52" y="418" font-size="11.5" fill="#57606a"><tspan font-weight="650" fill="#1f2328">notify</tspan> — async, result ignored   ·   <tspan font-weight="650" fill="#1f2328">gate</tspan> — blocks the action   ·   <tspan font-weight="650" fill="#1f2328">check</tspan> — synchronous: output is fed back to the</text>
+  <text x="52" y="434" font-size="11.5" fill="#57606a">running agent, and a non-zero exit blocks the turn from ending until the agent addresses it.</text>
+
+  <text x="460" y="470" text-anchor="middle" font-size="11.5" font-style="italic" fill="#8250df">Drop a declarative .hook in any folder — no build, no registration. Opt in per repo with an .abox/ directory.</text>
+  <text x="460" y="490" text-anchor="middle" font-size="11" fill="#8c959f">The governance protected-path guard and doc-engine validation are two consumers of this one surface — not separate plumbing.</text>
+
+  <defs>
+    <marker id="hk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8c959f"/></marker>
+  </defs>
+</svg>
