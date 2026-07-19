@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 600" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif" role="img" aria-label="Governance is a declared prose policy, guarded by human review, enforced by five peer tech layers, under two principles">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 600" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif" role="img" aria-label="Governance is a declared prose policy, guarded by human review, enforced by five peer tech layers, under two tenets">
   <rect x="1" y="1" width="918" height="598" rx="14" fill="#ffffff" stroke="#d0d7de" stroke-width="1.5"/>
 
   <!-- Two principles -->
@@ -6,8 +6,8 @@
   <text x="241" y="49" text-anchor="middle" font-size="14.5" font-weight="700" fill="#1f2328">STRUCTURE OVER PROSE</text>
   <text x="241" y="70" text-anchor="middle" font-size="11" fill="#57606a">rules are structure the machine checks, not prose to trust</text>
   <rect x="464" y="24" width="430" height="60" rx="10" fill="#f1ecfa" stroke="#a98fd6" stroke-width="1.3"/>
-  <text x="679" y="49" text-anchor="middle" font-size="14.5" font-weight="700" fill="#1f2328">OWN THE INTERFACE</text>
-  <text x="679" y="70" text-anchor="middle" font-size="11" fill="#57606a">own the seam so providers stay swappable; the workflow is the asset</text>
+  <text x="679" y="49" text-anchor="middle" font-size="14.5" font-weight="700" fill="#1f2328">OWN YOUR BOUNDARIES</text>
+  <text x="679" y="70" text-anchor="middle" font-size="11" fill="#57606a">own both sides — inbound &amp; outbound — so a provider swap changes nothing else</text>
 
   <!-- Governance = policy root -->
   <rect x="286" y="108" width="348" height="80" rx="11" fill="#dfe7f5" stroke="#2457c5" stroke-width="2"/>
@@ -47,7 +47,8 @@
   </g>
   <g>
     <rect x="552" y="234" width="160" height="150" rx="10" fill="#dafbe1" stroke="#1a7f37" stroke-width="1.6"/>
-    <text x="632" y="262" text-anchor="middle" font-size="13.5" font-weight="700" fill="#1f2328">CODEOWNERS/CI</text>
+    <text x="632" y="262" text-anchor="middle" font-size="13.5" font-weight="700" fill="#1f2328">Gate</text>
+    <text x="632" y="278" text-anchor="middle" font-size="9" fill="#8c959f">(CODEOWNERS + CI)</text>
     <line x1="568" y1="274" x2="696" y2="274" stroke="#1a7f37" stroke-opacity="0.25"/>
     <text x="632" y="298" text-anchor="middle" font-size="11" fill="#57606a">gate + classifier:</text>
     <text x="632" y="315" text-anchor="middle" font-size="11" fill="#57606a">who reviews,</text>

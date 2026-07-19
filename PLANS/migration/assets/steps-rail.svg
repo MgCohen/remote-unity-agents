@@ -30,7 +30,7 @@
   <text x="748" y="138" text-anchor="middle" font-size="9.5" fill="#8250df" font-weight="600">deferrable</text>
 
   <circle cx="863" cy="88" r="17" fill="#1a7f37"/><text x="863" y="93" text-anchor="middle" font-size="14" font-weight="700" fill="#ffffff">7</text>
-  <text x="863" y="124" text-anchor="middle" font-size="10.5" font-weight="600" fill="#1f2328">CI + Hooks</text>
+  <text x="863" y="124" text-anchor="middle" font-size="10.5" font-weight="600" fill="#1f2328">Gate + Hooks</text>
   <text x="863" y="138" text-anchor="middle" font-size="9.5" fill="#8c959f">+ ruleset</text>
 
   <text x="460" y="184" text-anchor="middle" font-size="11" fill="#57606a">Walking skeleton first: a green build at Step 4, then the semantic + doc layers, then the server-side gate. Solid = core · dashed = deferrable.</text>

@@ -1,7 +1,7 @@
 # Migrating Governance to a New Repo
 
 > A cold-readable guide for lifting **governance** — and the five peer primitives it
-> declares (Test Harness · Doc Engine · Judge · CODEOWNERS/CI · Hooks) — out of
+> declares (Test Harness · Doc Engine · Judge · Gate · Hooks) — out of
 > `abox-server` into a repository built from scratch.
 
 **Before you start.** No prior `abox-server` knowledge is assumed. Two porting rules frame everything:
@@ -13,21 +13,24 @@
   in the control surface is POSIX shell with no libraries, so it behaves identically on a dev
   box, in CI, and in an agent hook. Don't "tidy" a shell guard with a dependency.
 
-## The two principles (the frame)
+## Our two tenets (how we work — not part of the flow)
 
-The whole system is a consequence of two ideas. They're the **why**; everything else is the **what**.
+These are not components; they're **tenets** — the two ideas we follow to the letter, the ones
+that define how we work. They sit *above* the machinery and never appear *in* it: every layer
+below is built to serve them. They're the **why**; everything else is the **what**.
 
 > **1 · Structure over prose.** Rules are *structure the machine checks*, not prose humans
 > (or agents) are trusted to follow. A guarantee encoded as a project reference, a parity
 > check, or a schema fires in the build itself and is **tamper-evident** — evading it is a
 > visible diff a reviewer can gate.
 
-> **2 · Own the interface.** In an era where models and harnesses turn over every few months,
-> the durable asset is the *workflow* — the business logic — not provider-coupled glue.
-> Governance owns the seam so providers (Claude, Codex, the next thing) stay **swappable** and
-> reactions live **with the code that needs them**, not scattered in a vendor's magic folder.
+> **2 · Own your boundaries.** Own how the system connects on **both** sides — inbound (how the
+> outside reaches in) and outbound (how your parts reach out) — so that when a provider, model, or
+> harness turns over, **nothing else does.** The durable asset is your *workflow*; the glue to
+> Claude, Codex, or the next thing is a thin, swappable adapter, and reactions live **with the code
+> that needs them**, not scattered in a vendor's magic folder.
 
-Under those two principles, the structure is one picture:
+Everything below is built to serve those two tenets. The structure is one picture:
 
 ![Governance is a declared policy, human-guarded, enforced by five peer layers](assets/governance-model.svg)
 
@@ -38,9 +41,9 @@ Under those two principles, the structure is one picture:
 - [Part 1 — The model](#part-1--the-model)
   - [Governance: the policy root (not tech)](#governance-the-policy-root-not-tech)
   - [The five peer primitives, and how they interlock](#the-five-peer-primitives-and-how-they-interlock)
-  - [1 · Test Harness](#1--test-harness) · [2 · Doc Engine](#2--doc-engine) · [3 · Judge](#3--judge) · [4 · CODEOWNERS / CI](#4--codeowners--ci) · [5 · Hooks](#5--hooks)
+  - [1 · Test Harness](#1--test-harness) · [2 · Doc Engine](#2--doc-engine) · [3 · Judge](#3--judge) · [4 · Gate](#4--gate) · [5 · Hooks](#5--hooks)
 - [Part 2 — The migration](#part-2--the-migration)
-  - [0 — Decisions](#step-0--decisions) · [1 — Build seam](#step-1--build--test-seam) · [2 — Governance core](#step-2--governance-core) · [3 — Test Harness](#step-3--test-harness) · [4 — Central tests](#step-4--central-tests-re-author) · [5 — Judge](#step-5--judge) · [6 — Doc Engine](#step-6--doc-engine) · [7 — CI + Hooks + ruleset](#step-7--codeowners--ci--hooks--the-github-ruleset)
+  - [0 — Decisions](#step-0--decisions) · [1 — Build seam](#step-1--build--test-seam) · [2 — Governance core](#step-2--governance-core) · [3 — Test Harness](#step-3--test-harness) · [4 — Central tests](#step-4--central-tests-re-author) · [5 — Judge](#step-5--judge) · [6 — Doc Engine](#step-6--doc-engine) · [7 — Gate + Hooks + ruleset](#step-7--gate--hooks--the-github-ruleset)
 - [Reference](#reference) — [A · Verification](#appendix-a--verification-checklist) · [B · Rename & config](#appendix-b--rename--config-reference) · [C · File inventory](#appendix-c--file-inventory) · [Source ADRs](#source-adrs)
 
 ---
@@ -82,7 +85,7 @@ The five are **peers — no boss.** Each is a generic **primitive** (a capabilit
 | **1** | **Test Harness** | the Rule ⇄ proof structure | Doc Engine (Rulebook = doctype) · Judge (authoring grading) | deterministic |
 | **2** | **Doc Engine** | the doc schema / catalog | Test Harness (its own Rulebook) · Judge (reviewers) | deterministic |
 | **3** | **Judge** | generic rubric + evidence grading | rubrics/criteria the others supply | **semantic** |
-| **4** | **CODEOWNERS / CI** | the merge gate + danger classifier | the policy the others declare into | gate + triage |
+| **4** | **Gate** | the merge gate + danger classifier | the policy the others declare into | gate + triage |
 | **5** | **Hooks** | automatic reactions on events | nothing — it wires the automatic path | automation |
 
 **They don't connect through a hub — they connect three different ways**, and Hooks owns only
@@ -137,6 +140,7 @@ matching test code (`[Rule("<header>")]`), and the engine fails the build if the
 - **Parity** — every `### ` header has ≥1 `[Rule]` test; every `[Rule]` cites a real header.
 - **Taxonomy** — every test lives in a registered type (Arch, Structure, Unit, E2E, Wire, Live, Docs); a stray folder fails the build.
 - **Co-location** — a feature's tests live *with* the feature; discovery is by location, so adding a feature needs no central wiring.
+- **Structural guards** — two ownerless suites ride *on* the harness: **Arch** derives its forbidden-edge graph from a single *allow-graph* (no hand-maintained denylist to rot), and **Structure** scans `src/` on the filesystem for placement/naming the compiler can't see. Both are harness test types, kept honest by the same parity.
 
 **Why it matters.** The suite is self-documenting and self-policing — you can't drop a guarantee
 by accident because parity goes red. It's a **ratchet**: easy to tighten, hard to loosen.
@@ -147,7 +151,8 @@ by accident because parity goes red. It's a **ratchet**: easy to tighten, hard t
 |---|---|
 | `tests/Harness/` | Shared base: `[Rule]`/`[LiveFact]` attributes, `Report`, `RepoTree` locator. |
 | `tests/Harness/Tests/` | The engine: `ParityGuard`, `TestTypes`, `Suites`. |
-| `tests/Central/` | The ownerless structural suites: `Arch`, `Structure`, `Docs`. |
+| `tests/Central/Arch/`, `Structure/` | The structural guards — allow-graph forbidden edges + filesystem placement scan. |
+| `tests/Central/Docs/` | The ownerless `Docs` suite (lands with Doc Engine, Step 6). |
 | `tests/Rubrics/` | Per-type criteria a Rulebook's Rules are graded against (by the Judge). |
 | `dirs.proj` | Test-discovery seam — globs every test project for `dotnet test dirs.proj`. |
 
@@ -164,6 +169,7 @@ catalog: a meta-schema → **kinds** → **doctypes** → **block instances**, p
 - **Distill + validate** — a freeform dump becomes a block `instance.md` that must conform to its doctype.
 - **The on-change pipeline** — when a doc changes, **validate → checks** (both *block*) then **reviewers** (fresh agents = the **Judge**, *advise*). Triggered by a **Hooks** event via `on-doc-change.hook` (`mode: check`).
 - **Defines the Rulebook itself** — the `rulebook` and `rubric` are doctypes ([ADR 0015](#source-adrs)), so Doc Engine is the schema floor beneath the Test Harness *and* validates ADRs and plans the same way.
+- **Guides are runnable** — a `guide` doctype's *structure* is validated here, but its *procedures* are executed by **walk-guide**, a runtime companion that walks each step in a throwaway worktree and checks the stated Outcome. Structure here, execution there.
 
 **Why it matters.** It's the reason "structured, not prose" is enforceable for docs, not a style
 preference — a malformed Rulebook or ADR fails a check, in place.
@@ -176,6 +182,7 @@ preference — a malformed Rulebook or ADR fails a check, in place.
 | `tools/doc-engine/kinds/`, `blocks/`, `doctypes/` | The data-defined catalog (incl. the `rulebook` + `rubric` doctypes). |
 | `tools/doc-engine/*.cs` | The CLI: `SchemaChecker`, `InstanceParser`, `DocValidator`, `Catalog`, `Outline`. |
 | `tools/doc-engine/on-doc-change.hook` | The Hooks manifest that fires the on-change pipeline. |
+| `.claude/agents/walk-guide.md` | Runtime companion — walks a guide's procedures and checks each Outcome. |
 
 ---
 
@@ -207,11 +214,16 @@ isn't a shipped path — see `research/evaluators/` for that direction.)*
 
 ---
 
-## 4 · CODEOWNERS / CI
+## 4 · Gate
 
-**What it is.** The **server-side** half of governance — and it does *two* jobs, not one: a **gate**
-(what can merge) *and* a **concern classifier** (how dangerous a change is). The policy row encodes
-both: `owner` = routing, `tier` = danger level.
+**What it is.** The **turnstile** every change passes through — the server-side half of governance.
+It does *two* jobs, not one: a **gate** (what can merge) *and* a **concern classifier** (how
+dangerous a change is). The policy row encodes both: `owner` = routing, `tier` = danger level.
+
+> **Why "Gate", not "CI".** Its mechanism is CODEOWNERS + the `policy-guard` job — but there's no
+> *integration* logic in it. The real CI (`build-test`: build + run the suite) belongs to the **Test
+> Harness**; the Gate merely *runs inside* CI. Naming it "CI" conflated the vehicle (GitHub Actions)
+> with the function (a gate). It's a gate.
 
 **What it does.**
 
@@ -226,12 +238,13 @@ both: `owner` = routing, `tier` = danger level.
 
 - **`policy-guard` CI job** — verifies CODEOWNERS is in sync (this step *can* fail the build) and advisorily annotates + tier-labels PRs. The label is a *projection* — anything that gates recomputes from the policy.
 - **Identity split** — a non-admin bot authors PRs; the owner approves. This closes the *solo-account paradox* (approvals key on the account) — [ADR 0010](#source-adrs). `identity-check.sh` proves commits are the bot, and is itself a gated Live test.
+- **Freshness (prototyped, unwired)** — the Gate already computes *changed files per PR*. That same signal feeds `tools/eval-staleness`, a content-hash cache (keyed on `git hash-object`, **not** mtimes — meaningless in fresh ephemeral clones) that reports which features are *unchanged since their last green test* and can skip or thin re-testing. Built as a standalone tool today, not yet wired into the Gate — the natural next extension.
 
 **Why it matters.** Agent-driven repos generate more change than any human can read, and the root
 backstop is human review with **finite attention**. The tier is how you ration it — escalate
 proportional to danger. And because the tier is **structured data**, other tools can build
 enforcement GitHub's binary controls can't: "confirm this 4×", "push it to the top of the review
-list", graded friction. That's *own the interface* applied to review severity.
+list", graded friction. That's *own your boundaries* applied to review severity.
 
 > **Built vs. designed-for** (so the doc doesn't overclaim): today all three tiers gate
 > *identically* (code-owner review); the tier adds *signal* — a PR label, and a push alert for
@@ -246,6 +259,7 @@ list", graded friction. That's *own the interface* applied to review severity.
 | `.github/workflows/ci.yml` (`policy-guard`) | CODEOWNERS-sync check + advisory annotations & tier labels. |
 | `governance/identity-check.sh` | Proves commits are the bot, never the owner. |
 | `governance/notify*` | Optional critical-path push alerts (Apprise/ntfy). |
+| `tools/eval-staleness/` | Content-hash freshness cache — which features are stale (standalone, unwired). |
 
 ---
 
@@ -263,7 +277,7 @@ the layers connect (the automatic one), not a bus everything rides.
 - **Modes** — `notify` (async) · `check` (synchronous: output fed back to the running agent, non-zero exit **blocks the turn from ending**). *(`gate` is parseable but not yet dispatched.)*
 - **Opt-in + transport** — a repo opts in with an `.abox/` directory; events append to `.abox/hooks.jsonl` and dispatch via a cursor. `abox-hooks install-git` writes `.git/hooks/post-commit`; `install-claude` writes the Claude Stop hook.
 
-**Why it matters — this is *own the interface* in action.** Normally a Claude hook lives in a
+**Why it matters — this is *own your boundaries* in action.** Normally a Claude hook lives in a
 provider-specific folder (`.claude/hooks`) in a provider-specific way — so the reaction stops living
 with the system that needs it, and your codebase fragments. Here, `ClaudeHooks` normalizes the
 provider's raw payload into a generic **jsonl wire line** (*"not shared types… so the controller can
@@ -398,7 +412,7 @@ question is **sequencing** (v1 vs later).
 - **Verify** — `docengine check` + `docengine validate <a Rulebook>` pass; `dotnet test dirs.proj`
   runs the `Docs` type green.
 
-## Step 7 — CODEOWNERS / CI + Hooks + the GitHub ruleset
+## Step 7 — Gate + Hooks + the GitHub ruleset
 
 - **Goal** — the enforcers wired, and the server-side guarantees the files assume.
 - **Copy** — `tools/hooks/**` (the `abox-hooks` engine) + any `.hook` files you keep; `.githooks/**`;
@@ -481,6 +495,8 @@ question is **sequencing** (v1 vs later).
 | `tools/doc-engine/{doctypes,blocks,kinds}/**` | **Re-author** | Keep `rulebook`/`rubric`; adapt ADR/plan doctypes. |
 | `tests/Fixtures/**` (`Op`, `OpFlow`) | **Re-author or drop** | Product-shaped examples. |
 | `governance/notify*` | **Defer (optional)** | Add once you want alerts. |
+| `tools/eval-staleness/**` | **Port, re-author map** | Content-hash freshness cache; `features.json` is product-specific. |
+| `.claude/agents/walk-guide.md`, command | **Port as-is** | Generic guide-runner; travels with Doc Engine. |
 | `CLAUDE.md` "Repo controls" section | **Rewrite** | Point at the new repo's paths. |
 
 ## Source ADRs
