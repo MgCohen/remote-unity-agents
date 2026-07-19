@@ -154,28 +154,23 @@
   .stat .l { font-size: 13px; color: var(--muted); margin-top: 7px; line-height: 1.46; }
   .stat .s { font-family: var(--mono); font-size: 10.5px; color: var(--faint); margin-top: 9px; display: block; }
 
-  /* Fig. 1 — animated context bloat */
-  #figstory .chip, #figstory .endgrp { opacity: 0; }
-  #figstory .c1 { animation: sRev1 13s ease-in-out infinite; }
-  #figstory .c2 { animation: sRev2 13s ease-in-out infinite; }
-  #figstory .c3 { animation: sRev3 13s ease-in-out infinite; }
-  #figstory .c4 { animation: sRev4 13s ease-in-out infinite; }
-  #figstory .c5 { animation: sRev5 13s ease-in-out infinite; }
-  #figstory .endgrp { animation: sRev6 13s ease-in-out infinite; }
-  #figstory .ph { animation: sPh 13s ease-in-out infinite; }
-  @keyframes sRev1 { 0%,6%{opacity:0} 9%,93%{opacity:1} 100%{opacity:0} }
-  @keyframes sRev2 { 0%,20%{opacity:0} 23%,93%{opacity:1} 100%{opacity:0} }
-  @keyframes sRev3 { 0%,34%{opacity:0} 37%,93%{opacity:1} 100%{opacity:0} }
-  @keyframes sRev4 { 0%,48%{opacity:0} 51%,93%{opacity:1} 100%{opacity:0} }
-  @keyframes sRev5 { 0%,62%{opacity:0} 65%,93%{opacity:1} 100%{opacity:0} }
-  @keyframes sRev6 { 0%,76%{opacity:0} 79%,93%{opacity:1} 100%{opacity:0} }
-  @keyframes sPh {
-    0%,6%{transform:translateY(0)} 20%{transform:translateY(34px)} 34%{transform:translateY(68px)}
-    48%{transform:translateY(102px)} 62%{transform:translateY(136px)} 76%,100%{transform:translateY(170px)}
-  }
+  /* Fig. 1 — animated context / agent / plan loop */
+  #figstory .row, #figstory .endgrp { opacity: 0; }
+  #figstory .r1 { animation: sRev1 13s ease-in-out infinite; }
+  #figstory .r2 { animation: sRev2 13s ease-in-out infinite; }
+  #figstory .r3 { animation: sRev3 13s ease-in-out infinite; }
+  #figstory .r4 { animation: sRev4 13s ease-in-out infinite; }
+  #figstory .endgrp { animation: sRev5 13s ease-in-out infinite; }
+  #figstory .flow { stroke-dasharray: 6 6; animation: sFlow 0.9s linear infinite; }
+  @keyframes sRev1 { 0%,8%{opacity:0} 12%,92%{opacity:1} 100%{opacity:0} }
+  @keyframes sRev2 { 0%,30%{opacity:0} 34%,92%{opacity:1} 100%{opacity:0} }
+  @keyframes sRev3 { 0%,52%{opacity:0} 56%,92%{opacity:1} 100%{opacity:0} }
+  @keyframes sRev4 { 0%,74%{opacity:0} 78%,92%{opacity:1} 100%{opacity:0} }
+  @keyframes sRev5 { 0%,80%{opacity:0} 84%,92%{opacity:1} 100%{opacity:0} }
+  @keyframes sFlow { to { stroke-dashoffset: -12; } }
   @media (prefers-reduced-motion: reduce) {
-    #figstory .chip, #figstory .endgrp { opacity: 1; animation: none; }
-    #figstory .ph { animation: none; transform: translateY(170px); }
+    #figstory .row, #figstory .endgrp { opacity: 1; animation: none; }
+    #figstory .flow { animation: none; }
   }
 
   footer { border-top: 1px solid var(--hairline); margin-top: 20px; }
@@ -233,34 +228,51 @@
       <p>Somewhere in that pile a guardrail got reworded, an instruction picked up a near-duplicate that says something slightly different, the original intent slipped under its own footnotes. Now neither of you can point to the line that's actually true. The plan didn't fail — it <strong>drowned</strong>.</p>
 
       <div class="figure">
-        <div class="cap"><b>Fig. 1</b> &nbsp;·&nbsp; the context fills, task by task</div>
+        <div class="cap"><b>Fig. 1</b> &nbsp;·&nbsp; the loop that fills the context</div>
         <div class="svgwrap">
-          <svg id="figstory" viewBox="0 0 720 300" role="img" aria-label="You start the agent and it works task by task. With each task the context gains another chip — an insight, a tweak, an appended instruction — until the original plan is buried and it is unclear which line is real.">
-            <text x="34" y="30" class="t-tiny">tasks</text>
-            <rect class="ph" x="34" y="44" width="180" height="28" rx="6" fill="var(--anchor-soft)"/>
-            <text x="52" y="63" class="t-small" font-weight="600">task 1</text>
-            <text x="52" y="97" class="t-small">task 2</text>
-            <text x="52" y="131" class="t-small">task 3</text>
-            <text x="52" y="165" class="t-small">task 4</text>
-            <text x="52" y="199" class="t-small">task 5</text>
-            <text x="52" y="233" class="t-small">task 6</text>
+          <svg id="figstory" viewBox="0 0 760 410" role="img" aria-label="A cycle: the context — a stack of instructions, insights and files — feeds the AI agent, which runs a plan of tasks, which loops back and adds more to the context. Each turn the stack grows, piling duplicate instructions until it is unclear which one still holds.">
+            <defs>
+              <marker id="s-arrow" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--muted)"/></marker>
+            </defs>
 
-            <text x="250" y="30" class="t-small" font-weight="600">the context</text>
-            <rect x="250" y="40" width="430" height="248" rx="10" fill="none" class="stroke-line"/>
+            <rect x="40" y="54" width="300" height="196" rx="12" fill="var(--surface)" class="stroke-line"/>
+            <rect x="130" y="36" width="140" height="32" rx="8" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="200" y="57" class="t-small t-anchor" text-anchor="middle" font-weight="600">Context</text>
 
-            <g class="chip c1"><rect x="270" y="248" width="390" height="34" rx="7" fill="var(--anchor-soft)" stroke="var(--anchor)"/><text x="286" y="270" class="t-small">the plan + guardrails</text></g>
-            <g class="chip c2"><rect x="270" y="210" width="390" height="34" rx="7" class="fill-s2" stroke="var(--drift)"/><text x="286" y="232" class="t-small">+ an insight</text></g>
-            <g class="chip c3"><rect x="270" y="172" width="390" height="34" rx="7" class="fill-s2" stroke="var(--drift)"/><text x="286" y="194" class="t-small">+ a tweak</text></g>
-            <g class="chip c4"><rect x="270" y="134" width="390" height="34" rx="7" fill="var(--breach-soft)" stroke="var(--breach)"/><text x="286" y="156" class="t-small">+ an exception</text></g>
-            <g class="chip c5"><rect x="270" y="96" width="390" height="34" rx="7" fill="var(--breach-soft)" stroke="var(--breach)"/><text x="286" y="118" class="t-small">+ another instruction</text></g>
+            <g class="row r4"><rect x="58" y="72" width="264" height="36" rx="7" fill="var(--approved)" fill-opacity="0.16" stroke="var(--approved)"/><text x="190" y="95" class="t-small" text-anchor="middle">Instructions</text></g>
+            <g class="row r3"><rect x="58" y="112" width="264" height="36" rx="7" fill="var(--approved)" fill-opacity="0.16" stroke="var(--approved)"/><text x="190" y="135" class="t-small" text-anchor="middle">Instructions</text></g>
+            <g class="row r2"><rect x="58" y="152" width="264" height="36" rx="7" fill="var(--drift)" fill-opacity="0.2" stroke="var(--drift)"/><text x="190" y="175" class="t-small" text-anchor="middle">Insights</text></g>
+            <g class="row r1"><rect x="58" y="192" width="264" height="36" rx="7" fill="var(--breach)" fill-opacity="0.16" stroke="var(--breach)"/><text x="190" y="215" class="t-small" text-anchor="middle">Files</text></g>
 
             <g class="endgrp">
-              <rect x="270" y="248" width="390" height="34" rx="7" fill="none" stroke="var(--breach)" stroke-width="2"/>
-              <text x="465" y="70" class="t-small t-breach" text-anchor="middle" font-weight="600">which line is the real one?</text>
+              <rect x="54" y="68" width="272" height="84" rx="8" fill="none" stroke="var(--breach)" stroke-width="1.6" stroke-dasharray="5 4"/>
+              <text x="60" y="272" class="t-small t-breach" font-weight="600">two “Instructions” — which one still holds?</text>
             </g>
+
+            <circle cx="562" cy="82" r="4" fill="var(--anchor)"/>
+            <line x1="562" y1="86" x2="562" y2="96" stroke="var(--anchor)" stroke-width="2"/>
+            <rect x="528" y="96" width="68" height="50" rx="10" fill="var(--anchor-soft)" stroke="var(--anchor)" stroke-width="2"/>
+            <text x="562" y="128" class="t-label t-anchor" text-anchor="middle" font-weight="700">AI</text>
+            <rect x="536" y="150" width="52" height="30" rx="7" fill="var(--anchor-soft)" stroke="var(--anchor)" stroke-width="2"/>
+            <line x1="536" y1="163" x2="521" y2="171" stroke="var(--anchor)" stroke-width="2"/>
+            <line x1="588" y1="163" x2="603" y2="171" stroke="var(--anchor)" stroke-width="2"/>
+
+            <rect x="398" y="354" width="326" height="8" rx="4" class="fill-s2 stroke-line"/>
+            <circle cx="398" cy="358" r="13" class="fill-s2 stroke-line"/>
+            <circle cx="724" cy="358" r="13" class="fill-s2 stroke-line"/>
+            <rect x="406" y="292" width="56" height="62" rx="9" class="fill-s2 stroke-line"/><text x="434" y="327" class="t-small" text-anchor="middle">task</text>
+            <rect x="470" y="292" width="56" height="62" rx="9" class="fill-s2 stroke-line"/><text x="498" y="327" class="t-small" text-anchor="middle">task</text>
+            <rect x="534" y="292" width="56" height="62" rx="9" class="fill-s2 stroke-line"/><text x="562" y="327" class="t-small" text-anchor="middle">task</text>
+            <rect x="598" y="292" width="56" height="62" rx="9" class="fill-s2 stroke-line"/><text x="626" y="327" class="t-small" text-anchor="middle">task</text>
+            <rect x="662" y="292" width="56" height="62" rx="9" class="fill-s2 stroke-line"/><text x="690" y="327" class="t-small" text-anchor="middle">task</text>
+            <text x="561" y="392" class="t-label" text-anchor="middle" font-weight="600">Plan</text>
+
+            <path class="flow" d="M340 116 C420 96 470 104 524 116" fill="none" stroke="var(--muted)" stroke-width="1.6" marker-end="url(#s-arrow)"/>
+            <path class="flow" d="M562 182 C562 224 562 258 562 290" fill="none" stroke="var(--muted)" stroke-width="1.6" marker-end="url(#s-arrow)"/>
+            <path class="flow" d="M404 336 C300 402 120 372 176 254" fill="none" stroke="var(--muted)" stroke-width="1.6" marker-end="url(#s-arrow)"/>
           </svg>
         </div>
-        <div class="note">Press go, and every task appends to the context. By the end the original is buried under look-alikes — and neither you nor the agent is sure which line still holds.</div>
+        <div class="note">The context feeds the agent, the agent runs the plan, the plan feeds the context — and every turn the stack grows. Soon there are two “Instructions” that don't quite agree, and no one is sure which one still holds.</div>
       </div>
 
       <div class="figure">
