@@ -54,7 +54,6 @@
   }
   a { color: var(--anchor); }
 
-  /* ---------- top bar ---------- */
   .topbar {
     position: sticky; top: 0; z-index: 30;
     background: color-mix(in srgb, var(--ground) 88%, transparent);
@@ -66,14 +65,13 @@
   .brand .sep { color: var(--faint); }
   .topbar .meta { font-family: var(--mono); font-size: 11.5px; color: var(--faint); letter-spacing: .04em; }
 
-  /* ---------- hero ---------- */
   .hero { border-bottom: 1px solid var(--hairline); }
   .hero .in { max-width: 1240px; margin: 0 auto; padding: 64px 32px 52px; }
   .kicker { font-family: var(--mono); font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--anchor); margin: 0 0 22px; }
   h1 { font-size: clamp(34px, 5vw, 54px); line-height: 1.04; letter-spacing: -.03em; font-weight: 690; margin: 0; max-width: 15ch; text-wrap: balance; }
   .hero .def { font-family: var(--mono); font-size: clamp(15px, 2vw, 18px); letter-spacing: .01em; color: var(--muted); margin: 18px 0 0; }
   .hero .def b { color: var(--ink); font-weight: 600; }
-  .hero .lede { font-size: 18px; color: var(--muted); max-width: 54ch; margin: 22px 0 0; }
+  .hero .lede { font-size: 18px; color: var(--muted); max-width: 58ch; margin: 22px 0 0; }
 
   .triad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 40px 0 0; max-width: 900px; }
   @media (max-width: 720px) { .triad { grid-template-columns: 1fr; } }
@@ -83,7 +81,6 @@
   .triad .k .n { font-weight: 640; letter-spacing: -.01em; }
   .triad .d { font-size: 14.5px; color: var(--muted); line-height: 1.5; margin-top: 11px; }
 
-  /* ---------- shell: rail + content ---------- */
   .shell { max-width: 1240px; margin: 0 auto; padding: 0 32px; display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 64px; }
   @media (max-width: 900px) { .shell { grid-template-columns: 1fr; gap: 0; padding: 0 24px; } }
 
@@ -108,7 +105,7 @@
   em { font-style: italic; }
   code { font-family: var(--mono); font-size: .85em; background: var(--surface-2); padding: .12em .4em; border-radius: 5px; }
 
-  .lead { font-size: 19px; color: var(--ink); max-width: 60ch; }
+  .lead { font-size: 19px; color: var(--ink); max-width: 62ch; }
   .lead .hl { color: var(--anchor); font-weight: 600; }
 
   ul.clean { list-style: none; padding: 0; margin: 18px 0; max-width: 68ch; }
@@ -117,7 +114,6 @@
   ul.clean li::before { content: ""; position: absolute; left: 2px; top: 18px; width: 7px; height: 7px; border-radius: 2px; background: var(--anchor); }
   ul.clean li b { font-weight: 640; }
 
-  /* figure */
   .figure { margin: 26px 0; background: var(--surface); border: 1px solid var(--hairline); border-radius: 12px; overflow: hidden; }
   .figure .cap { padding: 11px 18px; border-bottom: 1px solid var(--hairline); background: var(--surface-2); font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: .01em; }
   .figure .cap b { color: var(--ink); font-weight: 600; }
@@ -164,7 +160,6 @@
   .anti .bad .tag { color: var(--breach); }
   .anti .fix .tag { color: var(--approved); }
 
-  /* example cards */
   .excards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 20px 0; }
   @media (max-width: 720px) { .excards { grid-template-columns: 1fr; } }
   .icsx { border: 1px solid var(--hairline); border-radius: 12px; background: var(--surface); overflow: hidden; }
@@ -176,6 +171,13 @@
   .icsx .row .b { font-family: var(--mono); font-weight: 600; color: var(--anchor); }
   .icsx .row code { font-size: .82em; }
   .icsx .row em { color: var(--ink); font-style: italic; }
+
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 24px 0; }
+  @media (max-width: 680px) { .stats { grid-template-columns: 1fr; } }
+  .stat { border: 1px solid var(--hairline); border-radius: 11px; background: var(--surface); padding: 16px 16px 18px; }
+  .stat .n { font-family: var(--mono); font-size: 24px; font-weight: 600; color: var(--anchor); letter-spacing: -.01em; }
+  .stat .l { font-size: 13px; color: var(--muted); margin-top: 7px; line-height: 1.46; }
+  .stat .s { font-family: var(--mono); font-size: 10.5px; color: var(--faint); margin-top: 9px; display: block; }
 
   footer { border-top: 1px solid var(--hairline); margin-top: 20px; }
   footer .in { max-width: 1240px; margin: 0 auto; padding: 28px 32px 60px; }
@@ -198,7 +200,7 @@
     <p class="kicker">Agent Harness · Methodology</p>
     <h1>Anchors an agent can't drift from.</h1>
     <p class="def"><b>ICS</b> — Intent · Constraints · Success</p>
-    <p class="lede">One page, authored before the work starts: what it's for, where the agent may not go, and how you'll know it's done. Then it holds still while the agent builds.</p>
+    <p class="lede">Long agent runs drift: instructions bloat, guardrails rot, and you end up steering by something you no longer trust. An anchor is the fixed artifact that keeps a stream of work tied to what it was actually for.</p>
 
     <div class="triad">
       <div class="card">
@@ -221,172 +223,214 @@
   <nav class="rail" aria-label="Sections">
     <p class="tag">Contents</p>
     <ol>
-      <li><a href="#drift"><span class="rn">01</span> Why agents need an anchor</a></li>
-      <li><a href="#freeze"><span class="rn">02</span> Freeze the top layer</a></li>
-      <li><a href="#hold"><span class="rn">03</span> Hold it fixed</a></li>
-      <li><a href="#nest"><span class="rn">04</span> Nest it by scope</a></li>
-      <li><a href="#principles"><span class="rn">05</span> Authoring principles</a></li>
-      <li><a href="#run"><span class="rn">06</span> Running it</a></li>
-      <li><a href="#examples"><span class="rn">07</span> Examples</a></li>
+      <li><a href="#problem"><span class="rn">01</span> The problem</a></li>
+      <li><a href="#anchor"><span class="rn">02</span> What an anchor is</a></li>
+      <li><a href="#how"><span class="rn">03</span> How it works</a></li>
+      <li><a href="#freeze"><span class="rn">04</span> Freeze — and the gate</a></li>
+      <li><a href="#principles"><span class="rn">05</span> Principles</a></li>
+      <li><a href="#examples"><span class="rn">06</span> Examples</a></li>
     </ol>
   </nav>
 
   <main class="content">
 
-    <section id="drift">
+    <section id="problem">
       <span class="sec-num">01</span>
-      <h2>Why agents need an anchor</h2>
-      <p class="lead">An agent with a loose brief doesn't stall. It <span class="hl">confidently builds the wrong thing</span> — and everything downstream inherits the mistake.</p>
-      <p>Give an agent a vague goal and it fills the gaps with guesses, ships something plausible, and moves on. The plan, the tests, and the code all get written against those guesses, so by the time the work looks wrong it's wrong all the way down. The fix isn't more supervision mid-flight — it's pinning down what the work is <em>before</em> it starts, in a form the agent can't quietly wander from.</p>
-      <p>That pinned-down artifact is the <strong>anchor</strong>: one page of Intent, Constraints, and Success. Small enough to author in minutes, fixed enough to steer weeks of work.</p>
+      <h2>The problem</h2>
+      <p class="lead">Set an agent a real goal and it doesn't just execute — it <span class="hl">discovers</span>. No plan survives a long run intact.</p>
+      <p>There's always something you couldn't see up front: a learning, a constraint you hit, a tweak. So you record it — back into the goal, back into the guardrails. Sensible, one at a time.</p>
+      <p>But it compounds. Every step writes a little more into the instructions, and the more you write, the further they drift from where they started. Far enough in, a guardrail has been quietly rewritten and a goal has shifted — and you're steering by something you no longer recognize or trust. That's the failure: not a bad first plan, but a good one that <strong>rotted as it grew</strong>.</p>
+
+      <div class="figure">
+        <div class="cap"><b>Fig. 1</b> &nbsp;·&nbsp; instructions accrete and drift over a long run</div>
+        <div class="svgwrap">
+          <svg viewBox="0 0 720 210" role="img" aria-label="Across a long run, the instruction set grows taller step by step and shifts color from a clear anchor to a bloated, untrustworthy blob, burying the original goal.">
+            <defs>
+              <marker id="p-run" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--muted)"/></marker>
+            </defs>
+            <line x1="48" y1="180" x2="676" y2="180" stroke="var(--muted)" stroke-width="1.4" marker-end="url(#p-run)"/>
+            <text x="52" y="199" class="t-tiny">the run →</text>
+
+            <rect x="90" y="146" width="80" height="30" rx="4" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="130" y="138" class="t-tiny t-anchor" text-anchor="middle">clear anchor</text>
+
+            <rect x="260" y="118" width="80" height="58" rx="4" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="300" y="110" class="t-tiny" text-anchor="middle">+ learnings</text>
+
+            <rect x="430" y="86" width="80" height="90" rx="4" class="fill-s2" stroke="var(--drift)"/>
+            <text x="470" y="78" class="t-tiny t-drift" text-anchor="middle">+ tweaks · exceptions</text>
+
+            <rect x="600" y="56" width="80" height="120" rx="4" fill="var(--breach-soft)" stroke="var(--breach)"/>
+            <text x="640" y="48" class="t-tiny t-breach" text-anchor="middle">bloated · can't trust it</text>
+
+            <line x1="90" y1="146" x2="680" y2="146" stroke="var(--faint)" stroke-width="1" stroke-dasharray="4 4"/>
+            <text x="90" y="16" class="t-tiny">dashed line = the original anchor level</text>
+          </svg>
+        </div>
+      </div>
+
+      <p>This is measured, not just felt:</p>
+      <div class="stats">
+        <div class="stat">
+          <div class="n">5,000 runs</div>
+          <div class="l">In a controlled study of coding agents, the rules that helped were guardrails (“do not X”); the ones that hurt were directions (“do X”).</div>
+          <span class="s">Guardrails Beat Guidance</span>
+        </div>
+        <div class="stat">
+          <div class="n">~15%</div>
+          <div class="l">Share of real agent instruction files that mention security or performance at all — the guardrails that matter most are the ones most often missing.</div>
+          <span class="s">Agent READMEs corpus</span>
+        </div>
+        <div class="stat">
+          <div class="n">U-shaped</div>
+          <div class="l">Specification cost. Under-specify and the work leaks downstream; over-specify and you rebuild waterfall. Both ends hurt.</div>
+          <span class="s">Eisele · the U-curve</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="anchor">
+      <span class="sec-num">02</span>
+      <h2>What an anchor is</h2>
+      <p class="lead">An anchor flips the instinct. It doesn't tell the agent <span class="hl">what to do</span> — it fixes what must stay true and fences off <span class="hl">what not to do</span>.</p>
+      <p>There are infinite ways to build something, and you can't pick the right one up front. But you almost always know what you <em>don't</em> want. So an anchor is mostly boundaries — non-goals, invariants, forbidden moves. It leaves the path open and walls off the cliffs.</p>
+
+      <div class="anti">
+        <div class="r">
+          <div class="bad"><span class="tag">Brittle — a direction</span>“Add a Redis cache in front of the query.”</div>
+          <div class="fix"><span class="tag">Robust — a guardrail</span>“Reads must stay under 50ms; don't add a new datastore.”</div>
+        </div>
+      </div>
+
+      <p>And it doesn't live in one blob. An anchor separates concerns, so each part stays small and easy to maintain — the durable why (<strong>Intent</strong>), the guardrails (<strong>Constraints</strong>), and the bar for done (<strong>Success</strong>). That split is the whole artifact: <code>I · C · S</code>, one page.</p>
+    </section>
+
+    <section id="how">
+      <span class="sec-num">03</span>
+      <h2>How it works</h2>
+      <p class="lead">Work happens at a scope — usually a slice of a feature. But that slice sits inside a feature, inside a domain, inside the project, and <span class="hl">each level has its own anchor</span>.</p>
+      <p>So starting a piece of work is a <strong>climb</strong>. You stand at your slice, walk <em>up</em> the scope, gather every anchor on the way, and <strong>compile them into one</strong>. That single compiled anchor governs the work — the project's non-negotiables, the domain's, the feature's, and this slice's, reconciled into one page instead of four documents the agent has to juggle.</p>
+
+      <div class="figure">
+        <div class="cap"><b>Fig. 2</b> &nbsp;·&nbsp; climb the scope, compile every anchor into one</div>
+        <div class="svgwrap">
+          <svg viewBox="0 0 720 250" role="img" aria-label="Starting at a slice of work, you climb up the scope through feature, domain, and project, gathering each level's anchor, and compile them into a single anchor that governs the work.">
+            <defs>
+              <marker id="c-up" markerWidth="9" markerHeight="9" refX="4.5" refY="1.5" orient="auto"><path d="M0 7 L4.5 1.5 L9 7" fill="none" stroke="var(--anchor)" stroke-width="1.6"/></marker>
+              <marker id="c-in" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--muted)"/></marker>
+            </defs>
+
+            <line x1="26" y1="196" x2="26" y2="28" stroke="var(--anchor)" stroke-width="1.6" marker-end="url(#c-up)"/>
+            <text x="26" y="18" class="t-tiny t-anchor" text-anchor="middle">climb</text>
+
+            <rect x="48" y="20" width="210" height="38" rx="8" class="fill-s2 stroke-line"/>
+            <text x="66" y="43" class="t-small" font-weight="600">Project</text>
+            <text x="240" y="43" class="t-tiny" text-anchor="end">anchor</text>
+
+            <rect x="48" y="70" width="210" height="38" rx="8" class="fill-s2 stroke-line"/>
+            <text x="66" y="93" class="t-small" font-weight="600">Domain</text>
+            <text x="240" y="93" class="t-tiny" text-anchor="end">anchor</text>
+
+            <rect x="48" y="120" width="210" height="38" rx="8" class="fill-s2 stroke-line"/>
+            <text x="66" y="143" class="t-small" font-weight="600">Feature</text>
+            <text x="240" y="143" class="t-tiny" text-anchor="end">anchor</text>
+
+            <rect x="48" y="170" width="210" height="38" rx="8" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="66" y="193" class="t-small" font-weight="600">Slice</text>
+            <text x="240" y="193" class="t-tiny t-anchor" text-anchor="end">you are here</text>
+
+            <path d="M258 39 C320 39 340 116 372 119" fill="none" stroke="var(--muted)" stroke-width="1.2"/>
+            <path d="M258 89 C320 89 350 118 372 119" fill="none" stroke="var(--muted)" stroke-width="1.2"/>
+            <path d="M258 139 C320 139 350 120 372 119" fill="none" stroke="var(--muted)" stroke-width="1.2"/>
+            <path d="M258 189 C320 189 340 122 372 119" fill="none" stroke="var(--muted)" stroke-width="1.2"/>
+            <line x1="372" y1="119" x2="426" y2="119" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#c-in)"/>
+            <text x="340" y="104" class="t-tiny" text-anchor="middle">gather</text>
+
+            <rect x="430" y="86" width="250" height="66" rx="10" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="555" y="114" class="t-label t-anchor" text-anchor="middle" font-weight="600">compiled anchor</text>
+            <text x="555" y="134" class="t-tiny" text-anchor="middle">all four scopes, reconciled into one</text>
+          </svg>
+        </div>
+      </div>
+
+      <p>Once compiled, the anchor is fixed — and every activity <strong>loops back</strong> to it. Planning derives from it, building checks against it, review judges by it. Nothing runs off and forgets it.</p>
+
+      <div class="figure">
+        <div class="cap"><b>Fig. 3</b> &nbsp;·&nbsp; every activity reads from the anchor and re-checks against it</div>
+        <div class="svgwrap">
+          <svg viewBox="0 0 720 230" role="img" aria-label="The compiled anchor on the left is read by planning, building, and review on the right; each activity also loops back to re-check against the anchor.">
+            <defs>
+              <marker id="h-f" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--muted)"/></marker>
+              <marker id="h-r" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--anchor)"/></marker>
+            </defs>
+            <rect x="60" y="90" width="150" height="56" rx="10" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="135" y="114" class="t-label t-anchor" text-anchor="middle" font-weight="600">the anchor</text>
+            <text x="135" y="131" class="t-tiny" text-anchor="middle">fixed · soft-locked</text>
+
+            <rect x="470" y="22" width="182" height="42" rx="8" class="fill-surface stroke-line"/>
+            <text x="561" y="40" class="t-small" text-anchor="middle" font-weight="600">planning</text>
+            <text x="561" y="55" class="t-tiny" text-anchor="middle">derives from it</text>
+
+            <rect x="470" y="94" width="182" height="42" rx="8" class="fill-surface stroke-line"/>
+            <text x="561" y="112" class="t-small" text-anchor="middle" font-weight="600">building</text>
+            <text x="561" y="127" class="t-tiny" text-anchor="middle">checks against it</text>
+
+            <rect x="470" y="166" width="182" height="42" rx="8" class="fill-surface stroke-line"/>
+            <text x="561" y="184" class="t-small" text-anchor="middle" font-weight="600">review</text>
+            <text x="561" y="199" class="t-tiny" text-anchor="middle">judged by it</text>
+
+            <path d="M210 116 C320 96 380 46 468 43" fill="none" stroke="var(--muted)" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#h-f)"/>
+            <path d="M210 118 L468 115" fill="none" stroke="var(--muted)" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#h-f)"/>
+            <path d="M210 120 C320 140 380 184 468 187" fill="none" stroke="var(--muted)" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#h-f)"/>
+
+            <path d="M561 208 C561 226 200 226 138 146" fill="none" stroke="var(--anchor)" stroke-width="2" marker-end="url(#h-r)"/>
+          </svg>
+        </div>
+        <div class="note">The anchor is read by every activity and re-checked by each — a loop, not a one-way branch.</div>
+      </div>
+
+      <table class="scope">
+        <thead><tr><th>Scope</th><th>Its anchor</th><th>Changes</th></tr></thead>
+        <tbody>
+          <tr><td class="lv">Project</td><td>the behavioral oracle — the top-tier required behavior</td><td>rarely</td></tr>
+          <tr><td class="lv">Domain</td><td>the domain's constraints and goals</td><td>occasionally</td></tr>
+          <tr><td class="lv">Feature</td><td>the Box's <code>.box/</code> ICS</td><td>per feature</td></tr>
+          <tr><td class="lv">Slice</td><td>the phase's local ICS</td><td>freely, cheaply</td></tr>
+        </tbody>
+      </table>
     </section>
 
     <section id="freeze">
-      <span class="sec-num">02</span>
-      <h2>Freeze the top layer</h2>
-      <p>A stream of work has layers. <strong>Intent</strong> sits on top — the durable why. Below it, a <strong>plan</strong>; below that, <strong>tests</strong>; at the bottom, <strong>code</strong>. Each layer is derived from the one above.</p>
-      <p>You don't freeze all of them — that's just waterfall. You freeze the <em>top</em> layer and let the agent regenerate the rest against it. Intent is stable; the code beneath it is cheap to redo. So you stay <strong>spec-anchored, not spec-as-source</strong>: humans own the anchor and read the diffs, the agent owns everything below.</p>
+      <span class="sec-num">04</span>
+      <h2>Freeze — and the gate</h2>
+      <p class="lead">Compiled, the anchor is <span class="hl">fixed</span>. The agent works inside it and never edits it — that's what stops the rot from section 01. Nothing you ship can quietly rewrite what you steer by.</p>
+      <p>But a hard freeze is its own trap. You started the run <em>because</em> you don't know everything yet — so if the anchor can never move, the first real discovery leaves you locked to something you now know is wrong.</p>
+      <p>So the freeze is <strong>gated</strong>, not absolute. The anchor changes only through a deliberate, human-approved amendment: the agent can propose, never approve; the default is to work within it; moving a guardrail is rare and conscious. It's the same governance the repo already applies to its protected paths.</p>
 
       <div class="figure">
-        <div class="cap"><b>Fig. 1</b> &nbsp;·&nbsp; freeze the top layer; regenerate the rest against it</div>
+        <div class="cap"><b>Fig. 4</b> &nbsp;·&nbsp; an amendment is a gate, not a keystroke</div>
         <div class="svgwrap">
-          <svg viewBox="0 0 660 288" role="img" aria-label="Four stacked layers. The top layer, ICS (Intent, Constraints, Success), is frozen and hand-authored. Below it, plan, tests, and code are each regenerated against the anchor.">
+          <svg viewBox="0 0 720 150" role="img" aria-label="The agent proposes an anchor change; it becomes a gated decision the owner confirms. Approve and the anchor moves and the plan regenerates; deny and the anchor holds while work stays inside it.">
             <defs>
-              <marker id="f1-down" markerWidth="9" markerHeight="9" refX="4.5" refY="7" orient="auto"><path d="M0 0 L4.5 7 L9 0" fill="none" stroke="var(--muted)" stroke-width="1.6"/></marker>
-            </defs>
-            <!-- top frozen layer -->
-            <rect x="150" y="22" width="360" height="58" rx="10" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
-            <text x="172" y="46" class="t-label t-anchor" font-weight="600">ICS — Intent · Constraints · Success</text>
-            <text x="172" y="65" class="t-small">hand-authored · frozen · the anchor</text>
-            <g transform="translate(462,37)">
-              <rect x="0" y="9" width="22" height="16" rx="3" fill="var(--anchor)"/>
-              <path d="M4 9 V5.5 a7 7 0 0 1 14 0 V9" fill="none" stroke="var(--anchor)" stroke-width="2.4"/>
-              <circle cx="11" cy="16" r="2.4" fill="var(--anchor-soft)"/>
-            </g>
-
-            <!-- connector label -->
-            <text x="330" y="104" class="t-tiny" text-anchor="middle">each layer regenerated against the anchor</text>
-
-            <!-- lower layers -->
-            <rect x="180" y="118" width="300" height="40" rx="8" class="fill-s2 stroke-line"/>
-            <text x="200" y="143" class="t-label">Plan</text>
-            <text x="460" y="143" class="t-small" text-anchor="end">regenerable</text>
-
-            <rect x="180" y="168" width="300" height="40" rx="8" class="fill-s2 stroke-line"/>
-            <text x="200" y="193" class="t-label">Tests</text>
-            <text x="460" y="193" class="t-small" text-anchor="end">derived</text>
-
-            <rect x="180" y="218" width="300" height="40" rx="8" class="fill-s2 stroke-line"/>
-            <text x="200" y="243" class="t-label">Code</text>
-            <text x="460" y="243" class="t-small" text-anchor="end">generated</text>
-
-            <!-- down arrow spanning lower group, on the left -->
-            <line x1="164" y1="120" x2="164" y2="252" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#f1-down)"/>
-          </svg>
-        </div>
-      </div>
-
-      <div class="callout">
-        <span class="lbl">Why "layer," not "step"</span>
-        The layers aren't a sequence you walk once — they're a stack that stays live. Change the anchor and everything below is regenerated from it. That's the whole point of putting Intent on top and holding it there.
-      </div>
-    </section>
-
-    <section id="hold">
-      <span class="sec-num">03</span>
-      <h2>Hold it fixed</h2>
-      <p>Two things make an anchor work: authoring it well, and <strong>holding it still</strong>. The second matters more than it sounds.</p>
-      <p>Let the anchor change freely and the drift you're shipping leaks <em>back into it</em> — the guesses harden into the spec, and now you're steering by a corrupted map you still trust. <strong>A wrong anchor is worse than none:</strong> it launders bad direction as authority.</p>
-
-      <div class="figure">
-        <div class="cap"><b>Fig. 2</b> &nbsp;·&nbsp; the same shipped drift, two anchors</div>
-        <div class="svgwrap">
-          <svg viewBox="0 0 900 250" role="img" aria-label="Two panels. Left, an unlocked anchor: shipped work sends drift up into the anchor, which becomes corrupted. Right, a soft-locked anchor: drift is stopped at a gate and the anchor stays intact.">
-            <defs>
-              <marker id="f2-drift" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--drift)"/></marker>
-            </defs>
-
-            <!-- LEFT -->
-            <text x="60" y="34" class="t-small t-breach" font-weight="600">UNLOCKED</text>
-            <rect x="60" y="46" width="180" height="58" rx="10" fill="var(--breach-soft)" stroke="var(--breach)"/>
-            <text x="150" y="72" class="t-label" text-anchor="middle" font-weight="600">anchor</text>
-            <text x="150" y="90" class="t-tiny t-breach" text-anchor="middle">corrupted by drift</text>
-
-            <rect x="60" y="176" width="76" height="34" rx="7" class="fill-s2 stroke-line"/>
-            <text x="98" y="197" class="t-small" text-anchor="middle">ship</text>
-            <rect x="152" y="176" width="76" height="34" rx="7" class="fill-s2 stroke-line"/>
-            <text x="190" y="197" class="t-small" text-anchor="middle">ship</text>
-            <rect x="244" y="176" width="76" height="34" rx="7" class="fill-s2 stroke-line"/>
-            <text x="282" y="197" class="t-small" text-anchor="middle">ship</text>
-
-            <path d="M190 176 C190 138 165 128 150 106" fill="none" stroke="var(--drift)" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#f2-drift)"/>
-            <path d="M282 176 C282 130 175 128 152 104" fill="none" stroke="var(--drift)" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#f2-drift)"/>
-            <text x="300" y="150" class="t-tiny t-drift">drift leaks up</text>
-
-            <!-- divider -->
-            <line x1="450" y1="24" x2="450" y2="224" class="stroke-line" stroke-dasharray="3 6"/>
-
-            <!-- RIGHT -->
-            <text x="580" y="34" class="t-small t-anchor" font-weight="600">SOFT-LOCKED</text>
-            <rect x="580" y="46" width="180" height="58" rx="10" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
-            <text x="670" y="72" class="t-label" text-anchor="middle" font-weight="600">anchor</text>
-            <text x="670" y="90" class="t-tiny t-anchor" text-anchor="middle">intact</text>
-            <g transform="translate(720,56)"><rect x="0" y="7" width="15" height="11" rx="2" fill="var(--anchor)"/><path d="M2.5 7 V4.5 a5 5 0 0 1 10 0 V7" fill="none" stroke="var(--anchor)" stroke-width="1.9"/></g>
-
-            <rect x="580" y="176" width="76" height="34" rx="7" class="fill-s2 stroke-line"/>
-            <text x="618" y="197" class="t-small" text-anchor="middle">ship</text>
-            <rect x="672" y="176" width="76" height="34" rx="7" class="fill-s2 stroke-line"/>
-            <text x="710" y="197" class="t-small" text-anchor="middle">ship</text>
-            <rect x="764" y="176" width="76" height="34" rx="7" class="fill-s2 stroke-line"/>
-            <text x="802" y="197" class="t-small" text-anchor="middle">ship</text>
-
-            <path d="M710 176 C710 150 685 146 665 138" fill="none" stroke="var(--drift)" stroke-width="1.8" stroke-dasharray="5 4"/>
-            <line x1="654" y1="128" x2="676" y2="146" stroke="var(--breach)" stroke-width="2.6"/>
-            <line x1="676" y1="128" x2="654" y2="146" stroke="var(--breach)" stroke-width="2.6"/>
-            <text x="665" y="166" class="t-tiny t-breach" text-anchor="middle">gate blocks it</text>
-          </svg>
-        </div>
-        <p class="note">Drift flows downhill into the work. It must never flow uphill into the anchor.</p>
-      </div>
-
-      <div class="callout">
-        <span class="lbl">The counterintuitive part</span>
-        In one 5,000-run study, a <b>random</b> rule-set scored as well as a curated one on any single task — presence mattered as much as content. But single-task score is the wrong axis. What holding the anchor fixed protects is its <b>integrity across the whole run</b>, not any one output.
-      </div>
-
-      <h4>When the anchor genuinely must move</h4>
-      <p>Holding it fixed isn't holding it hostage. Sometimes the work proves the anchor wrong — the upstream pivot — and it should change. What's banned is the <em>quiet</em> edit. Soft-lock, not immutability:</p>
-      <ul class="clean">
-        <li><b>No auto-mutation.</b> The agent never edits the anchor as a side effect of shipping.</li>
-        <li><b>Every change is a gated decision.</b> An amendment is proposed, then confirmed by the owner — the agent can propose but never approve its own change.</li>
-        <li><b>Default is work within the anchor</b>, not amend it. Moving a guardrail is deliberate, and rare.</li>
-      </ul>
-      <p>This isn't a new mechanism — it's the repo's existing protected-paths and required-review rules, applied to the anchor.</p>
-
-      <div class="figure">
-        <div class="cap"><b>Fig. 3</b> &nbsp;·&nbsp; an amendment is a gate, not a keystroke</div>
-        <div class="svgwrap">
-          <svg viewBox="0 0 720 150" role="img" aria-label="The agent proposes an ICS change. It becomes a gated decision. Approve and the anchor moves and the plan regenerates; deny and the anchor holds while work stays inside it.">
-            <defs>
-              <marker id="f3-f" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--muted)"/></marker>
-              <marker id="f3-g" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--approved)"/></marker>
-              <marker id="f3-b" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--anchor)"/></marker>
+              <marker id="g-f" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--muted)"/></marker>
+              <marker id="g-g" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--approved)"/></marker>
+              <marker id="g-b" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--anchor)"/></marker>
             </defs>
             <rect x="14" y="52" width="146" height="46" rx="9" class="fill-s2 stroke-line"/>
             <text x="87" y="73" class="t-small" text-anchor="middle">agent proposes</text>
             <text x="87" y="88" class="t-small" text-anchor="middle" font-weight="600">a change</text>
-            <line x1="160" y1="75" x2="206" y2="75" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#f3-f)"/>
+            <line x1="160" y1="75" x2="206" y2="75" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#g-f)"/>
             <g transform="translate(288,75)">
               <path d="M0 -38 L78 0 L0 38 L-78 0 Z" class="fill-surface" stroke="var(--anchor)" stroke-width="1.5"/>
               <text x="0" y="-3" class="t-small t-anchor" text-anchor="middle" font-weight="600">gated</text>
               <text x="0" y="13" class="t-tiny" text-anchor="middle">owner confirms</text>
             </g>
-            <path d="M328 56 C400 34 440 30 486 30" fill="none" stroke="var(--approved)" stroke-width="1.8" marker-end="url(#f3-g)"/>
+            <path d="M328 56 C400 34 440 30 486 30" fill="none" stroke="var(--approved)" stroke-width="1.8" marker-end="url(#g-g)"/>
             <text x="430" y="26" class="t-tiny t-approved" text-anchor="middle">approve</text>
             <rect x="486" y="10" width="212" height="42" rx="9" fill="none" stroke="var(--approved)"/>
             <text x="592" y="30" class="t-small" text-anchor="middle" font-weight="600">anchor moves</text>
             <text x="592" y="45" class="t-tiny" text-anchor="middle">plan regenerates against it</text>
-            <path d="M328 94 C400 116 440 120 486 120" fill="none" stroke="var(--anchor)" stroke-width="1.8" marker-end="url(#f3-b)"/>
+            <path d="M328 94 C400 116 440 120 486 120" fill="none" stroke="var(--anchor)" stroke-width="1.8" marker-end="url(#g-b)"/>
             <text x="430" y="136" class="t-tiny t-anchor" text-anchor="middle">deny</text>
             <rect x="486" y="98" width="212" height="42" rx="9" fill="none" stroke="var(--anchor)"/>
             <text x="592" y="118" class="t-small" text-anchor="middle" font-weight="600">anchor holds</text>
@@ -396,69 +440,21 @@
       </div>
     </section>
 
-    <section id="nest">
-      <span class="sec-num">04</span>
-      <h2>Nest it by scope</h2>
-      <p>One anchor rarely fits a whole system. The same shape stacks at three altitudes — project, feature, implementation — each a real ICS, differing only in reach and how hard it is to move.</p>
-
-      <div class="figure">
-        <div class="cap"><b>Fig. 4</b> &nbsp;·&nbsp; the strata — wider and firmer at the top</div>
-        <div class="svgwrap">
-          <svg viewBox="0 0 720 300" role="img" aria-label="A pyramid of three anchors. Project ICS on top is widest and hardest to move; feature ICS in the middle; implementation ICS at the bottom is narrowest and cheapest. Upward: harder to move, bigger blast radius. Downward: constraints tighten, scope narrows.">
-            <text x="360" y="26" class="t-small t-drift" text-anchor="middle">▲  harder to move · bigger blast radius · drift must not reach up</text>
-
-            <rect x="140" y="44" width="440" height="56" rx="10" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
-            <text x="360" y="69" class="t-label" text-anchor="middle" font-weight="600">Project ICS</text>
-            <text x="360" y="88" class="t-small" text-anchor="middle">the constitution · the behavioral oracle · rarely moves</text>
-
-            <line x1="360" y1="100" x2="360" y2="118" class="stroke-line"/>
-
-            <rect x="210" y="118" width="300" height="56" rx="10" class="fill-surface" stroke="var(--hairline-strong)"/>
-            <text x="360" y="143" class="t-label" text-anchor="middle" font-weight="600">Feature ICS</text>
-            <text x="360" y="162" class="t-small" text-anchor="middle">a Box / stream of work</text>
-
-            <line x1="360" y1="174" x2="360" y2="192" class="stroke-line"/>
-
-            <rect x="270" y="192" width="180" height="56" rx="10" class="fill-s2" stroke="var(--hairline-strong)"/>
-            <text x="360" y="217" class="t-label" text-anchor="middle" font-weight="600">Implementation ICS</text>
-            <text x="360" y="236" class="t-small" text-anchor="middle">one part · local</text>
-
-            <text x="360" y="276" class="t-small t-anchor" text-anchor="middle">▼  constraints inherit &amp; tighten · scope narrows</text>
-          </svg>
-        </div>
-      </div>
-
-      <ul class="clean">
-        <li><b>Constraints inherit and tighten downward.</b> A child may add or tighten a parent's constraints, never loosen them — its allowed space is a subset of the parent's.</li>
-        <li><b>Success ladders upward.</b> Every child criterion serves a parent one; clearing all the children rolls up to clearing the parent.</li>
-        <li><b>Gating cost rises with altitude.</b> Amending an implementation ICS is a light approval; amending the project constitution is the heaviest gate, because it invalidates the most work. Drift is cheapest to fix at the leaf, most dangerous at the top.</li>
-      </ul>
-
-      <table class="scope">
-        <thead><tr><th>Altitude</th><th>Lifespan</th><th>Anchor in this repo</th><th>Cost to move</th></tr></thead>
-        <tbody>
-          <tr><td class="lv">Project</td><td>the codebase</td><td>the behavioral oracle</td><td>heaviest gate</td></tr>
-          <tr><td class="lv">Feature</td><td>the Box</td><td>the Box's <code>.box/</code> ICS</td><td>owner approval</td></tr>
-          <tr><td class="lv">Implementation</td><td>a phase</td><td>the phase's local ICS</td><td>light approval</td></tr>
-        </tbody>
-      </table>
-    </section>
-
     <section id="principles">
       <span class="sec-num">05</span>
-      <h2>Authoring principles</h2>
+      <h2>Principles</h2>
       <p>Each rule traces to a finding or a decision — cited, so the reasoning survives.</p>
       <div class="principles">
         <div class="principle">
           <span class="pn">P1</span>
           <h3>Lead with the negatives</h3>
-          <p>In a 5,000-run study, every beneficial rule was a prohibition (“do not X”); every harmful one a directive (“do X”). Constraints are boundaries — procedure belongs in the plan.</p>
+          <p>Every beneficial rule in the 5,000-run study was a prohibition (“do not X”); every harmful one a directive (“do X”). Constraints are boundaries — procedure belongs in the plan.</p>
           <span class="src">→ Guardrails Beat Guidance</span>
         </div>
         <div class="principle">
           <span class="pn">P2</span>
           <h3>One page, on purpose</h3>
-          <p>Specification cost is U-shaped: too little defers it downstream, too much rebuilds waterfall. The optimum is a checkable middle. If it's becoming a PRD, you're on the wrong layer.</p>
+          <p>Specification cost is U-shaped: too little defers it downstream, too much rebuilds waterfall. The optimum is a checkable middle. If it's growing into a PRD, it's stopped being an anchor.</p>
           <span class="src">→ Eisele · the U-curve</span>
         </div>
         <div class="principle">
@@ -476,7 +472,7 @@
         <div class="principle">
           <span class="pn">P5</span>
           <h3>Force the non-functional</h3>
-          <p>Real agent context files carry security and performance only ~15% of the time. The Constraints surface forces exactly the budgets everyone else forgets.</p>
+          <p>Real agent files carry security and performance only ~15% of the time. The Constraints surface forces exactly the budgets everyone else forgets.</p>
           <span class="src">→ Agent READMEs corpus</span>
         </div>
         <div class="principle">
@@ -488,59 +484,8 @@
       </div>
     </section>
 
-    <section id="run">
-      <span class="sec-num">06</span>
-      <h2>Running it</h2>
-      <p>Starting a stream of work is one deliberate act: <strong>compose the anchor</strong> from the ones above it — project into feature into implementation — and fix it. From then on every activity <strong>loops back</strong> to that anchor. Planning derives from it, building checks against it, review judges by it — nothing branches off and forgets it.</p>
-      <div class="figure">
-        <div class="cap"><b>Fig. 5</b> &nbsp;·&nbsp; compose once, then every activity loops back</div>
-        <div class="svgwrap">
-          <svg viewBox="0 0 720 250" role="img" aria-label="Nested anchors are composed and fixed into one ICS anchor. Planning, building, and review each read from it, and every one loops back to re-check against it.">
-            <defs>
-              <marker id="l-f" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--muted)"/></marker>
-              <marker id="l-r" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--anchor)"/></marker>
-            </defs>
-
-            <!-- compose from the stack -->
-            <rect x="16" y="90" width="142" height="58" rx="9" class="fill-s2 stroke-line"/>
-            <text x="87" y="112" class="t-small" text-anchor="middle" font-weight="600">nested anchors</text>
-            <text x="87" y="129" class="t-tiny" text-anchor="middle">project·feature·impl</text>
-            <line x1="158" y1="119" x2="200" y2="119" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#l-f)"/>
-            <text x="179" y="104" class="t-tiny" text-anchor="middle">compose</text>
-
-            <!-- fixed anchor -->
-            <rect x="200" y="90" width="150" height="58" rx="10" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
-            <text x="275" y="112" class="t-label t-anchor" text-anchor="middle" font-weight="600">ICS anchor</text>
-            <text x="275" y="130" class="t-tiny" text-anchor="middle">fixed · soft-locked</text>
-
-            <!-- activity chips -->
-            <rect x="524" y="24" width="180" height="42" rx="8" class="fill-surface stroke-line"/>
-            <text x="614" y="42" class="t-small" text-anchor="middle" font-weight="600">planning</text>
-            <text x="614" y="57" class="t-tiny" text-anchor="middle">derives from it</text>
-
-            <rect x="524" y="98" width="180" height="42" rx="8" class="fill-surface stroke-line"/>
-            <text x="614" y="116" class="t-small" text-anchor="middle" font-weight="600">building</text>
-            <text x="614" y="131" class="t-tiny" text-anchor="middle">checks against it</text>
-
-            <rect x="524" y="172" width="180" height="42" rx="8" class="fill-surface stroke-line"/>
-            <text x="614" y="190" class="t-small" text-anchor="middle" font-weight="600">review</text>
-            <text x="614" y="205" class="t-tiny" text-anchor="middle">judged by it</text>
-
-            <!-- forward arrows: anchor → each activity -->
-            <path d="M350 108 C430 80 450 48 524 45" fill="none" stroke="var(--muted)" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#l-f)"/>
-            <path d="M350 119 L524 119" fill="none" stroke="var(--muted)" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#l-f)"/>
-            <path d="M350 130 C430 158 450 190 524 193" fill="none" stroke="var(--muted)" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#l-f)"/>
-
-            <!-- return loop: activities → back to anchor (the point) -->
-            <path d="M614 216 C614 246 320 246 276 148" fill="none" stroke="var(--anchor)" stroke-width="2" marker-end="url(#l-r)"/>
-            <text x="235" y="235" class="t-small t-anchor" text-anchor="middle">every activity loops back to re-check the anchor</text>
-          </svg>
-        </div>
-      </div>
-    </section>
-
     <section id="examples">
-      <span class="sec-num">07</span>
+      <span class="sec-num">06</span>
       <h2>Examples</h2>
 
       <h3>Two real anchors</h3>
@@ -552,7 +497,7 @@
           <div class="row"><span class="b">S</span><div><code>SC-1</code> a run yields a valid ICS · <code>SC-2</code> steps recompose under a second config · <code>SC-3</code> warning-free, green, verified.</div></div>
         </div>
         <div class="icsx">
-          <div class="h"><span class="t">Implementation ICS</span><span class="m">one phase</span></div>
+          <div class="h"><span class="t">Slice ICS</span><span class="m">one phase</span></div>
           <div class="row"><span class="b">I</span><div>Replace the provisional delay stub with a real cancellation-aware delay, so flows pause without a busy-wait.</div></div>
           <div class="row"><span class="b">C</span><div>Must not change the step contract. Async only — never block a thread. A cancelled delay leaves no pending timer.</div></div>
           <div class="row"><span class="b">S</span><div><code>SC-1</code> resumes after the interval · <code>SC-2</code> cancel leaves no leaked timer (asserted) · <code>SC-3</code> old stub deleted.</div></div>
@@ -585,7 +530,7 @@
 
 <footer>
   <div class="in">
-    <p>ICS methodology · A.Box agent harness. Synthesized from two research passes — the intent-vs-spec survey and the hard-locked-artifacts follow-up: the layered/anchored model, Guardrails-Beat-Guidance, the U-curve, and the soft-lock decision. Companion to the fill-in template and the Box design.</p>
+    <p>ICS methodology · A.Box agent harness. Synthesized from two research passes — the intent-vs-spec survey and the hard-locked-artifacts follow-up: Guardrails-Beat-Guidance, the U-curve, the under-specified-guardrails corpus, and the soft-lock decision. Companion to the fill-in template and the Box design.</p>
   </div>
 </footer>
 </body>
