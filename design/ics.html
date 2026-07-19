@@ -482,7 +482,7 @@
           <div class="win">context window <span class="ok">cleared each task ✓</span></div>
           <div class="lbl">but these don't reset</div>
           <div class="grid">
-            <div class="b"><div class="t">Cloud memory</div><div class="d">Carried across sessions; a fresh window doesn't touch it.</div></div>
+            <div class="b"><div class="t">Agent memory</div><div class="d">The coding tool's own memory files (e.g. Claude Code) — a fresh window doesn't touch them.</div></div>
             <div class="b"><div class="t">Between-session state</div><div class="d">Resumed threads, saved plans, checkpoints.</div></div>
             <div class="b"><div class="t">Artifact changes</div><div class="d">You saved the doc — the artifact itself has moved on.</div></div>
             <div class="b"><div class="t">Code inference</div><div class="d">The code changed; next read, the agent infers something new from it.</div></div>
@@ -495,37 +495,45 @@
       <p>You can wipe the window every task. You can't wipe all of these. Which is the real reason the anchor must be a <strong>fixed, protected artifact</strong> — not something you re-read from whatever state happens to survive.</p>
 
       <div class="figure">
-        <div class="cap"><b>Fig. 3</b> &nbsp;·&nbsp; the loop that corrupts the context</div>
+        <div class="cap"><b>Fig. 3</b> &nbsp;·&nbsp; the review checks a plan that already drifted</div>
         <div class="svgwrap">
-          <svg viewBox="0 0 780 260" role="img" aria-label="Outside the loop on the left, a box 'write the anchor into context' feeds into build and work, the loop's entry. The loop: build and work, discover something, write it into the context, the context drifts — then back to build; each lap corrupts the context.">
+          <svg viewBox="0 0 900 300" role="img" aria-label="Instructions feed a build loop: the context is read, built on, and drift is written back — corrupting both the context and the original plan. After a few laps the output is validated against the plan, but because the plan itself drifted, the check passes the wrong result.">
             <defs>
-              <marker id="d-a" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--muted)"/></marker>
-              <marker id="d-r" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--breach)"/></marker>
-              <marker id="d-c" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--anchor)"/></marker>
+              <marker id="v-a" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--muted)"/></marker>
+              <marker id="v-r" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--breach)"/></marker>
             </defs>
 
-            <rect x="30" y="44" width="220" height="48" rx="9" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
-            <text x="140" y="73" class="t-small t-anchor" text-anchor="middle" font-weight="600">write the anchor into context</text>
-            <line x1="250" y1="68" x2="270" y2="68" stroke="var(--anchor)" stroke-width="1.5" marker-end="url(#d-c)"/>
+            <rect x="28" y="118" width="170" height="62" rx="9" class="fill-s2 stroke-line"/>
+            <text x="113" y="146" class="t-label" text-anchor="middle" font-weight="600">instructions</text>
+            <text x="113" y="166" class="t-tiny" text-anchor="middle">your plan</text>
 
-            <rect x="270" y="44" width="200" height="48" rx="9" class="fill-s2 stroke-line"/>
-            <text x="370" y="73" class="t-small" text-anchor="middle" font-weight="600">build &amp; work</text>
-            <rect x="560" y="44" width="200" height="48" rx="9" class="fill-s2 stroke-line"/>
-            <text x="660" y="73" class="t-small" text-anchor="middle" font-weight="600">discover something</text>
-            <rect x="560" y="172" width="200" height="48" rx="9" class="fill-s2 stroke-line"/>
-            <text x="660" y="201" class="t-small" text-anchor="middle" font-weight="600">write it into the context</text>
-            <rect x="270" y="172" width="200" height="48" rx="9" fill="var(--breach-soft)" stroke="var(--breach)"/>
-            <text x="370" y="201" class="t-small t-breach" text-anchor="middle" font-weight="600">the context drifts</text>
+            <rect x="272" y="44" width="176" height="48" rx="9" class="fill-s2 stroke-line"/>
+            <text x="360" y="73" class="t-small" text-anchor="middle" font-weight="600">context</text>
+            <rect x="272" y="164" width="176" height="48" rx="9" class="fill-s2 stroke-line"/>
+            <text x="360" y="193" class="t-small" text-anchor="middle" font-weight="600">build &amp; work</text>
 
-            <line x1="470" y1="68" x2="560" y2="68" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#d-a)"/>
-            <line x1="660" y1="92" x2="660" y2="172" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#d-a)"/>
-            <line x1="560" y1="196" x2="470" y2="196" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#d-r)"/>
-            <line x1="320" y1="172" x2="320" y2="92" stroke="var(--breach)" stroke-width="1.5" marker-end="url(#d-r)"/>
+            <path d="M198 138 C238 118 250 88 272 72" fill="none" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#v-a)"/>
+            <line x1="418" y1="92" x2="418" y2="164" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#v-a)"/>
+            <text x="432" y="132" class="t-tiny">read</text>
+            <line x1="302" y1="164" x2="302" y2="92" stroke="var(--breach)" stroke-width="1.5" marker-end="url(#v-r)"/>
+            <text x="288" y="132" class="t-tiny t-breach" text-anchor="end">drift</text>
 
-            <text x="515" y="128" class="t-small" text-anchor="middle" font-weight="600">every lap</text>
-            <text x="515" y="146" class="t-tiny" text-anchor="middle">corrupts the context a little more</text>
+            <path d="M330 212 C280 262 168 262 116 184" fill="none" stroke="var(--breach)" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#v-r)"/>
+            <text x="230" y="286" class="t-tiny t-breach" text-anchor="middle">the drift also rewrites your plan</text>
+
+            <path d="M448 188 C500 182 522 150 558 145" fill="none" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#v-a)"/>
+            <text x="505" y="212" class="t-tiny" text-anchor="middle">after a few laps</text>
+
+            <rect x="560" y="110" width="170" height="66" rx="10" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="645" y="140" class="t-label t-anchor" text-anchor="middle" font-weight="600">validate</text>
+            <text x="645" y="160" class="t-tiny" text-anchor="middle">output vs the plan</text>
+
+            <line x1="730" y1="143" x2="768" y2="143" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#v-a)"/>
+            <rect x="772" y="120" width="104" height="46" rx="9" fill="var(--breach-soft)" stroke="var(--breach)"/>
+            <text x="824" y="148" class="t-small t-breach" text-anchor="middle" font-weight="600">✕ wrong</text>
           </svg>
         </div>
+        <div class="note">A few laps in, it's time to check the work — against the plan. But the plan is exactly what drifted, so the check waves the wrong result through.</div>
       </div>
     </section>
 
