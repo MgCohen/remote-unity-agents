@@ -942,19 +942,19 @@
       </div>
       <p class="fine">Every feature or domain carries its own I · C · S set — many rubrics per artifact, not one prose paragraph.</p>
 
-      <h3>Bad constraint → fix → good</h3>
+      <h3>Bad → good, one per dimension</h3>
       <div class="anti">
+        <div class="r">
+          <div class="bad"><span class="tag">Bad</span><em>Intent:</em> make Box creation better.</div>
+          <div class="fix"><span class="tag">Good</span><em>Intent:</em> unguided Box creation gets skipped — a bounded Q&amp;A yields a valid anchor every time.</div>
+        </div>
         <div class="r">
           <div class="bad"><span class="tag">Bad</span><em>Constraints:</em> add the model, wire the endpoint, then update the client.</div>
           <div class="fix"><span class="tag">Good</span><em>Constraints:</em> must not change the public API; must not add a new dependency.</div>
         </div>
         <div class="r">
           <div class="bad"><span class="tag">Bad</span><em>Success:</em> the feature works correctly.</div>
-          <div class="fix"><span class="tag">Good</span><code>SC-1</code> 200 on valid input · <code>SC-2</code> 4xx on malformed, asserted in tests.</div>
-        </div>
-        <div class="r">
-          <div class="bad"><span class="tag">Bad</span>Editing the anchor mid-build to “match reality.”</div>
-          <div class="fix"><span class="tag">Good</span>Let the gate catch the edit; approve or deny it as a decision.</div>
+          <div class="fix"><span class="tag">Good</span><em>Success:</em> <code>SC-1</code> 200 on valid input · <code>SC-2</code> 4xx on malformed, asserted in tests.</div>
         </div>
       </div>
     </section>
