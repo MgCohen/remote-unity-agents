@@ -568,7 +568,7 @@
       <div class="figure">
         <div class="cap"><b>Fig. 4</b> &nbsp;·&nbsp; validate against the anchor, which never drifted</div>
         <div class="svgwrap">
-          <svg viewBox="0 0 760 380" role="img" aria-label="The instructions still drift in the loop, but an anchor sits one layer below them, locked. The output is validated against the anchor — untouched by the drift — so the result is correct and can be saved.">
+          <svg viewBox="0 0 760 360" role="img" aria-label="The instructions still drift in the loop, but an anchor sits one layer below them, locked. Instructions feed context above and the anchor feeds validate below — mirror arrows. The output is validated against the anchor, untouched by the drift, so the result is correct and saves.">
             <defs>
               <marker id="k-a" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--muted)"/></marker>
               <marker id="k-r" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--breach)"/></marker>
@@ -576,47 +576,46 @@
               <marker id="k-g" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--approved)"/></marker>
             </defs>
 
-            <rect x="36" y="92" width="180" height="54" rx="9" class="fill-s2 stroke-line"/>
-            <text x="126" y="118" class="t-label" text-anchor="middle" font-weight="600">instructions</text>
-            <text x="126" y="136" class="t-tiny" text-anchor="middle">may drift</text>
+            <rect x="36" y="100" width="180" height="54" rx="9" class="fill-s2 stroke-line"/>
+            <text x="126" y="124" class="t-label" text-anchor="middle" font-weight="600">instructions</text>
+            <text x="126" y="142" class="t-tiny" text-anchor="middle">may drift</text>
 
-            <rect x="36" y="208" width="180" height="64" rx="10" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
-            <text x="114" y="234" class="t-label t-anchor" text-anchor="middle" font-weight="600">anchor</text>
-            <text x="114" y="252" class="t-tiny" text-anchor="middle">locked · never touched</text>
-            <g transform="translate(182,224)"><rect x="0" y="7" width="17" height="13" rx="2.5" fill="var(--anchor)"/><path d="M2.6 7 V4.6 a6 6 0 0 1 12 0 V7" fill="none" stroke="var(--anchor)" stroke-width="2"/></g>
+            <rect x="36" y="200" width="180" height="64" rx="10" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="114" y="226" class="t-label t-anchor" text-anchor="middle" font-weight="600">anchor</text>
+            <text x="114" y="244" class="t-tiny" text-anchor="middle">locked · never touched</text>
+            <g transform="translate(182,216)"><rect x="0" y="7" width="17" height="13" rx="2.5" fill="var(--anchor)"/><path d="M2.6 7 V4.6 a6 6 0 0 1 12 0 V7" fill="none" stroke="var(--anchor)" stroke-width="2"/></g>
 
             <rect x="320" y="44" width="190" height="48" rx="9" class="fill-s2 stroke-line"/>
             <text x="415" y="73" class="t-small" text-anchor="middle" font-weight="600">context</text>
             <rect x="320" y="150" width="190" height="48" rx="9" class="fill-s2 stroke-line"/>
             <text x="415" y="179" class="t-small" text-anchor="middle" font-weight="600">build &amp; work</text>
 
-            <rect x="320" y="268" width="190" height="64" rx="10" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
-            <text x="415" y="296" class="t-label t-anchor" text-anchor="middle" font-weight="600">validate</text>
-            <text x="415" y="316" class="t-tiny" text-anchor="middle">output vs the anchor</text>
+            <rect x="320" y="264" width="190" height="64" rx="10" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="415" y="292" class="t-label t-anchor" text-anchor="middle" font-weight="600">validate</text>
+            <text x="415" y="312" class="t-tiny" text-anchor="middle">output vs the anchor</text>
 
-            <rect x="560" y="277" width="110" height="46" rx="9" fill="var(--approved)" fill-opacity="0.15" stroke="var(--approved)"/>
-            <text x="615" y="305" class="t-small t-approved" text-anchor="middle" font-weight="600">✓ save</text>
+            <rect x="560" y="273" width="110" height="46" rx="9" fill="var(--approved)" fill-opacity="0.15" stroke="var(--approved)"/>
+            <text x="615" y="301" class="t-small t-approved" text-anchor="middle" font-weight="600">✓ save</text>
 
-            <line x1="126" y1="208" x2="126" y2="148" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#k-a)"/>
-            <text x="152" y="182" class="t-tiny">written from</text>
+            <path d="M126 100 C126 58 232 68 320 68" fill="none" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#k-a)"/>
+            <path d="M126 264 C126 306 232 296 320 296" fill="none" stroke="var(--anchor)" stroke-width="1.6" marker-end="url(#k-k)"/>
+            <text x="196" y="340" class="t-tiny t-anchor" text-anchor="middle">checked against the anchor</text>
 
-            <path d="M200 92 C252 60 290 72 320 74" fill="none" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#k-a)"/>
+            <line x1="126" y1="200" x2="126" y2="156" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#k-a)"/>
+            <text x="150" y="182" class="t-tiny">written from</text>
 
-            <path d="M320 168 C284 150 250 138 218 128" fill="none" stroke="var(--breach)" stroke-width="1.5" marker-end="url(#k-r)"/>
-            <text x="270" y="108" class="t-tiny t-breach" text-anchor="middle">drift rewrites the instructions</text>
+            <path d="M320 168 C284 150 250 140 218 132" fill="none" stroke="var(--breach)" stroke-width="1.5" marker-end="url(#k-r)"/>
+            <text x="264" y="150" class="t-tiny t-breach" text-anchor="middle">drift rewrites the plan</text>
 
             <line x1="470" y1="92" x2="470" y2="150" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#k-a)"/>
             <text x="484" y="124" class="t-tiny">read</text>
             <line x1="360" y1="150" x2="360" y2="92" stroke="var(--breach)" stroke-width="1.5" marker-end="url(#k-r)"/>
             <text x="346" y="124" class="t-tiny t-breach" text-anchor="end">drift</text>
 
-            <line x1="415" y1="198" x2="415" y2="268" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#k-a)"/>
+            <line x1="415" y1="198" x2="415" y2="264" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#k-a)"/>
             <text x="500" y="234" class="t-tiny">after a few laps</text>
 
-            <path d="M216 240 C272 256 292 292 320 298" fill="none" stroke="var(--anchor)" stroke-width="1.6" marker-end="url(#k-k)"/>
-            <text x="236" y="332" class="t-tiny t-anchor" text-anchor="middle">checked against the anchor</text>
-
-            <line x1="510" y1="300" x2="560" y2="300" stroke="var(--approved)" stroke-width="1.5" marker-end="url(#k-g)"/>
+            <line x1="510" y1="296" x2="560" y2="296" stroke="var(--approved)" stroke-width="1.5" marker-end="url(#k-g)"/>
           </svg>
         </div>
         <div class="note">The loop drifts the instructions exactly as before — but the anchor sits one layer below, untouched. Validate against the anchor and the check has firm ground: the result is right, and it saves.</div>
