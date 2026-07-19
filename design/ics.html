@@ -136,16 +136,17 @@
   .file.auto { border-style: dashed; }
   .file.auto .fn { color: var(--faint); }
 
-  .excards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 20px 0; }
-  @media (max-width: 720px) { .excards { grid-template-columns: 1fr; } }
-  .icsx { border: 1px solid var(--hairline); border-radius: 12px; background: var(--surface); overflow: hidden; }
-  .icsx .h { padding: 13px 16px; border-bottom: 1px solid var(--hairline); background: var(--surface-2); display: flex; justify-content: space-between; align-items: baseline; }
-  .icsx .h .t { font-weight: 640; font-size: 15px; }
-  .icsx .h .m { font-family: var(--mono); font-size: 11px; color: var(--faint); }
-  .icsx .row { display: grid; grid-template-columns: 22px 1fr; gap: 12px; padding: 13px 16px; border-top: 1px solid var(--hairline); font-size: 14px; color: var(--muted); line-height: 1.5; }
-  .icsx .row:first-of-type { border-top: 0; }
-  .icsx .row .b { font-family: var(--mono); font-weight: 600; color: var(--anchor); }
-  .icsx .row code { font-size: .82em; }
+  .anchorex { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 18px 0 10px; }
+  @media (max-width: 760px) { .anchorex { grid-template-columns: 1fr; } }
+  .adoc { border: 1px solid var(--hairline); border-radius: 11px; background: var(--surface); overflow: hidden; }
+  .adoc .h { display: flex; align-items: center; gap: 9px; padding: 11px 14px; background: var(--anchor-soft); border-bottom: 1px solid var(--hairline); }
+  .adoc .h .b { display: inline-flex; align-items: center; justify-content: center; width: 21px; height: 21px; border-radius: 6px; background: var(--anchor); color: var(--surface); font-family: var(--mono); font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .adoc .h .t { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--anchor); }
+  .adoc .h .m { margin-left: auto; font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
+  .adoc .ctx { padding: 11px 14px; font-size: 12.5px; color: var(--muted); line-height: 1.46; border-bottom: 1px dashed var(--hairline); }
+  .adoc .rus { padding: 12px 14px; display: flex; flex-direction: column; gap: 9px; }
+  .adoc .ru { display: flex; align-items: flex-start; gap: 8px; font-family: var(--mono); font-size: 12px; color: var(--ink); line-height: 1.4; }
+  .adoc .ru::before { content: "✓"; display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; border-radius: 4px; border: 1.5px solid var(--anchor); color: var(--anchor); font-size: 9px; flex-shrink: 0; margin-top: 1px; }
 
   .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 24px 0; }
   @media (max-width: 680px) { .stats { grid-template-columns: 1fr; } }
@@ -153,6 +154,7 @@
   .stat .n { font-family: var(--mono); font-size: 22px; font-weight: 600; color: var(--anchor); letter-spacing: -.01em; }
   .stat .l { font-size: 13px; color: var(--muted); margin-top: 7px; line-height: 1.46; }
   .stat .s { font-family: var(--mono); font-size: 10.5px; color: var(--faint); margin-top: 9px; display: block; }
+  .fine { font-size: 13px; color: var(--muted); margin-top: 2px; }
   .refs { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
   .refs a { display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 12px; color: var(--anchor); text-decoration: none; border: 1px solid var(--hairline-strong); border-radius: 999px; padding: 7px 14px 8px; background: var(--surface); transition: background .12s, border-color .12s; }
   .refs a:hover { border-color: var(--anchor); background: var(--anchor-soft); }
@@ -906,20 +908,39 @@
       <h2>Examples</h2>
 
       <h3>A real anchor</h3>
-      <div class="excards">
-        <div class="icsx">
-          <div class="h"><span class="t">Feature anchor</span><span class="m">intent · constraints · success</span></div>
-          <div class="row"><span class="b">I</span><div>Box creation needs defining docs, but there's no guided way to make them — so it's skipped or inconsistent. Build a bounded Q&amp;A that turns finite prompts into a valid anchor. North Star: every Box starts with a clear one.</div></div>
-          <div class="row"><span class="b">C</span><div>Must not converse open-endedly. Must not add a second flow engine — compose the one that exists. Must not let the agent write the anchor unreviewed.</div></div>
-          <div class="row"><span class="b">S</span><div><code>SC-1</code> a run yields a valid anchor · <code>SC-2</code> steps recompose under a second config · <code>SC-3</code> warning-free, green, verified.</div></div>
+      <p>One feature's anchor. Each of <strong>Intent</strong>, <strong>Constraints</strong>, and <strong>Success</strong> is its own small doc — a line of context, then a set of rubrics — exactly like Fig 5, one per dimension.</p>
+      <div class="anchorex">
+        <div class="adoc">
+          <div class="h"><span class="b">I</span><span class="t">intent</span><span class="m">the durable why</span></div>
+          <div class="ctx">Box creation needs a defining doc, but there's no guided way to make one — so it gets skipped or done inconsistently.</div>
+          <div class="rus">
+            <div class="ru">every Box starts from a defining anchor</div>
+            <div class="ru">a bounded Q&amp;A produces it — finite prompts, not open chat</div>
+            <div class="ru">the North Star fits one line</div>
+          </div>
         </div>
-        <div class="icsx">
-          <div class="h"><span class="t">Slice anchor</span><span class="m">one phase · ephemeral</span></div>
-          <div class="row"><span class="b">I</span><div>Replace the provisional delay stub with a real cancellation-aware delay, so flows pause without a busy-wait.</div></div>
-          <div class="row"><span class="b">C</span><div>Must not change the step contract. Async only — never block a thread. A cancelled delay leaves no pending timer.</div></div>
-          <div class="row"><span class="b">S</span><div><code>SC-1</code> resumes after the interval · <code>SC-2</code> cancel leaves no leaked timer (asserted) · <code>SC-3</code> old stub deleted.</div></div>
+        <div class="adoc">
+          <div class="h"><span class="b">C</span><span class="t">constraints</span><span class="m">the laws</span></div>
+          <div class="ctx">Boundaries the build must not cross.</div>
+          <div class="rus">
+            <div class="ru">no open-ended conversation</div>
+            <div class="ru">no second flow engine — composes the existing one</div>
+            <div class="ru">the anchor is never written unreviewed</div>
+            <div class="ru">the public step contract is unchanged</div>
+          </div>
+        </div>
+        <div class="adoc">
+          <div class="h"><span class="b">S</span><span class="t">success</span><span class="m">the bar</span></div>
+          <div class="ctx">What every phase is judged against.</div>
+          <div class="rus">
+            <div class="ru">a run yields a valid, parseable anchor</div>
+            <div class="ru">steps recompose under a second config</div>
+            <div class="ru">the build is warning-free and green</div>
+            <div class="ru">each criterion is asserted in a test</div>
+          </div>
         </div>
       </div>
+      <p class="fine">Every feature or domain carries its own I · C · S set — many rubrics per artifact, not one prose paragraph.</p>
 
       <h3>Bad constraint → fix → good</h3>
       <div class="anti">
