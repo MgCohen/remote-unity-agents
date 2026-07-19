@@ -173,6 +173,26 @@
   .persist .b .t { font-weight: 640; font-size: 14px; }
   .persist .b .d { font-size: 12.5px; color: var(--muted); margin-top: 4px; line-height: 1.4; }
 
+  .anchordoc { display: grid; grid-template-columns: 1.25fr 1fr; gap: 16px; padding: 20px; }
+  @media (max-width: 680px) { .anchordoc { grid-template-columns: 1fr; } }
+  .anchordoc .doc { border: 1px solid var(--hairline); border-radius: 10px; background: var(--surface); overflow: hidden; }
+  .anchordoc .doc-h { padding: 11px 14px; background: var(--anchor-soft); border-bottom: 1px solid var(--hairline); font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--anchor); display: flex; justify-content: space-between; align-items: baseline; }
+  .anchordoc .doc-h .lock { color: var(--muted); font-weight: 500; font-size: 11px; }
+  .anchordoc .doc-context { padding: 12px 14px; font-size: 14px; color: var(--muted); line-height: 1.5; border-bottom: 1px dashed var(--hairline); }
+  .anchordoc .doc-rubrics { padding: 12px 14px; display: flex; flex-direction: column; gap: 9px; }
+  .anchordoc .ru { display: flex; align-items: center; gap: 9px; font-family: var(--mono); font-size: 13px; color: var(--ink); }
+  .anchordoc .ru::before { content: "✓"; display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid var(--anchor); color: var(--anchor); font-size: 10px; flex-shrink: 0; }
+  .anchordoc .whyru-h { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); margin-bottom: 12px; }
+  .anchordoc .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .anchordoc .chips span { font-family: var(--mono); font-size: 12.5px; color: var(--anchor); background: var(--anchor-soft); border-radius: 999px; padding: 5px 11px; }
+  .anchordoc .whyru-note { font-size: 13px; color: var(--muted); margin-top: 14px; line-height: 1.5; }
+
+  .icsrow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 18px 0; }
+  @media (max-width: 640px) { .icsrow { grid-template-columns: 1fr; } }
+  .icsrow .icsdoc { border: 1px solid var(--hairline); border-left: 3px solid var(--anchor); border-radius: 9px; background: var(--surface); padding: 12px 14px; }
+  .icsrow .icsdoc b { font-size: 14.5px; }
+  .icsrow .icsdoc span { display: block; font-size: 12.5px; color: var(--muted); margin-top: 3px; }
+
   footer { border-top: 1px solid var(--hairline); margin-top: 20px; }
   footer .in { max-width: 1240px; margin: 0 auto; padding: 28px 32px 60px; }
   footer p { font-family: var(--mono); font-size: 12.5px; color: var(--faint); line-height: 1.7; max-width: 90ch; margin: 0; }
@@ -542,17 +562,97 @@
     <section id="anchor">
       <span class="sec-num">02</span>
       <h2>What an anchor is</h2>
-      <p class="lead">An anchor doesn't script <span class="hl">what to do</span>. It fixes what must stay true and fences off <span class="hl">what not to do</span>.</p>
-      <p>There are infinite ways to build something, and you can't pick the right one up front — but you almost always know what you <em>don't</em> want. So an anchor leans on boundaries: non-goals, invariants, forbidden moves. It leaves the path open and walls off the cliffs.</p>
-      <p><strong>Whatever you write is law.</strong> The preference for boundaries is about the <em>mix</em>, not the strictness — a positive "do X" is allowed when you truly need it, but used sparingly, because specific directions rot as work branches: "always use this colour" becomes a bug ten steps later on a sub-feature where it no longer makes sense. Negative and positive alike, once written, bind.</p>
+      <p class="lead">The fix is a copy the loop can't reach. Author the durable intent as an <span class="hl">anchor</span> — a protected document one layer below the instructions — and validate against <em>that</em>, not the drifting plan.</p>
+      <p>Same loop, same drift. But the anchor sits underneath it, locked: the work rewrites the instructions all it likes and the anchor never moves. When it's time to check, you check against the anchor — and the drift has nothing to hide behind.</p>
 
-      <div class="anti">
-        <div class="r neutral">
-          <div class="bad"><span class="tag">Prefer — a boundary</span>“Reads must stay under 50ms; don't add a new datastore.”</div>
-          <div class="fix"><span class="tag">Allow, sparingly — a direction</span>“Use the existing Redis instance for the cache.”</div>
+      <div class="figure">
+        <div class="cap"><b>Fig. 4</b> &nbsp;·&nbsp; validate against the anchor, which never drifted</div>
+        <div class="svgwrap">
+          <svg viewBox="0 0 760 380" role="img" aria-label="The instructions still drift in the loop, but an anchor sits one layer below them, locked. The output is validated against the anchor — untouched by the drift — so the result is correct and can be saved.">
+            <defs>
+              <marker id="k-a" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--muted)"/></marker>
+              <marker id="k-r" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--breach)"/></marker>
+              <marker id="k-k" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--anchor)"/></marker>
+              <marker id="k-g" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--approved)"/></marker>
+            </defs>
+
+            <rect x="36" y="92" width="180" height="54" rx="9" class="fill-s2 stroke-line"/>
+            <text x="126" y="118" class="t-label" text-anchor="middle" font-weight="600">instructions</text>
+            <text x="126" y="136" class="t-tiny" text-anchor="middle">may drift</text>
+
+            <rect x="36" y="208" width="180" height="64" rx="10" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="114" y="234" class="t-label t-anchor" text-anchor="middle" font-weight="600">anchor</text>
+            <text x="114" y="252" class="t-tiny" text-anchor="middle">locked · never touched</text>
+            <g transform="translate(182,224)"><rect x="0" y="7" width="17" height="13" rx="2.5" fill="var(--anchor)"/><path d="M2.6 7 V4.6 a6 6 0 0 1 12 0 V7" fill="none" stroke="var(--anchor)" stroke-width="2"/></g>
+
+            <rect x="320" y="44" width="190" height="48" rx="9" class="fill-s2 stroke-line"/>
+            <text x="415" y="73" class="t-small" text-anchor="middle" font-weight="600">context</text>
+            <rect x="320" y="150" width="190" height="48" rx="9" class="fill-s2 stroke-line"/>
+            <text x="415" y="179" class="t-small" text-anchor="middle" font-weight="600">build &amp; work</text>
+
+            <rect x="320" y="268" width="190" height="64" rx="10" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="415" y="296" class="t-label t-anchor" text-anchor="middle" font-weight="600">validate</text>
+            <text x="415" y="316" class="t-tiny" text-anchor="middle">output vs the anchor</text>
+
+            <rect x="560" y="277" width="110" height="46" rx="9" fill="var(--approved)" fill-opacity="0.15" stroke="var(--approved)"/>
+            <text x="615" y="305" class="t-small t-approved" text-anchor="middle" font-weight="600">✓ save</text>
+
+            <line x1="126" y1="208" x2="126" y2="148" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#k-a)"/>
+            <text x="152" y="182" class="t-tiny">written from</text>
+
+            <path d="M200 92 C252 60 290 72 320 74" fill="none" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#k-a)"/>
+
+            <path d="M320 168 C284 150 250 138 218 128" fill="none" stroke="var(--breach)" stroke-width="1.5" marker-end="url(#k-r)"/>
+            <text x="270" y="108" class="t-tiny t-breach" text-anchor="middle">drift rewrites the instructions</text>
+
+            <line x1="470" y1="92" x2="470" y2="150" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#k-a)"/>
+            <text x="484" y="124" class="t-tiny">read</text>
+            <line x1="360" y1="150" x2="360" y2="92" stroke="var(--breach)" stroke-width="1.5" marker-end="url(#k-r)"/>
+            <text x="346" y="124" class="t-tiny t-breach" text-anchor="end">drift</text>
+
+            <line x1="415" y1="198" x2="415" y2="268" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#k-a)"/>
+            <text x="500" y="234" class="t-tiny">after a few laps</text>
+
+            <path d="M216 240 C272 256 292 292 320 298" fill="none" stroke="var(--anchor)" stroke-width="1.6" marker-end="url(#k-k)"/>
+            <text x="236" y="332" class="t-tiny t-anchor" text-anchor="middle">checked against the anchor</text>
+
+            <line x1="510" y1="300" x2="560" y2="300" stroke="var(--approved)" stroke-width="1.5" marker-end="url(#k-g)"/>
+          </svg>
+        </div>
+        <div class="note">The loop drifts the instructions exactly as before — but the anchor sits one layer below, untouched. Validate against the anchor and the check has firm ground: the result is right, and it saves.</div>
+      </div>
+
+      <h3>What an anchor actually is</h3>
+      <p>An anchor is small and deliberate — a few lines of context, then a set of <strong>rubrics</strong>: atomic checks that each answer yes or no.</p>
+
+      <div class="figure">
+        <div class="cap"><b>Fig. 5</b> &nbsp;·&nbsp; a few lines of context, then rubrics</div>
+        <div class="anchordoc">
+          <div class="doc">
+            <div class="doc-h"><span>anchor</span><span class="lock">locked</span></div>
+            <div class="doc-context">This slice serves the existing cache and must not reshape the data model. Keep reads fast; keep the surface stable.</div>
+            <div class="doc-rubrics">
+              <div class="ru">reads stay under 50ms</div>
+              <div class="ru">no new datastore</div>
+              <div class="ru">public API unchanged</div>
+            </div>
+          </div>
+          <div class="whyru">
+            <div class="whyru-h">why rubrics validate cleanly</div>
+            <div class="chips"><span>atomic</span><span>yes / no</span><span>pattern-matchable</span><span>groupable</span></div>
+            <div class="whyru-note">Each is a mechanical check, not a judgment call — so a machine can ask “does the output satisfy this?” and get a real answer.</div>
+          </div>
         </div>
       </div>
-      <p>And an anchor separates concerns — the durable why (<strong>Intent</strong>), the laws (<strong>Constraints</strong>), the bar for done (<strong>Success</strong>). That split is the next section's whole point.</p>
+
+      <p>Rubrics are what make “validate against the anchor” mechanical rather than a judgment call. Constraints lean on <em>what-not-to-do</em> for the same reason: a boundary makes a cleaner yes/no rubric than an open-ended instruction, and it doesn't rot as the work branches.</p>
+
+      <p>And that's the whole of ICS: <strong>Intent</strong>, <strong>Constraints</strong>, and <strong>Success</strong> are each an anchor — three small, protected, rubric-shaped docs.</p>
+      <div class="icsrow">
+        <div class="icsdoc"><b>Intent</b><span>the durable why + North Star</span></div>
+        <div class="icsdoc"><b>Constraints</b><span>the guardrail rubrics</span></div>
+        <div class="icsdoc"><b>Success</b><span>the pass / fail rubrics</span></div>
+      </div>
     </section>
 
     <section id="files">
@@ -577,7 +677,7 @@
       <p>A slice sits inside a feature, inside a domain, inside the project. Anchors can nest along that line: the higher ones are broad and rarely move; the deeper ones are specific and <strong>more ephemeral</strong>, thrown away when the slice is done. When you start a piece of work, you can <strong>compile</strong> the stack — walk up the scope, gather each anchor, and reconcile them into one that governs this task.</p>
 
       <div class="figure">
-        <div class="cap"><b>Fig. 4</b> &nbsp;·&nbsp; climb the scope, compile the anchors into one</div>
+        <div class="cap"><b>Fig. 6</b> &nbsp;·&nbsp; climb the scope, compile the anchors into one</div>
         <div class="svgwrap">
           <svg viewBox="0 0 720 250" role="img" aria-label="Starting at a slice, climb up through feature, domain, and project, gather each anchor, and compile them into one anchor that governs the work.">
             <defs>
@@ -621,7 +721,7 @@
       <p>But it can't be frozen solid — you started the run <em>because</em> you don't know everything yet, and real discoveries should be able to move it. The agent will reach to fold each new insight straight into the anchor. So the guardrail sits on that reach: it <strong>detects the attempt, stops it, and warns you to decide</strong>. Nothing changes the anchor silently, and you're not left to catch it later by reviewing thousands of files.</p>
 
       <div class="figure">
-        <div class="cap"><b>Fig. 5</b> &nbsp;·&nbsp; an edit to the anchor is caught, not waved through</div>
+        <div class="cap"><b>Fig. 7</b> &nbsp;·&nbsp; an edit to the anchor is caught, not waved through</div>
         <div class="svgwrap">
           <svg viewBox="0 0 720 150" role="img" aria-label="The agent tries to edit the anchor; the attempt is detected and you are warned to decide. Approve and the anchor moves and the plan regenerates; deny and the anchor holds.">
             <defs>
