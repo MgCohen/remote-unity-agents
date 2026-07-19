@@ -497,44 +497,45 @@
       <div class="figure">
         <div class="cap"><b>Fig. 3</b> &nbsp;·&nbsp; the review checks a plan that already drifted</div>
         <div class="svgwrap">
-          <svg viewBox="0 0 900 300" role="img" aria-label="Instructions feed a build loop: the context is read, built on, and drift is written back — corrupting both the context and the original plan. After a few laps the output is validated against the plan, but because the plan itself drifted, the check passes the wrong result.">
+          <svg viewBox="0 0 760 420" role="img" aria-label="Instructions feed a build loop where the context is read, built on, and drift is written back — also rewriting the plan. The output drops to validation below, which checks against the plan; but the plan drifted, so the result is wrong.">
             <defs>
               <marker id="v-a" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--muted)"/></marker>
               <marker id="v-r" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--breach)"/></marker>
             </defs>
 
-            <rect x="28" y="118" width="170" height="62" rx="9" class="fill-s2 stroke-line"/>
-            <text x="113" y="146" class="t-label" text-anchor="middle" font-weight="600">instructions</text>
-            <text x="113" y="166" class="t-tiny" text-anchor="middle">your plan</text>
+            <rect x="36" y="150" width="180" height="64" rx="9" class="fill-s2 stroke-line"/>
+            <text x="126" y="178" class="t-label" text-anchor="middle" font-weight="600">instructions</text>
+            <text x="126" y="198" class="t-tiny" text-anchor="middle">your plan</text>
 
-            <rect x="272" y="44" width="176" height="48" rx="9" class="fill-s2 stroke-line"/>
-            <text x="360" y="73" class="t-small" text-anchor="middle" font-weight="600">context</text>
-            <rect x="272" y="164" width="176" height="48" rx="9" class="fill-s2 stroke-line"/>
-            <text x="360" y="193" class="t-small" text-anchor="middle" font-weight="600">build &amp; work</text>
+            <rect x="320" y="44" width="190" height="48" rx="9" class="fill-s2 stroke-line"/>
+            <text x="415" y="73" class="t-small" text-anchor="middle" font-weight="600">context</text>
+            <rect x="320" y="150" width="190" height="48" rx="9" class="fill-s2 stroke-line"/>
+            <text x="415" y="179" class="t-small" text-anchor="middle" font-weight="600">build &amp; work</text>
 
-            <path d="M198 138 C238 118 250 88 272 72" fill="none" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#v-a)"/>
+            <rect x="320" y="272" width="190" height="64" rx="10" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="415" y="300" class="t-label t-anchor" text-anchor="middle" font-weight="600">validate</text>
+            <text x="415" y="320" class="t-tiny" text-anchor="middle">output vs the plan</text>
 
-            <path d="M120 118 C120 20 640 20 640 108" fill="none" stroke="var(--breach)" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#v-r)"/>
-            <text x="380" y="36" class="t-tiny t-breach" text-anchor="middle">validated against the plan — which has drifted</text>
+            <rect x="560" y="282" width="110" height="46" rx="9" fill="var(--breach-soft)" stroke="var(--breach)"/>
+            <text x="615" y="310" class="t-small t-breach" text-anchor="middle" font-weight="600">✕ wrong</text>
 
-            <line x1="418" y1="92" x2="418" y2="164" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#v-a)"/>
-            <text x="432" y="132" class="t-tiny">read</text>
-            <line x1="302" y1="164" x2="302" y2="92" stroke="var(--breach)" stroke-width="1.5" marker-end="url(#v-r)"/>
-            <text x="288" y="132" class="t-tiny t-breach" text-anchor="end">drift</text>
+            <path d="M216 168 C282 168 300 92 320 74" fill="none" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#v-a)"/>
 
-            <path d="M330 212 C280 262 168 262 116 184" fill="none" stroke="var(--breach)" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#v-r)"/>
-            <text x="230" y="286" class="t-tiny t-breach" text-anchor="middle">the drift also rewrites your plan</text>
+            <line x1="470" y1="92" x2="470" y2="150" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#v-a)"/>
+            <text x="484" y="124" class="t-tiny">read</text>
+            <line x1="360" y1="150" x2="360" y2="92" stroke="var(--breach)" stroke-width="1.5" marker-end="url(#v-r)"/>
+            <text x="346" y="124" class="t-tiny t-breach" text-anchor="end">drift</text>
 
-            <path d="M448 188 C500 182 522 150 558 145" fill="none" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#v-a)"/>
-            <text x="505" y="212" class="t-tiny" text-anchor="middle">after a few laps</text>
+            <path d="M320 188 C280 200 250 196 218 192" fill="none" stroke="var(--breach)" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#v-r)"/>
+            <text x="268" y="228" class="t-tiny t-breach" text-anchor="middle">the drift also rewrites your plan</text>
 
-            <rect x="560" y="110" width="170" height="66" rx="10" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
-            <text x="645" y="140" class="t-label t-anchor" text-anchor="middle" font-weight="600">validate</text>
-            <text x="645" y="160" class="t-tiny" text-anchor="middle">output vs the plan</text>
+            <line x1="415" y1="198" x2="415" y2="272" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#v-a)"/>
+            <text x="500" y="240" class="t-tiny">after a few laps</text>
 
-            <line x1="730" y1="143" x2="768" y2="143" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#v-a)"/>
-            <rect x="772" y="120" width="104" height="46" rx="9" fill="var(--breach-soft)" stroke="var(--breach)"/>
-            <text x="824" y="148" class="t-small t-breach" text-anchor="middle" font-weight="600">✕ wrong</text>
+            <line x1="510" y1="305" x2="560" y2="305" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#v-a)"/>
+
+            <path d="M108 214 C104 332 214 346 320 306" fill="none" stroke="var(--breach)" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#v-r)"/>
+            <text x="198" y="374" class="t-tiny t-breach" text-anchor="middle">checked against the drifted plan</text>
           </svg>
         </div>
         <div class="note">A few laps in, it's time to check the work — against the plan. But the plan is exactly what drifted, so the check waves the wrong result through.</div>
