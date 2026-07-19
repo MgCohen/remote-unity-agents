@@ -159,6 +159,20 @@
   .omfig-stage { position: absolute; top: 0; left: 0; width: 1120px; height: 1000px; transform-origin: top left; }
   .omfig-stage * { box-sizing: border-box; }
 
+  .objection { border: 1px solid var(--hairline); border-radius: 10px; background: var(--surface-2); padding: 14px 18px; margin: 20px 0; max-width: 68ch; font-family: var(--mono); }
+  .objection .who { font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); display: block; margin-bottom: 8px; }
+  .objection p { margin: 0; font-size: 15px; color: var(--ink); max-width: none; }
+
+  .persist { padding: 20px; }
+  .persist .win { display: flex; justify-content: space-between; align-items: center; border: 1.5px dashed var(--hairline-strong); border-radius: 10px; background: var(--surface-2); padding: 12px 16px; font-family: var(--mono); font-size: 13px; color: var(--faint); }
+  .persist .win .ok { color: var(--approved); }
+  .persist .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--drift); margin: 16px 2px 10px; }
+  .persist .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  @media (max-width: 680px) { .persist .grid { grid-template-columns: 1fr; } }
+  .persist .b { border: 1px solid var(--hairline); border-left: 3px solid var(--drift); border-radius: 9px; background: var(--surface); padding: 12px 14px; }
+  .persist .b .t { font-weight: 640; font-size: 14px; }
+  .persist .b .d { font-size: 12.5px; color: var(--muted); margin-top: 4px; line-height: 1.4; }
+
   footer { border-top: 1px solid var(--hairline); margin-top: 20px; }
   footer .in { max-width: 1240px; margin: 0 auto; padding: 28px 32px 60px; }
   footer p { font-family: var(--mono); font-size: 12.5px; color: var(--faint); line-height: 1.7; max-width: 90ch; margin: 0; }
@@ -453,8 +467,35 @@
       })();
       </script>
 
+      <p>Fair objection: this only bites if you let the window fill. Clear it — compact, summarise, start each task fresh — and the loop can't corrupt what isn't there.</p>
+
+      <div class="objection">
+        <span class="who">the usual objection</span>
+        <p>“I don't let it bloat — I start every task with a brand-new context.”</p>
+      </div>
+
+      <p>Except the window is only the part you can see reset. State lives in places a fresh window never touches, and each one can carry a subtly-wrong version of the truth forward:</p>
+
       <div class="figure">
-        <div class="cap"><b>Fig. 2</b> &nbsp;·&nbsp; the loop that corrupts the context</div>
+        <div class="cap"><b>Fig. 2</b> &nbsp;·&nbsp; the window is not the only thing that persists</div>
+        <div class="persist">
+          <div class="win">context window <span class="ok">cleared each task ✓</span></div>
+          <div class="lbl">but these don't reset</div>
+          <div class="grid">
+            <div class="b"><div class="t">Cloud memory</div><div class="d">Carried across sessions; a fresh window doesn't touch it.</div></div>
+            <div class="b"><div class="t">Between-session state</div><div class="d">Resumed threads, saved plans, checkpoints.</div></div>
+            <div class="b"><div class="t">Artifact changes</div><div class="d">You saved the doc — the artifact itself has moved on.</div></div>
+            <div class="b"><div class="t">Code inference</div><div class="d">The code changed; next read, the agent infers something new from it.</div></div>
+            <div class="b"><div class="t">Logs, caches &amp; indexes</div><div class="d">Retrieval and history that outlive any one window.</div></div>
+            <div class="b"><div class="t">… and more</div><div class="d">Anywhere state leaks out and comes back in.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <p>You can wipe the window every task. You can't wipe all of these. Which is the real reason the anchor must be a <strong>fixed, protected artifact</strong> — not something you re-read from whatever state happens to survive.</p>
+
+      <div class="figure">
+        <div class="cap"><b>Fig. 3</b> &nbsp;·&nbsp; the loop that corrupts the context</div>
         <div class="svgwrap">
           <svg viewBox="0 0 780 260" role="img" aria-label="Outside the loop on the left, a box 'write the anchor into context' feeds into build and work, the loop's entry. The loop: build and work, discover something, write it into the context, the context drifts — then back to build; each lap corrupts the context.">
             <defs>
@@ -526,7 +567,7 @@
       <p>A slice sits inside a feature, inside a domain, inside the project. Anchors can nest along that line: the higher ones are broad and rarely move; the deeper ones are specific and <strong>more ephemeral</strong>, thrown away when the slice is done. When you start a piece of work, you can <strong>compile</strong> the stack — walk up the scope, gather each anchor, and reconcile them into one that governs this task.</p>
 
       <div class="figure">
-        <div class="cap"><b>Fig. 3</b> &nbsp;·&nbsp; climb the scope, compile the anchors into one</div>
+        <div class="cap"><b>Fig. 4</b> &nbsp;·&nbsp; climb the scope, compile the anchors into one</div>
         <div class="svgwrap">
           <svg viewBox="0 0 720 250" role="img" aria-label="Starting at a slice, climb up through feature, domain, and project, gather each anchor, and compile them into one anchor that governs the work.">
             <defs>
@@ -570,7 +611,7 @@
       <p>But it can't be frozen solid — you started the run <em>because</em> you don't know everything yet, and real discoveries should be able to move it. The agent will reach to fold each new insight straight into the anchor. So the guardrail sits on that reach: it <strong>detects the attempt, stops it, and warns you to decide</strong>. Nothing changes the anchor silently, and you're not left to catch it later by reviewing thousands of files.</p>
 
       <div class="figure">
-        <div class="cap"><b>Fig. 4</b> &nbsp;·&nbsp; an edit to the anchor is caught, not waved through</div>
+        <div class="cap"><b>Fig. 5</b> &nbsp;·&nbsp; an edit to the anchor is caught, not waved through</div>
         <div class="svgwrap">
           <svg viewBox="0 0 720 150" role="img" aria-label="The agent tries to edit the anchor; the attempt is detected and you are warned to decide. Approve and the anchor moves and the plan regenerates; deny and the anchor holds.">
             <defs>
