@@ -13,11 +13,10 @@
   in the control surface is POSIX shell with no libraries, so it behaves identically on a dev
   box, in CI, and in an agent hook. Don't "tidy" a shell guard with a dependency.
 
-## Our two tenets (how we work — not part of the flow)
+## Our two tenets
 
-These are not components; they're **tenets** — the two ideas we follow to the letter, the ones
-that define how we work. They sit *above* the machinery and never appear *in* it: every layer
-below is built to serve them. They're the **why**; everything else is the **what**.
+Two **tenets** — the rules we hold ourselves to. Every layer below is built to serve them.
+They're the **why**; everything else is the **what**.
 
 > **1 · Structure over prose.** Rules are *structure the machine checks*, not prose humans
 > (or agents) are trusted to follow. A guarantee encoded as a project reference, a parity
@@ -30,7 +29,7 @@ below is built to serve them. They're the **why**; everything else is the **what
 > Claude, Codex, or the next thing is a thin, swappable adapter, and reactions live **with the code
 > that needs them**, not scattered in a vendor's magic folder.
 
-Everything below is built to serve those two tenets. The structure is one picture:
+The structure is one picture:
 
 ![Governance is a declared policy, human-guarded, enforced by five peer layers](assets/governance-model.svg)
 
@@ -39,7 +38,7 @@ Everything below is built to serve those two tenets. The structure is one pictur
 ## Table of contents
 
 - [Part 1 — The model](#part-1--the-model)
-  - [Governance: the policy root (not tech)](#governance-the-policy-root-not-tech)
+  - [Governance: the policy root](#governance-the-policy-root)
   - [The five peer primitives, and how they interlock](#the-five-peer-primitives-and-how-they-interlock)
   - [1 · Test Harness](#1--test-harness) · [2 · Doc Engine](#2--doc-engine) · [3 · Judge](#3--judge) · [4 · Gate](#4--gate) · [5 · Hooks](#5--hooks)
 - [Part 2 — The migration](#part-2--the-migration)
@@ -50,25 +49,22 @@ Everything below is built to serve those two tenets. The structure is one pictur
 
 # Part 1 — The model
 
-## Governance: the policy root (not tech)
+## Governance: the policy root
 
-Here's the twist worth getting right: **governance itself is not a tool — it's the declared
-policy.** Every layer below is tech that *enforces*; governance is the thing being enforced.
-Its substance is **prose**:
+Governance is the **declared policy** — the thing every layer below enforces. Its substance is **prose**:
 
-- `protected-paths` — a hand-authored `glob | owner | tier | reason` list. Not derived from
-  anything; *stated*. (Note the columns: `owner` = **routing**, `tier` = **danger level** — used below.)
+- `protected-paths` — a hand-authored `glob | owner | tier | reason` list (`owner` = **routing**,
+  `tier` = **danger level**, used below).
 - the conventions — "home folders", "where a Rulebook lives", "declarations central / proof
-  co-located" — documentation (`CLAUDE.md`, the READMEs) that says how things organize.
+  co-located" — the documentation (`CLAUDE.md`, the READMEs) that says how things organize.
 
-The only "tech" governance owns is the **thin policy-reader** (`protected-paths-check.sh` + the
-CODEOWNERS generator). Everything that *acts* is a layer — so governance ≈ no tech; **its tech is
-the five layers.**
+Governance owns one thin piece of tech: the **policy-reader** (`protected-paths-check.sh` + the
+CODEOWNERS generator). Everything that *acts* on the policy is a layer — **governance's tech is the
+five layers.**
 
-**Why it must be prose.** Everything else is structure-over-prose because there's a layer
-*beneath* it enforcing it. Governance is the bottom turtle — nothing is beneath it, so it has to
-be *stated*, and it's kept honest by the one non-machine backstop: **human review** (CODEOWNERS +
-the identity split). The prose kernel is held by a person, deliberately.
+**Why prose.** Governance is the bottom turtle: the layer every other layer enforces, with nothing
+beneath it to enforce *it*. So it's **stated**, and kept honest by the one human backstop — **review**
+(CODEOWNERS + the identity split). The prose kernel is held by a person, deliberately.
 
 | | What it is | Kept honest by |
 |---|---|---|
@@ -99,8 +95,8 @@ the third:
 | **Direct call** | Doc Engine `reviewers` → Judge | no |
 | **Event / automation** | a doc changes → fire the evaluator | **yes** |
 
-The one thing every layer reads is the **policy** — that shared source of truth, not a hub, is
-the closest thing to a connector.
+The one thing every layer reads is the **policy** — that shared source of truth is the closest
+thing to a connector.
 
 **The seam that makes it portable — declarations governed, proof distributed.** Every Rulebook,
 rubric, doctype, and the judge's criteria is a **protected path** (central, owner-reviewed). The
@@ -246,10 +242,9 @@ proportional to danger. And because the tier is **structured data**, other tools
 enforcement GitHub's binary controls can't: "confirm this 4×", "push it to the top of the review
 list", graded friction. That's *own your boundaries* applied to review severity.
 
-> **Built vs. designed-for** (so the doc doesn't overclaim): today all three tiers gate
-> *identically* (code-owner review); the tier adds *signal* — a PR label, and a push alert for
-> `critical`. Graded enforcement (multi-confirm, routing) is what the tier data **enables**, not yet
-> shipped.
+> **Built vs. designed-for.** Today all three tiers gate *identically* (code-owner review); the tier
+> adds *signal* — a PR label, and a push alert for `critical`. Graded enforcement (multi-confirm,
+> routing) is what the tier data **enables**, not yet shipped.
 
 ![One policy drives every enforcer](assets/governance-flow.svg)
 
@@ -267,8 +262,8 @@ list", graded friction. That's *own your boundaries* applied to review severity.
 
 **What it is.** The **automation** layer — one place where *any* repository or agent lifecycle event
 triggers a reaction, agentic or not. A standalone tool (`tools/hooks`, the `abox-hooks` CLI)
-discovers declarative **`.hook`** files on disk and dispatches them. It is *one of the three ways*
-the layers connect (the automatic one), not a bus everything rides.
+discovers declarative **`.hook`** files on disk and dispatches them. It's the **automatic** one of
+the three ways the layers connect.
 
 **What it does.**
 
