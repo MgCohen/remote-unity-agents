@@ -58,9 +58,10 @@ Governance is the **declared policy** — the thing every layer below enforces. 
 - the conventions — "home folders", "where a Rulebook lives", "declarations central / proof
   co-located" — the documentation (`CLAUDE.md`, the READMEs) that says how things organize.
 
-Governance owns one thin piece of tech: the **policy-reader** (`protected-paths-check.sh` + the
-CODEOWNERS generator). Everything that *acts* on the policy is a layer — **governance's tech is the
-five layers.**
+Governance owns **no tech at all** — not even the reader. `protected-paths` is a *declaration*;
+everything that reads or acts on it is a layer. The **Gate** owns the machinery that turns the
+declaration into enforcement — the checker (`protected-paths-check.sh`) and the CODEOWNERS
+generator. **Governance's tech is the five layers.**
 
 **Why prose.** Governance is the bottom turtle: the layer every other layer enforces, with nothing
 beneath it to enforce *it*. So it's **stated**, and kept honest by the one human backstop — **review**
@@ -223,7 +224,7 @@ dangerous a change is). The policy row encodes both: `owner` = routing, `tier` =
 
 **What it does.**
 
-- **Gate** — CODEOWNERS is generated from `protected-paths`; required code-owner review is the **merge gate of record** (a CI check can't tell an *approved* change from an unreviewed one; a required review can).
+- **Reads & projects the policy** — the Gate owns the machinery over Governance's declaration: `protected-paths-check.sh` reads it, `generate-codeowners.sh` projects it into `.github/CODEOWNERS`. Required code-owner review is then the **merge gate of record** (a CI check can't tell an *approved* change from an unreviewed one; a required review can).
 - **Classifier** — the `tier` grades a change's danger and rations scarce attention:
 
   | Touch | Tier | Response |
@@ -250,6 +251,8 @@ list", graded friction. That's *own your boundaries* applied to review severity.
 
 | File | Role |
 |---|---|
+| `governance/protected-paths-check.sh` | Reads the policy declaration — the shared checker every enforcer calls. |
+| `governance/generate-codeowners.sh` | Projects the policy into `.github/CODEOWNERS`. |
 | `.github/CODEOWNERS` | Generated owner map — the merge gate. Never hand-edit; regenerate. |
 | `.github/workflows/ci.yml` (`policy-guard`) | CODEOWNERS-sync check + advisory annotations & tier labels. |
 | `governance/identity-check.sh` | Proves commits are the bot, never the owner. |
@@ -349,8 +352,10 @@ question is **sequencing** (v1 vs later).
 
 ## Step 2 — Governance core
 
-- **Goal** — the spine every layer reads: one policy, one checker, one generator.
-- **Copy** — `governance/protected-paths`, `protected-paths-check.sh`, `generate-codeowners.sh`.
+- **Goal** — the policy declaration + the Gate's reader that every layer calls, brought forward
+  (the checker and generator are the Gate's, but the policy has to be readable before any layer lands).
+- **Copy** — `governance/protected-paths` (the declaration), plus the Gate's `protected-paths-check.sh`
+  and `generate-codeowners.sh`.
 - **Edit** — owner `@MgCohen` → `<owner>` in `protected-paths`; prune rows for anything not built
   yet (add them back as you land each layer); optionally rename `ABOX_ALLOW_PROTECTED` →
   `<NEW>_ALLOW_PROTECTED` (in the checker + README).
