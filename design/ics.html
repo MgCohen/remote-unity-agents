@@ -167,11 +167,11 @@
   .persist .win { display: flex; justify-content: space-between; align-items: center; border: 1.5px dashed var(--hairline-strong); border-radius: 10px; background: var(--surface-2); padding: 12px 16px; font-family: var(--mono); font-size: 13px; color: var(--faint); }
   .persist .win .ok { color: var(--approved); }
   .persist .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--drift); margin: 16px 2px 10px; }
-  .persist .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-  @media (max-width: 680px) { .persist .grid { grid-template-columns: 1fr; } }
-  .persist .b { border: 1px solid var(--hairline); border-left: 3px solid var(--drift); border-radius: 9px; background: var(--surface); padding: 12px 14px; }
-  .persist .b .t { font-weight: 640; font-size: 14px; }
-  .persist .b .d { font-size: 12.5px; color: var(--muted); margin-top: 4px; line-height: 1.4; }
+  .persist .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  @media (max-width: 380px) { .persist .grid { grid-template-columns: 1fr; } }
+  .persist .b { border: 1px solid var(--hairline); border-left: 3px solid var(--drift); border-radius: 8px; background: var(--surface); padding: 9px 12px; }
+  .persist .b .t { font-weight: 640; font-size: 13px; }
+  .persist .b .d { font-size: 12px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
 
   .anchordoc { display: grid; grid-template-columns: 1.25fr 1fr; gap: 16px; padding: 20px; }
   @media (max-width: 680px) { .anchordoc { grid-template-columns: 1fr; } }
@@ -182,10 +182,8 @@
   .anchordoc .doc-rubrics { padding: 12px 14px; display: flex; flex-direction: column; gap: 9px; }
   .anchordoc .ru { display: flex; align-items: center; gap: 9px; font-family: var(--mono); font-size: 13px; color: var(--ink); }
   .anchordoc .ru::before { content: "✓"; display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid var(--anchor); color: var(--anchor); font-size: 10px; flex-shrink: 0; }
-  .anchordoc .whyru-h { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); margin-bottom: 12px; }
-  .anchordoc .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-  .anchordoc .chips span { font-family: var(--mono); font-size: 12.5px; color: var(--anchor); background: var(--anchor-soft); border-radius: 999px; padding: 5px 11px; }
-  .anchordoc .whyru-note { font-size: 13px; color: var(--muted); margin-top: 14px; line-height: 1.5; }
+  .anchordoc .whyru { display: flex; flex-direction: column; justify-content: center; gap: 10px; }
+  .anchordoc .benefit { font-family: var(--mono); font-size: 13.5px; color: var(--anchor); background: var(--anchor-soft); border-radius: 10px; padding: 13px 16px; text-align: center; }
 
   .icsrow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 18px 0; }
   @media (max-width: 640px) { .icsrow { grid-template-columns: 1fr; } }
@@ -568,7 +566,7 @@
       <div class="figure">
         <div class="cap"><b>Fig. 4</b> &nbsp;·&nbsp; validate against the anchor, which never drifted</div>
         <div class="svgwrap">
-          <svg viewBox="0 0 760 360" role="img" aria-label="The instructions still drift in the loop, but an anchor sits one layer below them, locked. Instructions feed context above and the anchor feeds validate below — mirror arrows. The output is validated against the anchor, untouched by the drift, so the result is correct and saves.">
+          <svg viewBox="0 0 760 356" role="img" aria-label="Instructions sit in the top row beside context; the anchor sits in the bottom row beside validate. The instructions seed the context, which drifts in the build loop. The anchor, locked and authored once from the instructions, feeds validate directly. The output is checked against the anchor, so the result is correct and saves.">
             <defs>
               <marker id="k-a" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--muted)"/></marker>
               <marker id="k-r" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--breach)"/></marker>
@@ -576,49 +574,49 @@
               <marker id="k-g" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--approved)"/></marker>
             </defs>
 
-            <rect x="36" y="100" width="180" height="54" rx="9" class="fill-s2 stroke-line"/>
-            <text x="126" y="124" class="t-label" text-anchor="middle" font-weight="600">instructions</text>
-            <text x="126" y="142" class="t-tiny" text-anchor="middle">may drift</text>
+            <rect x="40" y="44" width="180" height="52" rx="9" class="fill-s2 stroke-line"/>
+            <text x="130" y="68" class="t-label" text-anchor="middle" font-weight="600">instructions</text>
+            <text x="130" y="85" class="t-tiny" text-anchor="middle">may drift</text>
 
-            <rect x="36" y="200" width="180" height="64" rx="10" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
-            <text x="114" y="226" class="t-label t-anchor" text-anchor="middle" font-weight="600">anchor</text>
-            <text x="114" y="244" class="t-tiny" text-anchor="middle">locked · never touched</text>
-            <g transform="translate(182,216)"><rect x="0" y="7" width="17" height="13" rx="2.5" fill="var(--anchor)"/><path d="M2.6 7 V4.6 a6 6 0 0 1 12 0 V7" fill="none" stroke="var(--anchor)" stroke-width="2"/></g>
+            <rect x="320" y="44" width="190" height="52" rx="9" class="fill-s2 stroke-line"/>
+            <text x="415" y="76" class="t-small" text-anchor="middle" font-weight="600">context</text>
 
-            <rect x="320" y="44" width="190" height="48" rx="9" class="fill-s2 stroke-line"/>
-            <text x="415" y="73" class="t-small" text-anchor="middle" font-weight="600">context</text>
-            <rect x="320" y="150" width="190" height="48" rx="9" class="fill-s2 stroke-line"/>
-            <text x="415" y="179" class="t-small" text-anchor="middle" font-weight="600">build &amp; work</text>
+            <rect x="320" y="152" width="190" height="48" rx="9" class="fill-s2 stroke-line"/>
+            <text x="415" y="181" class="t-small" text-anchor="middle" font-weight="600">build &amp; work</text>
 
-            <rect x="320" y="264" width="190" height="64" rx="10" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
-            <text x="415" y="292" class="t-label t-anchor" text-anchor="middle" font-weight="600">validate</text>
-            <text x="415" y="312" class="t-tiny" text-anchor="middle">output vs the anchor</text>
+            <rect x="40" y="256" width="180" height="64" rx="10" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="118" y="282" class="t-label t-anchor" text-anchor="middle" font-weight="600">anchor</text>
+            <text x="118" y="300" class="t-tiny" text-anchor="middle">locked · never touched</text>
+            <g transform="translate(186,272)"><rect x="0" y="7" width="17" height="13" rx="2.5" fill="var(--anchor)"/><path d="M2.6 7 V4.6 a6 6 0 0 1 12 0 V7" fill="none" stroke="var(--anchor)" stroke-width="2"/></g>
 
-            <rect x="560" y="273" width="110" height="46" rx="9" fill="var(--approved)" fill-opacity="0.15" stroke="var(--approved)"/>
-            <text x="615" y="301" class="t-small t-approved" text-anchor="middle" font-weight="600">✓ save</text>
+            <rect x="320" y="256" width="190" height="64" rx="10" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="415" y="284" class="t-label t-anchor" text-anchor="middle" font-weight="600">validate</text>
+            <text x="415" y="304" class="t-tiny" text-anchor="middle">output vs the anchor</text>
 
-            <path d="M126 100 C126 58 232 68 320 68" fill="none" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#k-a)"/>
-            <path d="M126 264 C126 306 232 296 320 296" fill="none" stroke="var(--anchor)" stroke-width="1.6" marker-end="url(#k-k)"/>
-            <text x="196" y="340" class="t-tiny t-anchor" text-anchor="middle">checked against the anchor</text>
+            <rect x="562" y="265" width="108" height="46" rx="9" fill="var(--approved)" fill-opacity="0.15" stroke="var(--approved)"/>
+            <text x="616" y="293" class="t-small t-approved" text-anchor="middle" font-weight="600">✓ save</text>
 
-            <line x1="126" y1="200" x2="126" y2="156" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#k-a)"/>
-            <text x="150" y="182" class="t-tiny">written from</text>
+            <line x1="220" y1="70" x2="320" y2="70" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#k-a)"/>
+            <text x="270" y="60" class="t-tiny" text-anchor="middle">seeds</text>
 
-            <path d="M320 168 C284 150 250 140 218 132" fill="none" stroke="var(--breach)" stroke-width="1.5" marker-end="url(#k-r)"/>
-            <text x="264" y="150" class="t-tiny t-breach" text-anchor="middle">drift rewrites the plan</text>
+            <line x1="130" y1="96" x2="130" y2="256" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#k-a)"/>
+            <text x="144" y="180" class="t-tiny">authored once</text>
 
-            <line x1="470" y1="92" x2="470" y2="150" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#k-a)"/>
-            <text x="484" y="124" class="t-tiny">read</text>
-            <line x1="360" y1="150" x2="360" y2="92" stroke="var(--breach)" stroke-width="1.5" marker-end="url(#k-r)"/>
-            <text x="346" y="124" class="t-tiny t-breach" text-anchor="end">drift</text>
+            <line x1="470" y1="96" x2="470" y2="152" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#k-a)"/>
+            <text x="484" y="128" class="t-tiny">read</text>
+            <line x1="360" y1="152" x2="360" y2="96" stroke="var(--breach)" stroke-width="1.5" marker-end="url(#k-r)"/>
+            <text x="346" y="128" class="t-tiny t-breach" text-anchor="end">drift</text>
 
-            <line x1="415" y1="198" x2="415" y2="264" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#k-a)"/>
-            <text x="500" y="234" class="t-tiny">after a few laps</text>
+            <line x1="415" y1="200" x2="415" y2="256" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#k-a)"/>
+            <text x="500" y="232" class="t-tiny">after a few laps</text>
 
-            <line x1="510" y1="296" x2="560" y2="296" stroke="var(--approved)" stroke-width="1.5" marker-end="url(#k-g)"/>
+            <line x1="220" y1="288" x2="320" y2="288" stroke="var(--anchor)" stroke-width="1.6" marker-end="url(#k-k)"/>
+            <text x="415" y="344" class="t-tiny t-anchor" text-anchor="middle">checked against the anchor — untouched by the drift</text>
+
+            <line x1="510" y1="288" x2="562" y2="288" stroke="var(--approved)" stroke-width="1.5" marker-end="url(#k-g)"/>
           </svg>
         </div>
-        <div class="note">The loop drifts the instructions exactly as before — but the anchor sits one layer below, untouched. Validate against the anchor and the check has firm ground: the result is right, and it saves.</div>
+        <div class="note">The loop drifts exactly as before — but the anchor sits one layer below it, untouched. Validate against the anchor and the check has firm ground: the result is right, and it saves.</div>
       </div>
 
       <h3>What an anchor actually is</h3>
@@ -637,9 +635,10 @@
             </div>
           </div>
           <div class="whyru">
-            <div class="whyru-h">why rubrics validate cleanly</div>
-            <div class="chips"><span>atomic</span><span>yes / no</span><span>pattern-matchable</span><span>groupable</span></div>
-            <div class="whyru-note">Each is a mechanical check, not a judgment call — so a machine can ask “does the output satisfy this?” and get a real answer.</div>
+            <div class="benefit">each one is atomic</div>
+            <div class="benefit">answered yes or no</div>
+            <div class="benefit">a machine can check it</div>
+            <div class="benefit">they group into a suite</div>
           </div>
         </div>
       </div>
