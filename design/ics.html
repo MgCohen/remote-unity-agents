@@ -147,12 +147,13 @@
   .icsx .row .b { font-family: var(--mono); font-weight: 600; color: var(--anchor); }
   .icsx .row code { font-size: .82em; }
 
-  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 24px 0; }
+  .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 24px 0; }
   @media (max-width: 680px) { .stats { grid-template-columns: 1fr; } }
   .stat { border: 1px solid var(--hairline); border-radius: 11px; background: var(--surface); padding: 16px 16px 18px; }
-  .stat .n { font-family: var(--mono); font-size: 24px; font-weight: 600; color: var(--anchor); letter-spacing: -.01em; }
+  .stat .n { font-family: var(--mono); font-size: 22px; font-weight: 600; color: var(--anchor); letter-spacing: -.01em; }
   .stat .l { font-size: 13px; color: var(--muted); margin-top: 7px; line-height: 1.46; }
   .stat .s { font-family: var(--mono); font-size: 10.5px; color: var(--faint); margin-top: 9px; display: block; }
+  .src { font-family: var(--mono); font-size: 11px; color: var(--faint); line-height: 1.6; margin-top: 20px; }
 
   /* Fig. 1 — animated context loop (self-contained illustration) */
   .omfig-wrap { position: relative; width: 100%; aspect-ratio: 1120 / 1000; background: #eef0f2; border-radius: 12px; overflow: hidden; margin: 26px 0; border: 1px solid var(--hairline); }
@@ -866,24 +867,31 @@
     <section id="research">
       <span class="sec-num">06</span>
       <h2>What the research shows</h2>
-      <p>The approach isn't only intuition — three independent findings back its core moves.</p>
+      <p class="lead">This isn't only intuition. Recent work — controlled runs and large corpus analyses alike — backs the core moves, and marks where to stop.</p>
       <div class="stats">
         <div class="stat">
-          <div class="n">5,000 runs</div>
-          <div class="l">A controlled study of coding agents: the rules that helped were boundaries (“do not X”); the ones that hurt were directions (“do X”).</div>
-          <span class="s">Guardrails Beat Guidance</span>
+          <div class="n">+13.8pp</div>
+          <div class="l">Giving a coding agent any durable rules file lifted its pass rate from 50.0% to 63.8% on SWE-bench Verified. Having an anchor at all moves the needle.</div>
+          <span class="s">Guardrails Beat Guidance · arXiv 2604.11088</span>
         </div>
         <div class="stat">
-          <div class="n">~15%</div>
-          <div class="l">Share of real agent instruction files that mention security or performance at all — the constraints that matter most are the ones most often missing.</div>
-          <span class="s">Agent READMEs corpus</span>
+          <div class="n">boundaries win</div>
+          <div class="l">In the same 5,000-run study, every rule that helped was a boundary (“do not X”); every rule that hurt was a directive (“do X”). Constraints should lean negative.</div>
+          <span class="s">Guardrails Beat Guidance · arXiv 2604.11088</span>
+        </div>
+        <div class="stat">
+          <div class="n">14.5%</div>
+          <div class="l">Share of 2,303 real agent context files that mention security or performance — while 75% cover testing. The constraints that matter most are the ones teams skip.</div>
+          <span class="s">Agent READMEs · arXiv 2511.12884</span>
         </div>
         <div class="stat">
           <div class="n">U-shaped</div>
-          <div class="l">Specification cost. Under-specify and the work leaks downstream; over-specify and you rebuild waterfall. The optimum is a small, checkable middle.</div>
-          <span class="s">Eisele · the U-curve</span>
+          <div class="l">Spec cost: under-specify and work leaks downstream; over-specify and you rebuild waterfall. The optimum is checkable criteria in the middle — so keep the anchor one page.</div>
+          <span class="s">Eisele · O’Reilly Radar</span>
         </div>
       </div>
+      <p>One honest tension: that same study found <em>random</em> rules matched curated ones — presence drove much of the gain, not perfect wording. Which is exactly why the anchor must stay uncorrupted: presence only helps while the present thing is still true, and that is what freezing (§05) protects.</p>
+      <p class="src">Sources — arXiv 2604.11088 (Guardrails Beat Guidance), 2511.12884 (Agent READMEs), 2606.27045 (Spec Growth Engine); O’Reilly Radar (Eisele, the specification U-curve). Findings adversarially verified before use.</p>
     </section>
 
     <section id="examples">
