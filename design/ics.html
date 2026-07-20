@@ -832,38 +832,62 @@
       <h2>Freeze &amp; the gate</h2>
       <p class="lead">The anchor is <span class="hl">fixed</span>: the agent works inside it and doesn't edit it as it goes. That's what breaks the loop in section 01.</p>
       <p>But it can't be frozen solid — you started the run <em>because</em> you don't know everything yet, and real discoveries should be able to move it. The agent will reach to fold each new insight straight into the anchor. So the guardrail sits on that reach: it <strong>detects the attempt, stops it, and warns you to decide</strong>. Nothing changes the anchor silently, and you're not left to catch it later by reviewing thousands of files.</p>
+      <p>The agent runs the task nonstop, and routine edits flow the usual way — they ship with the PR like any diff. Only a change that reaches for the <strong>anchor</strong> is pulled out of that flow: it's flagged, it blocks, and it waits for an explicit yes or no from you.</p>
 
       <div class="figure">
-        <div class="cap"><b>Fig. 8</b> &nbsp;·&nbsp; an edit to the anchor is caught, not waved through</div>
+        <div class="cap"><b>Fig. 8</b> &nbsp;·&nbsp; the agent runs nonstop — only an anchor edit blocks for your call</div>
         <div class="svgwrap">
-          <svg viewBox="0 0 720 150" role="img" aria-label="The agent tries to edit the anchor; the attempt is detected and you are warned to decide. Approve and the anchor moves and the plan regenerates; deny and the anchor holds.">
+          <svg viewBox="0 0 780 300" role="img" aria-label="The agent loops on the task nonstop. Routine changes ship with the PR automatically. A change that touches the anchor is flagged, notifies you, and blocks: you decide — approve moves the anchor and regenerates the plan, deny holds it and the work stays inside.">
             <defs>
               <marker id="f-f" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--muted)"/></marker>
               <marker id="f-g" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--approved)"/></marker>
               <marker id="f-b" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--anchor)"/></marker>
+              <marker id="f-r" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--breach)"/></marker>
             </defs>
-            <rect x="12" y="52" width="158" height="46" rx="9" class="fill-s2 stroke-line"/>
-            <text x="91" y="73" class="t-small" text-anchor="middle">agent tries to</text>
-            <text x="91" y="88" class="t-small" text-anchor="middle" font-weight="600">edit the anchor</text>
-            <line x1="170" y1="75" x2="208" y2="75" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#f-f)"/>
-            <text x="250" y="40" class="t-tiny t-breach" text-anchor="middle">detected</text>
-            <g transform="translate(292,75)">
-              <path d="M0 -40 L84 0 L0 40 L-84 0 Z" class="fill-surface" stroke="var(--anchor)" stroke-width="1.5"/>
-              <text x="0" y="-3" class="t-small t-anchor" text-anchor="middle" font-weight="600">you decide</text>
-              <text x="0" y="13" class="t-tiny" text-anchor="middle">warned, not later</text>
-            </g>
-            <path d="M336 56 C404 34 448 30 494 30" fill="none" stroke="var(--approved)" stroke-width="1.8" marker-end="url(#f-g)"/>
-            <text x="436" y="26" class="t-tiny t-approved" text-anchor="middle">approve</text>
-            <rect x="494" y="10" width="210" height="42" rx="9" fill="none" stroke="var(--approved)"/>
-            <text x="599" y="30" class="t-small" text-anchor="middle" font-weight="600">anchor moves</text>
-            <text x="599" y="45" class="t-tiny" text-anchor="middle">plan regenerates against it</text>
-            <path d="M336 94 C404 116 448 120 494 120" fill="none" stroke="var(--anchor)" stroke-width="1.8" marker-end="url(#f-b)"/>
-            <text x="436" y="136" class="t-tiny t-anchor" text-anchor="middle">deny</text>
-            <rect x="494" y="98" width="210" height="42" rx="9" fill="none" stroke="var(--anchor)"/>
-            <text x="599" y="118" class="t-small" text-anchor="middle" font-weight="600">anchor holds</text>
-            <text x="599" y="133" class="t-tiny" text-anchor="middle">work stays inside it</text>
+
+            <rect x="36" y="44" width="150" height="52" rx="10" class="fill-s2 stroke-line"/>
+            <text x="111" y="68" class="t-small" text-anchor="middle" font-weight="600">task</text>
+            <text x="111" y="84" class="t-tiny" text-anchor="middle">the work</text>
+            <rect x="36" y="158" width="150" height="52" rx="10" class="fill-s2 stroke-line"/>
+            <text x="111" y="182" class="t-small" text-anchor="middle" font-weight="600">agent</text>
+            <text x="111" y="198" class="t-tiny" text-anchor="middle">works nonstop</text>
+
+            <line x1="82" y1="96" x2="82" y2="158" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#f-f)"/>
+            <line x1="140" y1="158" x2="140" y2="96" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#f-f)"/>
+            <text x="111" y="131" class="t-tiny" text-anchor="middle" fill="var(--faint)">loop</text>
+
+            <path d="M186 172 C280 172 300 80 396 80" fill="none" stroke="var(--approved)" stroke-width="1.6" marker-end="url(#f-g)"/>
+            <text x="276" y="126" class="t-tiny" text-anchor="middle">routine change</text>
+            <rect x="396" y="54" width="214" height="50" rx="9" fill="var(--approved)" fill-opacity="0.13" stroke="var(--approved)"/>
+            <text x="503" y="78" class="t-small t-approved" text-anchor="middle" font-weight="600">ships with the PR</text>
+            <text x="503" y="93" class="t-tiny" text-anchor="middle">auto — no gate</text>
+
+            <path d="M186 192 C226 192 250 192 286 192" fill="none" stroke="var(--breach)" stroke-width="1.6" marker-end="url(#f-r)"/>
+            <text x="224" y="182" class="t-tiny t-breach" text-anchor="middle">touches the anchor</text>
+
+            <rect x="290" y="158" width="166" height="68" rx="11" fill="var(--surface)" stroke="var(--anchor)" stroke-width="1.5"/>
+            <circle cx="320" cy="186" r="7" fill="var(--anchor)"/>
+            <path d="M307 210 C307 196 333 196 333 210 Z" fill="var(--anchor)"/>
+            <text x="392" y="187" class="t-small t-anchor" text-anchor="middle" font-weight="600">you decide</text>
+            <text x="392" y="203" class="t-tiny" text-anchor="middle">explicit call</text>
+            <circle cx="450" cy="160" r="9" fill="var(--breach)"/>
+            <text x="450" y="164.5" text-anchor="middle" font-weight="700" fill="var(--surface)" style="font-size:12px">!</text>
+            <text x="373" y="150" class="t-tiny t-breach" text-anchor="middle">flagged · needs you</text>
+
+            <path d="M456 178 C520 162 548 152 592 152" fill="none" stroke="var(--anchor)" stroke-width="1.8" marker-end="url(#f-b)"/>
+            <text x="530" y="144" class="t-tiny t-anchor" text-anchor="middle">approve</text>
+            <rect x="592" y="130" width="170" height="44" rx="9" fill="none" stroke="var(--anchor)"/>
+            <text x="677" y="150" class="t-small t-anchor" text-anchor="middle" font-weight="600">anchor moves</text>
+            <text x="677" y="164" class="t-tiny" text-anchor="middle">plan regenerates</text>
+
+            <path d="M456 206 C520 222 548 232 592 232" fill="none" stroke="var(--anchor)" stroke-width="1.8" marker-end="url(#f-b)"/>
+            <text x="530" y="242" class="t-tiny t-anchor" text-anchor="middle">deny</text>
+            <rect x="592" y="210" width="170" height="44" rx="9" fill="none" stroke="var(--anchor)"/>
+            <text x="677" y="230" class="t-small t-anchor" text-anchor="middle" font-weight="600">anchor holds</text>
+            <text x="677" y="244" class="t-tiny" text-anchor="middle">work stays inside it</text>
           </svg>
         </div>
+        <div class="note">The agent loops on the task without pause; routine diffs ship with the PR. Only a change reaching for the anchor is flagged — it blocks, notifies you, and waits: approve moves the anchor (the plan regenerates against it), deny holds it and the work stays inside.</div>
       </div>
     </section>
 
