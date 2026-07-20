@@ -626,14 +626,13 @@
             <line x1="510" y1="288" x2="562" y2="288" stroke="var(--approved)" stroke-width="1.5" marker-end="url(#k-g)"/>
           </svg>
         </div>
-        <div class="note">The loop drifts exactly as before — but the anchor sits one layer below it, untouched. Validate against the anchor and the check has firm ground: the result is right, and it saves.</div>
       </div>
 
       <h3>What an anchor actually is</h3>
       <p>An anchor is small and deliberate — a few lines of context, then a set of <strong>rubrics</strong>: atomic checks that each answer yes or no.</p>
 
       <div class="figure">
-        <div class="cap"><b>Fig. 5</b> &nbsp;·&nbsp; a few lines of context, then rubrics</div>
+        <div class="cap"><b>Fig. 5</b> &nbsp;·&nbsp; an anchor, in full</div>
         <div class="anchordoc">
           <div class="doc">
             <div class="doc-h"><span>anchor</span><span class="lock">locked</span></div>
@@ -736,7 +735,7 @@
             <text x="200" y="284" class="t-tiny" fill="var(--muted)">inherited from above</text>
           </svg>
         </div>
-        <div class="note">One sample layout. The project is <strong>enforced</strong> to carry all three; every layer beneath it adds only the pieces it needs and inherits the rest (dashed) from above — so the deeper you go, the more specific and ephemeral the anchor.</div>
+        <div class="note">The deeper you go, the more specific and ephemeral the anchor.</div>
       </div>
 
       <p>So when a new task starts, its anchor doesn't come from scratch. It's <strong>compiled</strong>: each dimension is walked <em>down its own column</em> — gathering what every layer defined — and the three columns reconcile into one generated anchor that governs the task.</p>
@@ -823,7 +822,7 @@
             <text x="704" y="345" class="t-tiny t-anchor" text-anchor="end">governs</text>
           </svg>
         </div>
-        <div class="note">A new task walks each dimension straight down its column, gathering what each layer defined; the three columns compile into one <strong>generated anchor</strong> that governs the task. Both nesting and compiling are optional — a single flat anchor is fine when the work is small.</div>
+        <div class="note">Both nesting and compiling are optional — a single flat anchor is fine when the work is small.</div>
       </div>
     </section>
 
@@ -887,7 +886,6 @@
             <text x="677" y="244" class="t-tiny" text-anchor="middle">work stays inside it</text>
           </svg>
         </div>
-        <div class="note">The agent loops on the task without pause; routine diffs ship with the PR. Only a change reaching for the anchor is flagged — it blocks, notifies you, and waits: approve moves the anchor (the plan regenerates against it), deny holds it and the work stays inside.</div>
       </div>
     </section>
 
