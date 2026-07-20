@@ -126,8 +126,10 @@ without touching the spine. The stages below are the current composition.
 Creating a Box is a **guided authoring flow**, not a bare `mkdir`. It walks you through:
 
 - **Defining docs (ICS format)** — **I**ntent · **C**onstraints · **S**uccess-criteria,
-  per the [`ics-template.md`](ics-template.md) — written before planning so they anchor
-  both the planning conversation and ground-up review.
+  authored from [`ics-template.md`](ics-template.md) (methodology: [`ics.md`](ics.md)) —
+  written before planning so they anchor both the planning conversation and ground-up
+  review. **Soft-locked:** amended only via a human-approved Decision, never edited by
+  the agent mid-build (`ics.md` §2.3, §3.4).
 - **Infrastructure choice** — the workspace/isolation profile this Box runs on (full
   clone / worktree / container-VM, §11) plus any per-Box overrides.
 
@@ -408,5 +410,5 @@ Recommendations are leans, not locks:
   Inbox/Decision/Notification model — note it models the three as **independent
   concepts bridged by adapters**, refining §2.2's `InboxItem { Notification | Decision }`
   sketch (composition, not inheritance). §2.2/§5 here remain only the Box-facing seam.
-- **ICS template** (§4.0): [`ics-template.md`](ics-template.md) is **provisional/minimal**
-  — extend on real need.
+- **ICS** (§4.0): methodology in [`ics.md`](ics.md); fill-in
+  [`ics-template.md`](ics-template.md) is **minimal on purpose** — extend on real need.

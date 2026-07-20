@@ -1,0 +1,993 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ICS - Anchored Agents</title>
+</head>
+<body>
+<style>
+  :root {
+    --ground: #F3F5F6; --surface: #FFFFFF; --surface-2: #EAEEF0; --ink: #13181B;
+    --muted: #55606A; --faint: #889098; --hairline: #DCE3E6; --hairline-strong: #C4CED3;
+    --anchor: #0E7A6E; --anchor-soft: #D6EAE6; --drift: #B26A00; --breach: #B23A2E;
+    --breach-soft: #F2DAD6; --approved: #2F7D4F;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #0B0F12; --surface: #11171A; --surface-2: #192125; --ink: #E8EDEF;
+      --muted: #9BA7AE; --faint: #6B767E; --hairline: #212B30; --hairline-strong: #35434B;
+      --anchor: #43BBA9; --anchor-soft: #113732; --drift: #DE982F; --breach: #E4705F;
+      --breach-soft: #371D19; --approved: #63C189;
+    }
+  }
+  :root[data-theme="light"] {
+    --ground: #F3F5F6; --surface: #FFFFFF; --surface-2: #EAEEF0; --ink: #13181B;
+    --muted: #55606A; --faint: #889098; --hairline: #DCE3E6; --hairline-strong: #C4CED3;
+    --anchor: #0E7A6E; --anchor-soft: #D6EAE6; --drift: #B26A00; --breach: #B23A2E;
+    --breach-soft: #F2DAD6; --approved: #2F7D4F;
+  }
+  :root[data-theme="dark"] {
+    --ground: #0B0F12; --surface: #11171A; --surface-2: #192125; --ink: #E8EDEF;
+    --muted: #9BA7AE; --faint: #6B767E; --hairline: #212B30; --hairline-strong: #35434B;
+    --anchor: #43BBA9; --anchor-soft: #113732; --drift: #DE982F; --breach: #E4705F;
+    --breach-soft: #371D19; --approved: #63C189;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ground); color: var(--ink); font-family: var(--sans); font-size: 17px; line-height: 1.62; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  a { color: var(--anchor); }
+
+  .topbar { position: sticky; top: 0; z-index: 30; background: color-mix(in srgb, var(--ground) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--hairline); }
+  .topbar .in { max-width: 1240px; margin: 0 auto; padding: 13px 32px; display: flex; justify-content: space-between; align-items: baseline; }
+  .brand { font-family: var(--mono); font-size: 13px; letter-spacing: .03em; font-weight: 600; }
+  .brand b { color: var(--anchor); }
+  .brand .sep { color: var(--faint); }
+  .topbar .meta { font-family: var(--mono); font-size: 11.5px; color: var(--faint); letter-spacing: .04em; }
+
+  .hero { border-bottom: 1px solid var(--hairline); }
+  .hero .in { max-width: 1240px; margin: 0 auto; padding: 64px 32px 52px; }
+  .kicker { font-family: var(--mono); font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--anchor); margin: 0 0 22px; }
+  h1 { font-size: clamp(34px, 5vw, 54px); line-height: 1.04; letter-spacing: -.03em; font-weight: 690; margin: 0; max-width: 15ch; text-wrap: balance; }
+  .hero .def { font-family: var(--mono); font-size: clamp(15px, 2vw, 18px); letter-spacing: .01em; color: var(--muted); margin: 18px 0 0; }
+  .hero .def b { color: var(--ink); font-weight: 600; }
+  .hero .lede { font-size: 18px; color: var(--muted); max-width: 60ch; margin: 22px 0 0; }
+
+  .triad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 40px 0 0; max-width: 900px; }
+  @media (max-width: 720px) { .triad { grid-template-columns: 1fr; } }
+  .triad .card { border: 1px solid var(--hairline); border-radius: 11px; background: var(--surface); padding: 18px 18px 20px; }
+  .triad .k { display: flex; align-items: baseline; gap: 10px; }
+  .triad .k .g { font-family: var(--mono); font-size: 26px; font-weight: 600; color: var(--anchor); line-height: 1; }
+  .triad .k .n { font-weight: 640; letter-spacing: -.01em; }
+  .triad .d { font-size: 14.5px; color: var(--muted); line-height: 1.5; margin-top: 11px; }
+
+  .shell { max-width: 1240px; margin: 0 auto; padding: 0 32px; display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 64px; }
+  @media (max-width: 900px) { .shell { grid-template-columns: 1fr; gap: 0; padding: 0 24px; } }
+
+  .rail { position: sticky; top: 64px; align-self: start; height: max-content; padding: 52px 0; }
+  @media (max-width: 900px) { .rail { display: none; } }
+  .rail ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+  .rail a { display: flex; gap: 12px; align-items: baseline; text-decoration: none; color: var(--muted); font-size: 13.5px; padding: 7px 10px; border-radius: 7px; }
+  .rail a:hover { color: var(--ink); background: var(--surface); }
+  .rail a .rn { font-family: var(--mono); font-size: 11px; color: var(--faint); }
+  .rail .tag { font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--faint); margin: 0 0 12px 10px; }
+
+  .content { padding: 52px 0 0; min-width: 0; }
+  section { padding: 8px 0 52px; }
+  section + section { border-top: 1px solid var(--hairline); padding-top: 44px; }
+  .sec-num { font-family: var(--mono); font-size: 12.5px; color: var(--anchor); letter-spacing: .08em; display: block; margin-bottom: 12px; }
+  h2 { font-size: clamp(26px, 3.4vw, 34px); letter-spacing: -.022em; font-weight: 680; margin: 0 0 4px; line-height: 1.08; text-wrap: balance; }
+  h3 { font-size: 18px; letter-spacing: -.01em; margin: 34px 0 8px; font-weight: 640; }
+  p { margin: 15px 0; max-width: 68ch; }
+  strong { font-weight: 640; }
+  em { font-style: italic; }
+  code { font-family: var(--mono); font-size: .85em; background: var(--surface-2); padding: .12em .4em; border-radius: 5px; }
+  .lead { font-size: 19px; color: var(--ink); max-width: 62ch; }
+  .lead .hl { color: var(--anchor); font-weight: 600; }
+
+  ul.clean { list-style: none; padding: 0; margin: 18px 0; max-width: 68ch; }
+  ul.clean li { position: relative; padding: 9px 0 9px 24px; border-top: 1px solid var(--hairline); font-size: 15.5px; }
+  ul.clean li:first-child { border-top: 0; }
+  ul.clean li::before { content: ""; position: absolute; left: 2px; top: 18px; width: 7px; height: 7px; border-radius: 2px; background: var(--anchor); }
+  ul.clean li b { font-weight: 640; }
+
+  .figure { margin: 26px 0; background: var(--surface); border: 1px solid var(--hairline); border-radius: 12px; overflow: hidden; }
+  .figure .cap { padding: 11px 18px; border-bottom: 1px solid var(--hairline); background: var(--surface-2); font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .figure .cap b { color: var(--ink); font-weight: 600; }
+  .figure .svgwrap { padding: 24px 20px; overflow-x: auto; }
+  .figure svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+  .figure .note { padding: 2px 18px 16px; font-size: 13.5px; color: var(--muted); max-width: 64ch; }
+
+  svg text { font-family: var(--mono); fill: var(--ink); }
+  svg .fill-s2 { fill: var(--surface-2); }
+  svg .fill-surface { fill: var(--surface); }
+  svg .stroke-line { stroke: var(--hairline-strong); }
+  svg .t-label { font-size: 13.5px; }
+  svg .t-small { font-size: 12px; fill: var(--muted); }
+  svg .t-tiny { font-size: 10.5px; fill: var(--faint); }
+  svg .t-anchor { fill: var(--anchor); }
+  svg .t-drift { fill: var(--drift); }
+  svg .t-breach { fill: var(--breach); }
+  svg .t-approved { fill: var(--approved); }
+
+  .callout { border: 1px solid var(--hairline); border-left: 3px solid var(--anchor); background: var(--surface); padding: 15px 18px; border-radius: 0 10px 10px 0; margin: 22px 0; max-width: 68ch; font-size: 15px; color: var(--muted); }
+  .callout b { color: var(--ink); font-weight: 640; }
+  .callout .lbl { font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--anchor); display: block; margin-bottom: 6px; }
+
+  .anti { display: grid; gap: 9px; margin: 18px 0; }
+  .anti .r { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--hairline); border-radius: 10px; overflow: hidden; }
+  @media (max-width: 640px) { .anti .r { grid-template-columns: 1fr; } }
+  .anti .bad, .anti .fix { padding: 13px 16px; font-size: 14.5px; }
+  .anti .bad { background: var(--breach-soft); }
+  .anti .fix { background: var(--surface); border-left: 1px solid var(--hairline); }
+  .anti .tag { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; display: block; margin-bottom: 5px; }
+  .anti .bad .tag { color: var(--breach); }
+  .anti .fix .tag { color: var(--approved); }
+  .anti .r.neutral .bad { background: var(--surface-2); }
+  .anti .r.neutral .bad .tag { color: var(--anchor); }
+
+  .files { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 20px 0; }
+  @media (max-width: 720px) { .files { grid-template-columns: 1fr 1fr; } }
+  .file { border: 1px solid var(--hairline); border-radius: 10px; background: var(--surface); padding: 14px; }
+  .file .fn { font-family: var(--mono); font-size: 12.5px; color: var(--anchor); font-weight: 600; }
+  .file .fd { font-size: 13px; color: var(--muted); margin-top: 7px; line-height: 1.45; }
+  .file.auto { border-style: dashed; }
+  .file.auto .fn { color: var(--faint); }
+
+  .anchorex { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 18px 0 10px; }
+  @media (max-width: 760px) { .anchorex { grid-template-columns: 1fr; } }
+  .adoc { border: 1px solid var(--hairline); border-radius: 11px; background: var(--surface); overflow: hidden; }
+  .adoc .h { display: flex; align-items: center; gap: 9px; padding: 11px 14px; background: var(--anchor-soft); border-bottom: 1px solid var(--hairline); }
+  .adoc .h .b { display: inline-flex; align-items: center; justify-content: center; width: 21px; height: 21px; border-radius: 6px; background: var(--anchor); color: var(--surface); font-family: var(--mono); font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .adoc .h .t { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--anchor); }
+  .adoc .h .m { margin-left: auto; font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
+  .adoc .ctx { padding: 11px 14px; font-size: 12.5px; color: var(--muted); line-height: 1.46; border-bottom: 1px dashed var(--hairline); }
+  .adoc .rus { padding: 12px 14px; display: flex; flex-direction: column; gap: 9px; }
+  .adoc .ru { display: flex; align-items: flex-start; gap: 8px; font-family: var(--mono); font-size: 12px; color: var(--ink); line-height: 1.4; }
+  .adoc .ru::before { content: "✓"; display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; border-radius: 4px; border: 1.5px solid var(--anchor); color: var(--anchor); font-size: 9px; flex-shrink: 0; margin-top: 1px; }
+
+  .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 24px 0; }
+  @media (max-width: 680px) { .stats { grid-template-columns: 1fr; } }
+  .stat { border: 1px solid var(--hairline); border-radius: 11px; background: var(--surface); padding: 16px 16px 18px; }
+  .stat .n { font-family: var(--mono); font-size: 22px; font-weight: 600; color: var(--anchor); letter-spacing: -.01em; }
+  .stat .l { font-size: 13px; color: var(--muted); margin-top: 7px; line-height: 1.46; }
+  .stat .s { font-family: var(--mono); font-size: 10.5px; color: var(--faint); margin-top: 9px; display: block; }
+  .fine { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .refs { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+  .refs a { display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 12px; color: var(--anchor); text-decoration: none; border: 1px solid var(--hairline-strong); border-radius: 999px; padding: 7px 14px 8px; background: var(--surface); transition: background .12s, border-color .12s; }
+  .refs a:hover { border-color: var(--anchor); background: var(--anchor-soft); }
+  .refs a .ext { color: var(--faint); }
+
+  /* Fig. 1 — animated context loop (self-contained illustration) */
+  .omfig-wrap { position: relative; width: 100%; aspect-ratio: 1120 / 1000; background: #eef0f2; border-radius: 12px; overflow: hidden; margin: 26px 0; border: 1px solid var(--hairline); }
+  .omfig-stage { position: absolute; top: 0; left: 0; width: 1120px; height: 1000px; transform-origin: top left; }
+  .omfig-stage * { box-sizing: border-box; }
+
+  .objection { border: 1px solid var(--hairline); border-radius: 10px; background: var(--surface-2); padding: 14px 18px; margin: 20px 0; max-width: 68ch; font-family: var(--mono); }
+  .objection .who { font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); display: block; margin-bottom: 8px; }
+  .objection p { margin: 0; font-size: 15px; color: var(--ink); max-width: none; }
+
+  .persist { padding: 20px; }
+  .persist .win { display: flex; justify-content: space-between; align-items: center; border: 1.5px dashed var(--hairline-strong); border-radius: 10px; background: var(--surface-2); padding: 12px 16px; font-family: var(--mono); font-size: 13px; color: var(--faint); }
+  .persist .win .ok { color: var(--approved); }
+  .persist .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--drift); margin: 16px 2px 10px; }
+  .persist .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  @media (max-width: 380px) { .persist .grid { grid-template-columns: 1fr; } }
+  .persist .b { border: 1px solid var(--hairline); border-left: 3px solid var(--drift); border-radius: 8px; background: var(--surface); padding: 9px 12px; }
+  .persist .b .t { font-weight: 640; font-size: 13px; }
+  .persist .b .d { font-size: 12px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+
+  .anchordoc { display: grid; grid-template-columns: 1.25fr 1fr; gap: 16px; padding: 20px; }
+  @media (max-width: 680px) { .anchordoc { grid-template-columns: 1fr; } }
+  .anchordoc .doc { border: 1px solid var(--hairline); border-radius: 10px; background: var(--surface); overflow: hidden; }
+  .anchordoc .doc-h { padding: 11px 14px; background: var(--anchor-soft); border-bottom: 1px solid var(--hairline); font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--anchor); display: flex; justify-content: space-between; align-items: baseline; }
+  .anchordoc .doc-h .lock { color: var(--muted); font-weight: 500; font-size: 11px; }
+  .anchordoc .doc-context { padding: 12px 14px; font-size: 14px; color: var(--muted); line-height: 1.5; border-bottom: 1px dashed var(--hairline); }
+  .anchordoc .doc-rubrics { padding: 12px 14px; display: flex; flex-direction: column; gap: 9px; }
+  .anchordoc .ru { display: flex; align-items: center; gap: 9px; font-family: var(--mono); font-size: 13px; color: var(--ink); }
+  .anchordoc .ru::before { content: "✓"; display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid var(--anchor); color: var(--anchor); font-size: 10px; flex-shrink: 0; }
+  .anchordoc .whyru { display: flex; flex-direction: column; justify-content: center; gap: 10px; }
+  .anchordoc .benefit { font-family: var(--mono); font-size: 13.5px; color: var(--anchor); background: var(--anchor-soft); border-radius: 10px; padding: 13px 16px; text-align: left; }
+
+  .icsrow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 18px 0; }
+  @media (max-width: 640px) { .icsrow { grid-template-columns: 1fr; } }
+  .icsrow .icsdoc { border: 1px solid var(--hairline); border-left: 3px solid var(--anchor); border-radius: 9px; background: var(--surface); padding: 12px 14px; }
+  .icsrow .icsdoc b { font-size: 14.5px; }
+  .icsrow .icsdoc span { display: block; font-size: 12.5px; color: var(--muted); margin-top: 3px; }
+
+  footer { border-top: 1px solid var(--hairline); margin-top: 20px; }
+  footer .in { max-width: 1240px; margin: 0 auto; padding: 28px 32px 60px; }
+  footer p { font-family: var(--mono); font-size: 12.5px; color: var(--faint); line-height: 1.7; max-width: 90ch; margin: 0; }
+
+  :focus-visible { outline: 2px solid var(--anchor); outline-offset: 2px; border-radius: 3px; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+
+<div class="topbar">
+  <div class="in">
+    <span class="brand">A.Box <span class="sep">/</span> <b>ICS</b></span>
+    <span class="meta">methodology · v1</span>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="in">
+    <p class="kicker">Agent Harness · Methodology</p>
+    <h1>Anchored Agents.</h1>
+    <p class="def"><b>ICS</b> — Intent · Constraints · Success</p>
+    <p class="lede">A small set of fixed, authored artifacts a stream of work is held to — so a long agent run can't quietly drift from what it was for.</p>
+
+    <div class="triad">
+      <div class="card"><div class="k"><span class="g">I</span><span class="n">Intent</span></div><div class="d">The durable why and what, plus the North Star that means this work succeeded.</div></div>
+      <div class="card"><div class="k"><span class="g">C</span><span class="n">Constraints</span></div><div class="d">The laws — the lines the work must not cross. Mostly what not to do.</div></div>
+      <div class="card"><div class="k"><span class="g">S</span><span class="n">Success</span></div><div class="d">Observable, checkable outcomes. The bar every phase is judged against.</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="rail" aria-label="Sections">
+    <p class="tag">Contents</p>
+    <ol>
+      <li><a href="#drift"><span class="rn">01</span> The drift problem</a></li>
+      <li><a href="#anchor"><span class="rn">02</span> What an anchor is</a></li>
+      <li><a href="#files"><span class="rn">03</span> Separate files, not one</a></li>
+      <li><a href="#nesting"><span class="rn">04</span> Nesting &amp; compiling</a></li>
+      <li><a href="#freeze"><span class="rn">05</span> Freeze &amp; the gate</a></li>
+      <li><a href="#research"><span class="rn">06</span> What the research shows</a></li>
+      <li><a href="#examples"><span class="rn">07</span> Examples</a></li>
+    </ol>
+  </nav>
+
+  <main class="content">
+
+    <section id="drift">
+      <span class="sec-num">01</span>
+      <h2>The drift problem</h2>
+      <p class="lead">You set it up — the goal, the guardrails, the plan — and you say <span class="hl">go</span>.</p>
+      <p>And it goes: task, task, task. Then it learns something — a limit it hit, a call it had to make, a better idea — and it writes that down, into the context. Reasonable, once. But it keeps happening, and the context keeps growing. Before every new task the agent reads it back, and by now it's reading a <em>pile</em>: the original plan, plus every insight, tweak, and appended instruction since.</p>
+      <p>Somewhere in that pile a guardrail got reworded, an instruction picked up a near-duplicate that says something slightly different, the original intent slipped under its own footnotes. Now neither of you can point to the line that's actually true. The plan didn't fail — it <strong>drowned</strong>.</p>
+
+      <div class="omfig-wrap" aria-label="Animated: an agent reads the context, runs a task, and writes what it learned back to the context. Each lap the context window fills with more — files, insights, and a second copy of the instructions that conflicts with the first — until the agent trusts the wrong copy and runs a step wrong.">
+        <div class="omfig-stage" id="omstage"></div>
+      </div>
+      
+      <script>
+      (function () {
+        var stage = document.getElementById('omstage');
+        var wrap = stage.parentElement;
+        function fit() { stage.style.transform = 'scale(' + (wrap.clientWidth / 1120) + ')'; }
+        fit(); if (window.ResizeObserver) new ResizeObserver(fit).observe(wrap); else window.addEventListener('resize', fit);
+      
+        // helpers
+        var clamp = function (v, a, b) { return v < a ? a : v > b ? b : v; };
+        var seg = function (t, a, b) { return b <= a ? (t >= b ? 1 : 0) : clamp((t - a) / (b - a), 0, 1); };
+        var lerp = function (a, b, t) { return a + (b - a) * t; };
+        var tri = function (t, a, b) { return Math.sin(Math.PI * seg(t, a, b)); };
+        var easeIO = function (t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
+        var eBack = function (t) { var c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
+        function hexmix(h1, h2, t) {
+          var p = function (x) { return [parseInt(x.slice(1, 3), 16), parseInt(x.slice(3, 5), 16), parseInt(x.slice(5, 7), 16)]; };
+          var a = p(h1), b = p(h2), c = a.map(function (v, i) { return Math.round(lerp(v, b[i], t)); });
+          return 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')';
+        }
+        var MONO = "ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace";
+        var SERIF = "Newsreader, Georgia, 'Times New Roman', serif";
+        var CTX = '#2f7d63', AMBER = '#8a7020', RED = '#c8322f', INK = '#3b444d';
+        var agent = '#3b6fae', agentLt = hexmix(agent, '#ffffff', 0.86);
+        var KIND = {
+          instr: { bg: '#e6f4ec', bd: '#a7d3bd', fg: CTX },
+          files: { bg: '#eef1f5', bd: '#c4cdd8', fg: '#5b6b7f' },
+          insights: { bg: '#fbf3d6', bd: '#e6d38a', fg: AMBER },
+          bloat: { bg: '#f1eff3', bd: '#d6d0da', fg: '#7a7280' }
+        };
+        var WRONG = { bg: '#fdecec', bd: RED, fg: '#a02724' };
+        var taskCx = [352, 456, 560, 664, 768];
+        var cs = [1.8, 6.5, 11.2, 15.9, 20.6];
+        var doneAt = [4.7, 9.4, 14.1, 18.8, 23.5];
+        var BARS = [
+          { label: 'Instructions', kind: 'instr', at: -1 },
+          { label: 'Instructions', kind: 'instr', at: -1 },
+          { label: 'Files', kind: 'files', at: 6.2 },
+          { label: 'Insights', kind: 'insights', at: 10.9 },
+          { label: 'Instructions', kind: 'instr', at: 15.6, wrong: true },
+          { label: 'Logs · context bloat', kind: 'bloat', at: 20.3 }
+        ];
+        var APPEND = [
+          { label: '+ Files', kind: 'files' }, { label: '+ Insights', kind: 'insights' },
+          { label: '+ Instructions', kind: 'instr' }, { label: '+ Logs', kind: 'bloat' }
+        ];
+        var WIN = { x: 168, y: 150, w: 384, h: 348 };
+        var BAR_X = 190, BAR_W = 340, BAR_TOP = 192, BAR_H = 36, PITCH = 48;
+        var ROBOT_CX = 892, ROBOT_CY = 324, TASK_TOP = 636, TRACK_Y = 748;
+        var CAPS = {
+          A: 'The agent reads the instructions, runs the task, then writes what it learned back to the context.',
+          B: 'Each task appends more — files, insights, even another copy of the instructions.',
+          C: 'Two “Instructions” now disagree, and nothing marks which one still holds.',
+          D: 'The agent trusts the wrong copy — and runs the step wrong.'
+        };
+        var LOOP = 28.6;
+      
+        function E(cls, css) { var d = document.createElement('div'); if (cls) d.className = cls; if (css) d.setAttribute('style', css); return d; }
+        function abs(el, css) { el.style.position = 'absolute'; el.setAttribute('style', 'position:absolute;' + css); return el; }
+      
+        // ── static scaffold ──
+        var outer = E(); abs(outer, 'left:28px;top:28px;width:1064px;height:944px;background:#fff;border-radius:16px;border:1px solid #e6e8eb;box-shadow:0 24px 60px rgba(30,40,60,0.08);'); stage.appendChild(outer);
+        var header = E(); abs(header, 'left:28px;top:28px;width:1064px;height:66px;background:#f7f8f9;border-bottom:1px solid #ebedf0;border-top-left-radius:16px;border-top-right-radius:16px;display:flex;align-items:center;padding-left:52px;font-family:' + MONO + ';font-size:17px;color:#4b5560;');
+        header.innerHTML = '<span style="font-weight:700;color:#232a31">Fig.&nbsp;1</span><span style="margin:0 12px;color:#c3c8ce">·</span><span>the loop that fills the context window</span>';
+        stage.appendChild(header);
+      
+        // arrows svg
+        var svgNS = 'http://www.w3.org/2000/svg';
+        var svg = document.createElementNS(svgNS, 'svg'); svg.setAttribute('width', '1120'); svg.setAttribute('height', '1000');
+        svg.setAttribute('style', 'position:absolute;inset:0;z-index:1;pointer-events:none;overflow:visible');
+        svg.innerHTML = '<defs><marker id="omah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="context-stroke"/></marker></defs>';
+        var pA = document.createElementNS(svgNS, 'path'), pB = document.createElementNS(svgNS, 'path'), pC = document.createElementNS(svgNS, 'path');
+        [pA, pB, pC].forEach(function (p) { p.setAttribute('fill', 'none'); p.setAttribute('stroke-dasharray', '7 7'); p.setAttribute('stroke-linecap', 'round'); p.setAttribute('marker-end', 'url(#omah)'); svg.appendChild(p); });
+        stage.appendChild(svg);
+      
+        // context window + tab
+        var win = E(); abs(win, 'left:' + WIN.x + 'px;top:' + WIN.y + 'px;width:' + WIN.w + 'px;height:' + WIN.h + 'px;z-index:2;border-radius:16px;border:2px solid #d7dbe0;background:#fff;overflow:hidden;');
+        win.appendChild(abs(E(), 'left:0;right:0;bottom:0;height:38px;background:linear-gradient(to bottom, rgba(255,255,255,0), #fff);z-index:3;')); stage.appendChild(win);
+        var tab = E(); abs(tab, 'left:' + (WIN.x + WIN.w / 2 - 82) + 'px;top:' + (WIN.y - 22) + 'px;width:164px;height:44px;z-index:3;border-radius:12px;background:#e6f4ec;border:2px solid ' + CTX + ';display:flex;align-items:center;justify-content:center;font-family:' + MONO + ';font-size:15px;font-weight:600;color:' + CTX + ';letter-spacing:0.02em;'); tab.textContent = 'Context'; stage.appendChild(tab);
+      
+        // bars
+        var barEls = BARS.map(function (b, i) {
+          var d = E(); abs(d, 'left:' + BAR_X + 'px;top:' + (BAR_TOP + i * PITCH) + 'px;width:' + BAR_W + 'px;height:' + BAR_H + 'px;border-radius:8px;display:flex;align-items:center;padding-left:15px;font-family:' + MONO + ';font-size:13.5px;letter-spacing:-0.01em;transform-origin:left center;z-index:3;');
+          var warn = document.createElement('span'); warn.textContent = '⚠'; warn.setAttribute('style', 'margin-left:auto;margin-right:12px;font-size:14px;color:' + WRONG.fg + ';opacity:0;');
+          d.appendChild(document.createTextNode(b.label)); d.appendChild(warn); d._warn = warn;
+          stage.appendChild(d); return d;
+        });
+      
+        // robot
+        var robot = E(); abs(robot, 'left:' + (ROBOT_CX - 74) + 'px;top:' + (ROBOT_CY - 58) + 'px;width:148px;height:116px;z-index:2;border-radius:22px;background:' + agentLt + ';border:2.5px solid ' + agent + ';display:flex;align-items:center;justify-content:center;font-family:' + MONO + ';font-size:34px;font-weight:700;color:' + agent + ';'); robot.textContent = 'AI'; stage.appendChild(robot);
+        stage.appendChild(abs(E(), 'left:' + (ROBOT_CX - 2) + 'px;top:' + (ROBOT_CY - 80) + 'px;width:4px;height:22px;background:' + agent + ';z-index:2;'));
+        stage.appendChild(abs(E(), 'left:' + (ROBOT_CX - 8) + 'px;top:' + (ROBOT_CY - 90) + 'px;width:16px;height:16px;border-radius:8px;background:' + agent + ';z-index:2;'));
+        stage.appendChild(abs(E(), 'left:' + (ROBOT_CX - 50) + 'px;top:' + (ROBOT_CY + 62) + 'px;width:100px;height:32px;border-radius:10px;z-index:2;background:' + agentLt + ';border:2px solid ' + agent + ';'));
+      
+        // plan track
+        var trackX0 = taskCx[0], trackX1 = taskCx[4];
+        stage.appendChild(abs(E(), 'left:' + trackX0 + 'px;top:' + (TRACK_Y - 3) + 'px;width:' + (trackX1 - trackX0) + 'px;height:6px;border-radius:3px;background:#e4e7ec;z-index:1;'));
+        var trackFill = E(); abs(trackFill, 'left:' + trackX0 + 'px;top:' + (TRACK_Y - 3) + 'px;width:0;height:6px;border-radius:3px;background:' + agent + ';z-index:1;'); stage.appendChild(trackFill);
+        var nodeEls = taskCx.map(function (cx) { var d = E(); abs(d, 'left:' + (cx - 7) + 'px;top:' + (TRACK_Y - 7) + 'px;width:14px;height:14px;border-radius:7px;z-index:3;background:#fff;border:2px solid #cbd0d6;'); stage.appendChild(d); return d; });
+      
+        var taskEls = taskCx.map(function (cx, i) {
+          var root = E(); abs(root, 'left:' + (cx - 48) + 'px;top:' + TASK_TOP + 'px;width:96px;height:96px;z-index:2;');
+          var base = abs(E(), 'inset:0;border-radius:16px;background:#f3f5f7;border:1.5px solid #dce0e5;');
+          var fill = abs(E(), 'left:0;bottom:0;width:100%;height:0;border-radius:16px;background:rgba(59,111,174,0.10);opacity:0;');
+          var frame = abs(E(), 'inset:0;border-radius:16px;border:2px solid ' + agent + ';opacity:0;');
+          var num = abs(E(), 'top:12px;left:0;width:100%;text-align:center;font-family:' + MONO + ';font-size:11px;color:#aab0b8;'); num.textContent = '0' + (i + 1);
+          var glyph = abs(E(), 'inset:0;display:flex;align-items:center;justify-content:center;font-family:' + MONO + ';font-size:14px;color:#9aa0a8;'); glyph.textContent = 'task';
+          root.appendChild(base); root.appendChild(fill); root.appendChild(frame); root.appendChild(num); root.appendChild(glyph);
+          root._fill = fill; root._frame = frame; root._glyph = glyph; stage.appendChild(root); return root;
+        });
+      
+        // token pool
+        var TOK = []; for (var k = 0; k < 4; k++) {
+          var d = E(); abs(d, 'transform:translate(-50%,-50%);z-index:6;display:flex;align-items:center;gap:7px;padding:4px 11px 4px 8px;background:#fff;border-radius:999px;box-shadow:0 3px 10px rgba(30,40,60,0.14);font-family:' + MONO + ';font-size:12.5px;white-space:nowrap;opacity:0;');
+          var dot = document.createElement('span'); dot.setAttribute('style', 'width:8px;height:8px;border-radius:4px;flex-shrink:0;');
+          var txt = document.createElement('span'); d.appendChild(dot); d.appendChild(txt); d._dot = dot; d._txt = txt; stage.appendChild(d); TOK.push(d);
+        }
+      
+        // PLAN label
+        var planRow = E(); abs(planRow, 'left:0;top:' + (TRACK_Y + 24) + 'px;width:1120px;text-align:center;z-index:2;display:flex;align-items:center;justify-content:center;gap:12px;');
+        planRow.innerHTML = '<span style="width:34px;height:1px;background:#d6dade"></span><span style="font-family:' + MONO + ';font-size:13px;font-weight:700;color:#7a828b;letter-spacing:0.22em">PLAN</span><span style="width:34px;height:1px;background:#d6dade"></span>'; stage.appendChild(planRow);
+      
+        // note box
+        var note = E(); abs(note, 'left:188px;top:812px;width:744px;z-index:4;background:#fbfcfd;border:1px solid #e6e8eb;border-radius:12px;box-shadow:0 8px 24px rgba(30,40,60,0.07);padding:14px 24px;');
+        var noteLabel = document.createElement('div'); noteLabel.setAttribute('style', 'font-family:' + MONO + ';font-size:11px;letter-spacing:0.14em;color:#98a0a8;margin-bottom:8px;'); noteLabel.textContent = "WHAT'S HAPPENING";
+        var capWrap = document.createElement('div'); capWrap.setAttribute('style', 'position:relative;height:58px;');
+        var capEls = {};
+        ['A', 'B', 'C', 'D'].forEach(function (kk) { var c = abs(E(), 'inset:0;opacity:0;font-family:' + SERIF + ';font-size:21px;line-height:1.38;color:' + (kk === 'D' ? '#a02724' : INK) + ';'); c.textContent = CAPS[kk]; capWrap.appendChild(c); capEls[kk] = c; });
+        note.appendChild(noteLabel); note.appendChild(capWrap); stage.appendChild(note);
+      
+        // ── per-frame ──
+        function aCol(act, red) { return red > 0.05 ? RED : (act > 0.05 ? agent : '#c2c8cf'); }
+        function render(t) {
+          var resetT = seg(t, 26.3, 27.6);
+          var redPhase = seg(t, 20.8, 21.4) * (1 - seg(t, 26.2, 26.6));
+          var aRead = 0, aSend = 0, aLoop = 0, i;
+          for (i = 0; i < 5; i++) { aRead = Math.max(aRead, tri(t, cs[i], cs[i] + 1.3)); aSend = Math.max(aSend, tri(t, cs[i] + 1.7, cs[i] + 2.9)); if (i < 4) aLoop = Math.max(aLoop, tri(t, cs[i] + 3.3, cs[i] + 4.4)); }
+          var curIdx = -1; for (i = 0; i < 5; i++) if (t >= cs[i]) curIdx = i;
+          var hlCx = taskCx[Math.max(0, curIdx)];
+          if (curIdx > 0) hlCx = lerp(taskCx[curIdx - 1], taskCx[curIdx], easeIO(seg(t, cs[curIdx], cs[curIdx] + 0.5)));
+          var robotGlow = Math.max(aRead, aSend, redPhase);
+          var fillLevel = seg(t, 11.0, 20.5) * (1 - resetT);
+          var winBd = redPhase > 0.05 ? hexmix('#e0b48a', RED, Math.min(1, redPhase)) : hexmix('#d7dbe0', '#e0b48a', fillLevel * 0.8);
+          win.style.border = '2px solid ' + winBd;
+          win.style.boxShadow = redPhase > 0.1 ? 'inset 0 0 40px rgba(200,50,47,' + (redPhase * 0.12) + ')' : 'none';
+      
+          var flow = -((t * 22) % 16), hx = hlCx.toFixed(0);
+          var aActA = Math.max(aRead, redPhase), aActB = Math.max(aSend, redPhase) * (curIdx >= 0 ? 1 : 0) * (1 - resetT), aActC = aLoop * (1 - resetT);
+          pA.setAttribute('d', 'M 552 324 C 638 316 730 316 816 324');
+          pB.setAttribute('d', 'M ' + ROBOT_CX + ' 420 C ' + ROBOT_CX + ' 522 ' + hx + ' 558 ' + hx + ' 624');
+          pC.setAttribute('d', 'M ' + hx + ' 630 C ' + hx + ' 560 360 560 360 500');
+          function setP(p, col, act) { p.setAttribute('stroke', col); p.setAttribute('stroke-width', (2 + act * 1.4).toFixed(2)); p.setAttribute('stroke-dashoffset', act > 0.1 ? flow : 0); p.setAttribute('opacity', 0.92 * act); }
+          setP(pA, aCol(aRead, redPhase), aActA); setP(pB, aCol(aSend, redPhase), aActB); setP(pC, CTX, aActC);
+      
+          robot.style.boxShadow = robotGlow > 0.05 ? '0 0 ' + (robotGlow * 28) + 'px ' + (redPhase > 0.05 ? 'rgba(200,50,47,0.5)' : hexmix(agent, '#ffffff', 0.2)) : 'none';
+      
+          // bars
+          for (i = 0; i < BARS.length; i++) {
+            var b = BARS[i], el = barEls[i];
+            var appear = b.at < 0 ? 1 : seg(t, b.at, b.at + 0.6);
+            var collapse = b.at < 0 ? 0 : seg(t, 26.2 + (i - 2) * 0.16, 26.7 + (i - 2) * 0.16);
+            var vis = appear * (1 - collapse);
+            if (vis <= 0.001) { el.style.opacity = 0; continue; }
+            var ent = eBack(appear), st = KIND[b.kind];
+            var wrongMix = b.wrong ? seg(t, 21.0, 21.7) * (1 - seg(t, 26.0, 26.4)) : 0;
+            var bg = wrongMix > 0 ? hexmix(st.bg, WRONG.bg, wrongMix) : st.bg;
+            var bd = wrongMix > 0 ? hexmix(st.bd, WRONG.bd, wrongMix) : st.bd;
+            var fg = wrongMix > 0 ? hexmix(st.fg, WRONG.fg, wrongMix) : st.fg;
+            var conflictP = b.kind === 'instr' ? tri(t, 19.8, 20.7) * (1 - seg(t, 20.9, 21.2)) : 0;
+            var jitter = b.wrong ? Math.sin(t * 22) * 1.6 * tri(t, 21.0, 22.0) : 0;
+            var glow = wrongMix > 0 ? '0 0 ' + (8 + wrongMix * 14) + 'px rgba(200,50,47,' + (0.14 + wrongMix * 0.34) + ')' : (conflictP > 0.05 ? '0 0 0 2px rgba(224,180,138,' + (conflictP * 0.9) + ')' : 'none');
+            el.style.opacity = vis; el.style.left = (BAR_X + jitter) + 'px';
+            el.style.background = bg; el.style.border = '1.5px solid ' + bd; el.style.color = fg; el.style.boxShadow = glow;
+            el.style.transform = 'translateY(' + ((1 - ent) * -10) + 'px) scale(' + (lerp(0.9, 1, ent) * lerp(1, 0.9, collapse)) + ')';
+            el._warn.style.opacity = (b.wrong && wrongMix > 0.4) ? wrongMix : 0;
+          }
+      
+          // tasks + progress
+          var d = 0; for (i = 0; i < 5; i++) if (t >= doneAt[i]) d++;
+          var activePart = (curIdx >= 0 && t < doneAt[curIdx]) ? seg(t, cs[curIdx] + 1.7, doneAt[curIdx]) : 0;
+          var progFrac = clamp((d + activePart) / 5, 0, 1) * (1 - resetT);
+          trackFill.style.width = ((trackX1 - trackX0) * progFrac) + 'px';
+          for (i = 0; i < 5; i++) {
+            var reached = progFrac >= (i + 0.001) / 5, isWrongN = i === 4 && t >= 23.5 && resetT < 1;
+            var nc = isWrongN ? RED : reached ? agent : '#cbd0d6';
+            nodeEls[i].style.background = (reached || isWrongN) ? nc : '#fff'; nodeEls[i].style.border = '2px solid ' + nc;
+            var state = 'idle';
+            if (resetT < 1) { if (i === 4 && t >= 23.5) state = 'wrong'; else if (t >= doneAt[i]) state = 'done'; else if (curIdx === i && t >= cs[i]) state = 'active'; }
+            var colAlpha = (state === 'idle' ? 0 : 1) * (1 - resetT);
+            var fill = state === 'active' ? seg(t, cs[i] + 1.7, doneAt[i]) : (state === 'done' || state === 'wrong' ? 1 : 0);
+            var shake = state === 'wrong' ? Math.sin(t * 40) * 2.2 * tri(t, 23.5, 24.3) : 0;
+            var frameCol = state === 'wrong' ? RED : state === 'done' ? CTX : agent;
+            var fillCol = state === 'wrong' ? 'rgba(200,50,47,0.09)' : state === 'done' ? 'rgba(47,125,99,0.09)' : 'rgba(59,111,174,0.10)';
+            var glyphCol = state === 'idle' ? '#9aa0a8' : state === 'wrong' ? RED : state === 'done' ? CTX : agent;
+            var te = taskEls[i]; te.style.left = (taskCx[i] - 48 + shake) + 'px';
+            te._fill.style.height = (fill * 100) + '%'; te._fill.style.background = fillCol; te._fill.style.opacity = colAlpha;
+            te._frame.style.border = '2px solid ' + frameCol; te._frame.style.opacity = colAlpha;
+            te._frame.style.boxShadow = state === 'active' ? '0 0 0 5px ' + hexmix(agent, '#ffffff', 0.82) : 'none';
+            te._glyph.style.color = glyphCol; te._glyph.style.fontSize = (state === 'idle' ? 14 : 22) + 'px';
+            te._glyph.textContent = state === 'done' ? '✓' : state === 'wrong' ? '✕' : 'task';
+          }
+      
+          // tokens
+          var toks = [];
+          for (i = 0; i < 5; i++) {
+            var p = seg(t, cs[i] + 0.1, cs[i] + 1.3), w;
+            if (p > 0 && p < 1) { w = i === 4; toks.push({ x: lerp(552, 816, p), y: 324 - 20 * Math.sin(Math.PI * p), label: w ? 'conflicting instructions' : 'read instructions', col: w ? RED : agent, p: p }); }
+            p = seg(t, cs[i] + 1.7, cs[i] + 2.9);
+            if (p > 0 && p < 1) { w = i === 4; toks.push({ x: lerp(ROBOT_CX, taskCx[i], p), y: lerp(414, 606, p) - 8 * Math.sin(Math.PI * p), label: w ? 'run · wrong' : 'run step', col: w ? RED : agent, p: p }); }
+            if (i < 4) { p = seg(t, cs[i] + 3.3, cs[i] + 4.4); if (p > 0 && p < 1) { var kk = KIND[APPEND[i].kind]; toks.push({ x: lerp(taskCx[i], 360, p), y: lerp(630, 500, p) - 34 * Math.sin(Math.PI * p), label: APPEND[i].label, col: kk.fg, p: p }); } }
+          }
+          for (i = 0; i < TOK.length; i++) {
+            var td = TOK[i];
+            if (i < toks.length) { var tk = toks[i], op = Math.min(seg(tk.p, 0, 0.16), 1 - seg(tk.p, 0.84, 1));
+              td.style.opacity = op; td.style.left = tk.x + 'px'; td.style.top = tk.y + 'px'; td.style.border = '1.5px solid ' + tk.col; td.style.color = tk.col; td._dot.style.background = tk.col; if (td._txt.textContent !== tk.label) td._txt.textContent = tk.label;
+            } else td.style.opacity = 0;
+          }
+      
+          // captions
+          var env = function (s, e) { return Math.min(seg(t, s, s + 0.4), 1 - seg(t, e - 0.4, e)); };
+          var capOp = { A: Math.max(t <= 2.3 ? 1 - seg(t, 1.8, 2.3) : 0, seg(t, 27.7, 28.2)), B: env(2.0, 15.8), C: env(15.8, 20.6), D: env(20.6, 27.2) };
+          capEls.A.style.opacity = capOp.A; capEls.B.style.opacity = capOp.B; capEls.C.style.opacity = capOp.C; capEls.D.style.opacity = capOp.D;
+          var noteRed = capOp.D > 0.5;
+          note.style.border = '1px solid ' + (noteRed ? 'rgba(200,50,47,0.35)' : '#e6e8eb');
+          noteLabel.style.color = noteRed ? RED : '#98a0a8'; noteLabel.textContent = noteRed ? '⚠ FAILURE' : "WHAT'S HAPPENING";
+        }
+      
+        var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reduce) { render(20.8); }
+        else {
+          var t0 = null;
+          function frame(ts) { if (t0 == null) t0 = ts; var t = ((ts - t0) / 1000) % LOOP; render(t); requestAnimationFrame(frame); }
+          requestAnimationFrame(frame);
+        }
+      })();
+      </script>
+
+      <p>Fair objection: this only bites if you let the window fill. Clear it — compact, summarise, start each task fresh — and the loop can't corrupt what isn't there.</p>
+
+      <div class="objection">
+        <span class="who">the usual objection</span>
+        <p>“I don't let it bloat — I start every task with a brand-new context.”</p>
+      </div>
+
+      <p>Except the window is only the part you can see reset. State lives in places a fresh window never touches, and each one can carry a subtly-wrong version of the truth forward:</p>
+
+      <div class="figure">
+        <div class="cap"><b>Fig. 2</b> &nbsp;·&nbsp; the window is not the only thing that persists</div>
+        <div class="persist">
+          <div class="win">context window <span class="ok">cleared each task ✓</span></div>
+          <div class="lbl">but these don't reset</div>
+          <div class="grid">
+            <div class="b"><div class="t">Agent memory</div><div class="d">The coding tool's own memory files (e.g. Claude Code) — a fresh window doesn't touch them.</div></div>
+            <div class="b"><div class="t">Between-session state</div><div class="d">Resumed threads, saved plans, checkpoints.</div></div>
+            <div class="b"><div class="t">Artifact changes</div><div class="d">You saved the doc — the artifact itself has moved on.</div></div>
+            <div class="b"><div class="t">Code inference</div><div class="d">The code changed; next read, the agent infers something new from it.</div></div>
+            <div class="b"><div class="t">Logs, caches &amp; indexes</div><div class="d">Retrieval and history that outlive any one window.</div></div>
+            <div class="b"><div class="t">… and more</div><div class="d">Anywhere state leaks out and comes back in.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <p>You can wipe the window every task. You can't wipe all of these. Which is the real reason the anchor must be a <strong>fixed, protected artifact</strong> — not something you re-read from whatever state happens to survive.</p>
+
+      <div class="figure">
+        <div class="cap"><b>Fig. 3</b> &nbsp;·&nbsp; the review checks a plan that already drifted</div>
+        <div class="svgwrap">
+          <svg viewBox="0 0 760 356" role="img" aria-label="Instructions fan symmetrically to context above and validate below. The context and build loop drifts, and the drift is written back into the plan. The output drops to validate, which checks against the plan — but the plan drifted, so the result is wrong.">
+            <defs>
+              <marker id="v-a" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--muted)"/></marker>
+              <marker id="v-r" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--breach)"/></marker>
+            </defs>
+
+            <rect x="36" y="150" width="180" height="64" rx="9" class="fill-s2 stroke-line"/>
+            <text x="126" y="178" class="t-label" text-anchor="middle" font-weight="600">instructions</text>
+            <text x="126" y="198" class="t-tiny" text-anchor="middle">your plan</text>
+
+            <rect x="320" y="44" width="190" height="48" rx="9" class="fill-s2 stroke-line"/>
+            <text x="415" y="73" class="t-small" text-anchor="middle" font-weight="600">context</text>
+            <rect x="320" y="150" width="190" height="48" rx="9" class="fill-s2 stroke-line"/>
+            <text x="415" y="179" class="t-small" text-anchor="middle" font-weight="600">build &amp; work</text>
+
+            <rect x="320" y="264" width="190" height="64" rx="10" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="415" y="292" class="t-label t-anchor" text-anchor="middle" font-weight="600">validate</text>
+            <text x="415" y="312" class="t-tiny" text-anchor="middle">output vs the plan</text>
+
+            <rect x="560" y="273" width="110" height="46" rx="9" fill="var(--breach-soft)" stroke="var(--breach)"/>
+            <text x="615" y="301" class="t-small t-breach" text-anchor="middle" font-weight="600">✕ wrong</text>
+
+            <path d="M126 150 C126 92 232 74 320 74" fill="none" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#v-a)"/>
+            <path d="M126 214 C126 272 232 290 320 290" fill="none" stroke="var(--breach)" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#v-r)"/>
+
+            <path d="M320 182 C288 186 252 186 220 182" fill="none" stroke="var(--breach)" stroke-width="1.5" marker-end="url(#v-r)"/>
+            <text x="268" y="164" class="t-tiny t-breach" text-anchor="middle">drift</text>
+
+            <line x1="470" y1="92" x2="470" y2="150" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#v-a)"/>
+            <text x="484" y="124" class="t-tiny">read</text>
+            <line x1="360" y1="150" x2="360" y2="92" stroke="var(--breach)" stroke-width="1.5" marker-end="url(#v-r)"/>
+            <text x="346" y="124" class="t-tiny t-breach" text-anchor="end">write to</text>
+
+            <line x1="415" y1="198" x2="415" y2="264" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#v-a)"/>
+            <text x="500" y="234" class="t-tiny">after a few laps</text>
+
+            <line x1="510" y1="296" x2="560" y2="296" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#v-a)"/>
+          </svg>
+        </div>
+        <div class="note">The work writes new discoveries into the context and drifts the plan as it goes. A few laps in, the output is validated against the plan — so the drifted plan waves the wrong result through.</div>
+      </div>
+    </section>
+
+    <section id="anchor">
+      <span class="sec-num">02</span>
+      <h2>What an anchor is</h2>
+      <p class="lead">The fix is a copy the loop can't reach. Author the durable intent as an <span class="hl">anchor</span> — a protected document one layer below the instructions — and validate against <em>that</em>, not the drifting plan.</p>
+      <p>Same loop, same drift. But the anchor sits underneath it, locked: the work rewrites the instructions all it likes and the anchor never moves. When it's time to check, you check against the anchor — and the drift has nothing to hide behind.</p>
+
+      <div class="figure">
+        <div class="cap"><b>Fig. 4</b> &nbsp;·&nbsp; validate against the anchor, which never drifted</div>
+        <div class="svgwrap">
+          <svg viewBox="0 0 760 356" role="img" aria-label="Instructions sit in the top row beside context; the anchor sits in the bottom row beside validate, locked. The anchor anchors the instructions, which seed the context. The build loop writes to the context and drifts the instructions. But validate checks against the locked anchor, so the result is correct and saves.">
+            <defs>
+              <marker id="k-a" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--muted)"/></marker>
+              <marker id="k-r" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--breach)"/></marker>
+              <marker id="k-k" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--anchor)"/></marker>
+              <marker id="k-g" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--approved)"/></marker>
+            </defs>
+
+            <rect x="40" y="44" width="180" height="52" rx="9" class="fill-s2 stroke-line"/>
+            <text x="130" y="68" class="t-label" text-anchor="middle" font-weight="600">instructions</text>
+            <text x="130" y="85" class="t-tiny" text-anchor="middle">may drift</text>
+
+            <rect x="320" y="44" width="190" height="52" rx="9" class="fill-s2 stroke-line"/>
+            <text x="415" y="76" class="t-small" text-anchor="middle" font-weight="600">context</text>
+
+            <rect x="320" y="152" width="190" height="48" rx="9" class="fill-s2 stroke-line"/>
+            <text x="415" y="181" class="t-small" text-anchor="middle" font-weight="600">build &amp; work</text>
+
+            <rect x="40" y="256" width="180" height="64" rx="10" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="118" y="282" class="t-label t-anchor" text-anchor="middle" font-weight="600">anchor</text>
+            <text x="118" y="300" class="t-tiny" text-anchor="middle">locked · never touched</text>
+            <g transform="translate(186,272)"><rect x="0" y="7" width="17" height="13" rx="2.5" fill="var(--anchor)"/><path d="M2.6 7 V4.6 a6 6 0 0 1 12 0 V7" fill="none" stroke="var(--anchor)" stroke-width="2"/></g>
+
+            <rect x="320" y="256" width="190" height="64" rx="10" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="415" y="284" class="t-label t-anchor" text-anchor="middle" font-weight="600">validate</text>
+            <text x="415" y="304" class="t-tiny" text-anchor="middle">output vs the anchor</text>
+
+            <rect x="562" y="265" width="108" height="46" rx="9" fill="var(--approved)" fill-opacity="0.15" stroke="var(--approved)"/>
+            <text x="616" y="293" class="t-small t-approved" text-anchor="middle" font-weight="600">✓ save</text>
+
+            <line x1="220" y1="70" x2="320" y2="70" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#k-a)"/>
+            <text x="270" y="60" class="t-tiny" text-anchor="middle">seeds</text>
+
+            <line x1="130" y1="256" x2="130" y2="96" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#k-a)"/>
+            <text x="144" y="180" class="t-tiny">anchors</text>
+
+            <path d="M320 170 C270 160 235 120 220 94" fill="none" stroke="var(--breach)" stroke-width="1.5" marker-end="url(#k-r)"/>
+            <text x="246" y="104" class="t-tiny t-breach" text-anchor="middle">drift</text>
+
+            <line x1="470" y1="96" x2="470" y2="152" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#k-a)"/>
+            <text x="484" y="128" class="t-tiny">read</text>
+            <line x1="360" y1="152" x2="360" y2="96" stroke="var(--breach)" stroke-width="1.5" marker-end="url(#k-r)"/>
+            <text x="346" y="128" class="t-tiny t-breach" text-anchor="end">write to</text>
+
+            <line x1="415" y1="200" x2="415" y2="256" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#k-a)"/>
+            <text x="500" y="232" class="t-tiny">after a few laps</text>
+
+            <line x1="220" y1="288" x2="320" y2="288" stroke="var(--anchor)" stroke-width="1.6" marker-end="url(#k-k)"/>
+            <text x="415" y="344" class="t-tiny t-anchor" text-anchor="middle">checked against the anchor — untouched by the drift</text>
+
+            <line x1="510" y1="288" x2="562" y2="288" stroke="var(--approved)" stroke-width="1.5" marker-end="url(#k-g)"/>
+          </svg>
+        </div>
+      </div>
+
+      <h3>What an anchor actually is</h3>
+      <p>An anchor is small and deliberate — a few lines of context, then a set of <strong>rubrics</strong>: atomic checks that each answer yes or no.</p>
+
+      <div class="figure">
+        <div class="cap"><b>Fig. 5</b> &nbsp;·&nbsp; an anchor, in full</div>
+        <div class="anchordoc">
+          <div class="doc">
+            <div class="doc-h"><span>anchor</span><span class="lock">locked</span></div>
+            <div class="doc-context">This slice serves the existing cache and must not reshape the data model. Keep reads fast; keep the surface stable.</div>
+            <div class="doc-rubrics">
+              <div class="ru">reads stay under 50ms</div>
+              <div class="ru">no new datastore</div>
+              <div class="ru">public API unchanged</div>
+            </div>
+          </div>
+          <div class="whyru">
+            <div class="benefit">Atomic validations</div>
+            <div class="benefit">Binary, easy to measure</div>
+            <div class="benefit">Easy to understand for both human and agent</div>
+            <div class="benefit">Grouping flexibility</div>
+          </div>
+        </div>
+      </div>
+
+      <p>Rubrics are what make “validate against the anchor” mechanical rather than a judgment call. Constraints lean on <em>what-not-to-do</em> for the same reason: a boundary makes a cleaner yes/no rubric than an open-ended instruction, and it doesn't rot as the work branches.</p>
+
+      <p>And that's the whole of ICS: <strong>Intent</strong>, <strong>Constraints</strong>, and <strong>Success</strong> are each an anchor — three small, protected, rubric-shaped docs.</p>
+      <div class="icsrow">
+        <div class="icsdoc"><b>Intent</b><span>the durable why + North Star</span></div>
+        <div class="icsdoc"><b>Constraints</b><span>the guardrail rubrics</span></div>
+        <div class="icsdoc"><b>Success</b><span>the pass / fail rubrics</span></div>
+      </div>
+    </section>
+
+    <section id="files">
+      <span class="sec-num">03</span>
+      <h2>Separate files, not one</h2>
+      <p class="lead">Intent, Constraints, and Success are <span class="hl">separate artifacts</span> — not sections of one document.</p>
+      <p>Keeping them apart earns three things a single blob can't. Nothing bloats the context — you load only the concern you need. Reads are <strong>deterministic</strong>: open the Success file and <em>everything</em> in it is success, with nothing to hunt for. And because each file holds one kind of thing, a rubric or eval can check it — that a constraint reads like a constraint, that success is actually measurable.</p>
+
+      <div class="files">
+        <div class="file"><div class="fn">intent.md</div><div class="fd">The durable why + North Star.</div></div>
+        <div class="file"><div class="fn">constraints.md</div><div class="fd">The laws — mostly what not to do.</div></div>
+        <div class="file"><div class="fn">success.md</div><div class="fd">Checkable outcomes, the review bar.</div></div>
+        <div class="file auto"><div class="fn">_rollup.md</div><div class="fd">Auto-generated summary of the tree.</div></div>
+      </div>
+      <p>How many files is your call — one page can hold all three when the work is small. Three (plus the optional auto-generated rollup) is the default because it keeps each concern clean and separately checkable.</p>
+    </section>
+
+    <section id="nesting">
+      <span class="sec-num">04</span>
+      <h2>Nesting &amp; compiling</h2>
+      <p class="lead">Work happens at a scope — a slice of a feature — and <span class="hl">each scope can carry its own anchor</span>.</p>
+      <p>A slice sits inside a feature, inside a domain, inside the project. Each layer can hold its own Intent, Constraints, and Success — or just the parts it actually pins down. What a layer leaves open, it inherits from the one above.</p>
+
+      <div class="figure">
+        <div class="cap"><b>Fig. 6</b> &nbsp;·&nbsp; a sample layout — the project is always full, each layer adds only what it needs</div>
+        <div class="svgwrap">
+          <svg viewBox="0 0 640 300" role="img" aria-label="Four layers — Project, Domain, Feature, Slice — each with an Intent, Constraints, and Success slot. Project has all three. Domain has Intent and Constraints but a dashed Success. Feature has all three dashed. Slice has Intent and Success but a dashed Constraints. Dashed slots are inherited from the layer above.">
+            <text x="203" y="38" class="t-tiny" text-anchor="middle" fill="var(--faint)">Intent</text>
+            <text x="285" y="38" class="t-tiny" text-anchor="middle" fill="var(--faint)">Constraints</text>
+            <text x="367" y="38" class="t-tiny" text-anchor="middle" fill="var(--faint)">Success</text>
+
+            <rect x="24" y="52" width="120" height="40" rx="9" class="fill-s2 stroke-line"/>
+            <text x="84" y="78" class="t-small" text-anchor="middle" font-weight="600">Project</text>
+            <rect x="168" y="52" width="70" height="40" rx="8" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="203" y="79" class="t-small t-anchor" text-anchor="middle" font-weight="700">I</text>
+            <rect x="250" y="52" width="70" height="40" rx="8" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="285" y="79" class="t-small t-anchor" text-anchor="middle" font-weight="700">C</text>
+            <rect x="332" y="52" width="70" height="40" rx="8" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="367" y="79" class="t-small t-anchor" text-anchor="middle" font-weight="700">S</text>
+            <text x="420" y="77" class="t-tiny" fill="var(--muted)">enforced — always all three</text>
+
+            <rect x="24" y="106" width="120" height="40" rx="9" class="fill-s2 stroke-line"/>
+            <text x="84" y="132" class="t-small" text-anchor="middle" font-weight="600">Domain</text>
+            <rect x="168" y="106" width="70" height="40" rx="8" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="203" y="133" class="t-small t-anchor" text-anchor="middle" font-weight="700">I</text>
+            <rect x="250" y="106" width="70" height="40" rx="8" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="285" y="133" class="t-small t-anchor" text-anchor="middle" font-weight="700">C</text>
+            <rect x="332" y="106" width="70" height="40" rx="8" fill="none" stroke="var(--hairline-strong)" stroke-dasharray="4 4"/>
+            <text x="367" y="133" class="t-small" text-anchor="middle" font-weight="700" fill="var(--faint)" opacity="0.6">S</text>
+
+            <rect x="24" y="160" width="120" height="40" rx="9" class="fill-s2 stroke-line"/>
+            <text x="84" y="186" class="t-small" text-anchor="middle" font-weight="600">Feature</text>
+            <rect x="168" y="160" width="70" height="40" rx="8" fill="none" stroke="var(--hairline-strong)" stroke-dasharray="4 4"/>
+            <text x="203" y="187" class="t-small" text-anchor="middle" font-weight="700" fill="var(--faint)" opacity="0.6">I</text>
+            <rect x="250" y="160" width="70" height="40" rx="8" fill="none" stroke="var(--hairline-strong)" stroke-dasharray="4 4"/>
+            <text x="285" y="187" class="t-small" text-anchor="middle" font-weight="700" fill="var(--faint)" opacity="0.6">C</text>
+            <rect x="332" y="160" width="70" height="40" rx="8" fill="none" stroke="var(--hairline-strong)" stroke-dasharray="4 4"/>
+            <text x="367" y="187" class="t-small" text-anchor="middle" font-weight="700" fill="var(--faint)" opacity="0.6">S</text>
+            <text x="420" y="185" class="t-tiny" fill="var(--faint)">sets none — inherits it all</text>
+
+            <rect x="24" y="214" width="120" height="40" rx="9" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="84" y="240" class="t-small t-anchor" text-anchor="middle" font-weight="600">Slice</text>
+            <rect x="168" y="214" width="70" height="40" rx="8" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="203" y="241" class="t-small t-anchor" text-anchor="middle" font-weight="700">I</text>
+            <rect x="250" y="214" width="70" height="40" rx="8" fill="none" stroke="var(--hairline-strong)" stroke-dasharray="4 4"/>
+            <text x="285" y="241" class="t-small" text-anchor="middle" font-weight="700" fill="var(--faint)" opacity="0.6">C</text>
+            <rect x="332" y="214" width="70" height="40" rx="8" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="367" y="241" class="t-small t-anchor" text-anchor="middle" font-weight="700">S</text>
+
+            <rect x="24" y="272" width="16" height="16" rx="4" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="48" y="284" class="t-tiny" fill="var(--muted)">set at this layer</text>
+            <rect x="176" y="272" width="16" height="16" rx="4" fill="none" stroke="var(--hairline-strong)" stroke-dasharray="4 4"/>
+            <text x="200" y="284" class="t-tiny" fill="var(--muted)">inherited from above</text>
+          </svg>
+        </div>
+        <div class="note">The deeper you go, the more specific and ephemeral the anchor.</div>
+      </div>
+
+      <p>So when a new task starts, its anchor doesn't come from scratch. It's <strong>compiled</strong>: each dimension is walked <em>down its own column</em> — gathering what every layer defined — and the three columns reconcile into one generated anchor that governs the task.</p>
+
+      <div class="figure">
+        <div class="cap"><b>Fig. 7</b> &nbsp;·&nbsp; a new task compiles its anchor down the stack</div>
+        <div class="svgwrap">
+          <svg viewBox="0 0 900 560" role="img" aria-label="A new task pulls each dimension — Intent, Constraints, Success — down the layer stack. Each column gathers the pieces defined at Project, Domain, Feature and Slice into one compiled Intent, Constraints and Success. Those form the generated anchor, which governs the task.">
+            <defs>
+              <marker id="n-a" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--muted)"/></marker>
+              <marker id="n-k" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--anchor)"/></marker>
+            </defs>
+
+            <rect x="210" y="40" width="360" height="56" rx="10" class="fill-s2 stroke-line"/>
+            <text x="390" y="73" class="t-label" text-anchor="middle" font-weight="600">new task?</text>
+
+            <line x1="260" y1="96" x2="260" y2="148" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#n-a)"/>
+            <line x1="390" y1="96" x2="390" y2="148" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#n-a)"/>
+            <line x1="520" y1="96" x2="520" y2="148" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#n-a)"/>
+
+            <rect x="24" y="150" width="150" height="58" rx="9" class="fill-s2 stroke-line"/>
+            <text x="99" y="185" class="t-small" text-anchor="middle" font-weight="600">Project</text>
+            <rect x="24" y="220" width="150" height="58" rx="9" class="fill-s2 stroke-line"/>
+            <text x="99" y="255" class="t-small" text-anchor="middle" font-weight="600">Domain</text>
+            <rect x="24" y="290" width="150" height="58" rx="9" class="fill-s2 stroke-line"/>
+            <text x="99" y="325" class="t-small" text-anchor="middle" font-weight="600">Feature</text>
+            <rect x="24" y="360" width="150" height="58" rx="9" class="fill-s2 stroke-line"/>
+            <text x="99" y="395" class="t-small" text-anchor="middle" font-weight="600">Slice</text>
+
+            <rect x="210" y="150" width="100" height="58" rx="9" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="260" y="186" class="t-label t-anchor" text-anchor="middle" font-weight="700">I</text>
+            <rect x="340" y="150" width="100" height="58" rx="9" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="390" y="186" class="t-label t-anchor" text-anchor="middle" font-weight="700">C</text>
+            <rect x="470" y="150" width="100" height="58" rx="9" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="520" y="186" class="t-label t-anchor" text-anchor="middle" font-weight="700">S</text>
+
+            <rect x="210" y="220" width="100" height="58" rx="9" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="260" y="256" class="t-label t-anchor" text-anchor="middle" font-weight="700">I</text>
+            <rect x="340" y="220" width="100" height="58" rx="9" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="390" y="256" class="t-label t-anchor" text-anchor="middle" font-weight="700">C</text>
+            <rect x="470" y="220" width="100" height="58" rx="9" fill="none" stroke="var(--hairline-strong)" stroke-dasharray="5 4"/>
+            <text x="520" y="256" class="t-label" text-anchor="middle" font-weight="700" fill="var(--faint)" opacity="0.6">S</text>
+
+            <rect x="210" y="290" width="100" height="58" rx="9" fill="none" stroke="var(--hairline-strong)" stroke-dasharray="5 4"/>
+            <text x="260" y="326" class="t-label" text-anchor="middle" font-weight="700" fill="var(--faint)" opacity="0.6">I</text>
+            <rect x="340" y="290" width="100" height="58" rx="9" fill="none" stroke="var(--hairline-strong)" stroke-dasharray="5 4"/>
+            <text x="390" y="326" class="t-label" text-anchor="middle" font-weight="700" fill="var(--faint)" opacity="0.6">C</text>
+            <rect x="470" y="290" width="100" height="58" rx="9" fill="none" stroke="var(--hairline-strong)" stroke-dasharray="5 4"/>
+            <text x="520" y="326" class="t-label" text-anchor="middle" font-weight="700" fill="var(--faint)" opacity="0.6">S</text>
+
+            <rect x="210" y="360" width="100" height="58" rx="9" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="260" y="396" class="t-label t-anchor" text-anchor="middle" font-weight="700">I</text>
+            <rect x="340" y="360" width="100" height="58" rx="9" fill="none" stroke="var(--hairline-strong)" stroke-dasharray="5 4"/>
+            <text x="390" y="396" class="t-label" text-anchor="middle" font-weight="700" fill="var(--faint)" opacity="0.6">C</text>
+            <rect x="470" y="360" width="100" height="58" rx="9" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="520" y="396" class="t-label t-anchor" text-anchor="middle" font-weight="700">S</text>
+
+            <line x1="260" y1="418" x2="260" y2="468" stroke="var(--anchor)" stroke-width="1.6" marker-end="url(#n-k)"/>
+            <line x1="390" y1="418" x2="390" y2="468" stroke="var(--anchor)" stroke-width="1.6" marker-end="url(#n-k)"/>
+            <line x1="520" y1="418" x2="520" y2="468" stroke="var(--anchor)" stroke-width="1.6" marker-end="url(#n-k)"/>
+
+            <rect x="24" y="470" width="150" height="58" rx="9" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="99" y="505" class="t-small t-anchor" text-anchor="middle" font-weight="600">compiled</text>
+
+            <rect x="210" y="470" width="100" height="58" rx="9" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="260" y="506" class="t-label t-anchor" text-anchor="middle" font-weight="700">I</text>
+            <rect x="340" y="470" width="100" height="58" rx="9" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="390" y="506" class="t-label t-anchor" text-anchor="middle" font-weight="700">C</text>
+            <rect x="470" y="470" width="100" height="58" rx="9" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="520" y="506" class="t-label t-anchor" text-anchor="middle" font-weight="700">S</text>
+
+            <line x1="310" y1="499" x2="340" y2="499" stroke="var(--anchor)" stroke-width="1.6" marker-end="url(#n-k)"/>
+            <line x1="440" y1="499" x2="470" y2="499" stroke="var(--anchor)" stroke-width="1.6" marker-end="url(#n-k)"/>
+            <line x1="570" y1="499" x2="648" y2="499" stroke="var(--anchor)" stroke-width="1.8" marker-end="url(#n-k)"/>
+
+            <rect x="650" y="470" width="220" height="58" rx="10" fill="var(--anchor-soft)" stroke="var(--anchor)"/>
+            <text x="760" y="505" class="t-label t-anchor" text-anchor="middle" font-weight="600">generated anchor</text>
+
+            <rect x="650" y="150" width="220" height="58" rx="10" class="fill-s2 stroke-line"/>
+            <text x="760" y="185" class="t-label" text-anchor="middle" font-weight="600">task</text>
+
+            <path d="M570 68 H790 V146" fill="none" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#n-a)"/>
+            <line x1="720" y1="470" x2="720" y2="210" stroke="var(--anchor)" stroke-width="1.8" marker-end="url(#n-k)"/>
+            <text x="704" y="345" class="t-tiny t-anchor" text-anchor="end">governs</text>
+          </svg>
+        </div>
+        <div class="note">Both nesting and compiling are optional — a single flat anchor is fine when the work is small.</div>
+      </div>
+    </section>
+
+    <section id="freeze">
+      <span class="sec-num">05</span>
+      <h2>Freeze &amp; the gate</h2>
+      <p class="lead">The anchor is <span class="hl">fixed</span>: the agent works inside it and doesn't edit it as it goes. That's what breaks the loop in section 01.</p>
+      <p>But it can't be frozen solid — you started the run <em>because</em> you don't know everything yet, and real discoveries should be able to move it. The agent will reach to fold each new insight straight into the anchor. So the guardrail sits on that reach: it <strong>detects the attempt, stops it, and warns you to decide</strong>. Nothing changes the anchor silently, and you're not left to catch it later by reviewing thousands of files.</p>
+      <p>The agent runs the task nonstop, and routine edits flow the usual way — they ship with the PR like any diff. Only a change that reaches for the <strong>anchor</strong> is pulled out of that flow: it's flagged, it blocks, and it waits for an explicit yes or no from you.</p>
+
+      <div class="figure">
+        <div class="cap"><b>Fig. 8</b> &nbsp;·&nbsp; the agent runs nonstop — only an anchor edit blocks for your call</div>
+        <div class="svgwrap">
+          <svg viewBox="0 0 780 300" role="img" aria-label="The agent loops on the task nonstop. Routine changes ship with the PR automatically. A change that touches the anchor is flagged, notifies you, and blocks: you decide — approve moves the anchor and regenerates the plan, deny holds it and the work stays inside.">
+            <defs>
+              <marker id="f-f" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--muted)"/></marker>
+              <marker id="f-g" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--approved)"/></marker>
+              <marker id="f-b" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--anchor)"/></marker>
+              <marker id="f-r" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--breach)"/></marker>
+            </defs>
+
+            <rect x="36" y="44" width="150" height="52" rx="10" class="fill-s2 stroke-line"/>
+            <text x="111" y="68" class="t-small" text-anchor="middle" font-weight="600">task</text>
+            <text x="111" y="84" class="t-tiny" text-anchor="middle">the work</text>
+            <rect x="36" y="158" width="150" height="52" rx="10" class="fill-s2 stroke-line"/>
+            <text x="111" y="182" class="t-small" text-anchor="middle" font-weight="600">agent</text>
+            <text x="111" y="198" class="t-tiny" text-anchor="middle">works nonstop</text>
+
+            <line x1="82" y1="96" x2="82" y2="158" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#f-f)"/>
+            <line x1="140" y1="158" x2="140" y2="96" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#f-f)"/>
+            <text x="111" y="131" class="t-tiny" text-anchor="middle" fill="var(--faint)">loop</text>
+
+            <path d="M186 172 C280 172 300 80 396 80" fill="none" stroke="var(--approved)" stroke-width="1.6" marker-end="url(#f-g)"/>
+            <text x="276" y="126" class="t-tiny" text-anchor="middle">routine change</text>
+            <rect x="396" y="54" width="214" height="50" rx="9" fill="var(--approved)" fill-opacity="0.13" stroke="var(--approved)"/>
+            <text x="503" y="78" class="t-small t-approved" text-anchor="middle" font-weight="600">ships with the PR</text>
+            <text x="503" y="93" class="t-tiny" text-anchor="middle">auto — no gate</text>
+
+            <path d="M186 192 C226 192 250 192 286 192" fill="none" stroke="var(--breach)" stroke-width="1.6" marker-end="url(#f-r)"/>
+            <text x="224" y="182" class="t-tiny t-breach" text-anchor="middle">touches the anchor</text>
+
+            <rect x="290" y="158" width="166" height="68" rx="11" fill="var(--surface)" stroke="var(--anchor)" stroke-width="1.5"/>
+            <circle cx="320" cy="186" r="7" fill="var(--anchor)"/>
+            <path d="M307 210 C307 196 333 196 333 210 Z" fill="var(--anchor)"/>
+            <text x="392" y="187" class="t-small t-anchor" text-anchor="middle" font-weight="600">you decide</text>
+            <text x="392" y="203" class="t-tiny" text-anchor="middle">explicit call</text>
+            <circle cx="450" cy="160" r="9" fill="var(--breach)"/>
+            <text x="450" y="164.5" text-anchor="middle" font-weight="700" fill="var(--surface)" style="font-size:12px">!</text>
+            <text x="373" y="150" class="t-tiny t-breach" text-anchor="middle">flagged · needs you</text>
+
+            <path d="M456 178 C520 162 548 152 592 152" fill="none" stroke="var(--anchor)" stroke-width="1.8" marker-end="url(#f-b)"/>
+            <text x="530" y="144" class="t-tiny t-anchor" text-anchor="middle">approve</text>
+            <rect x="592" y="130" width="170" height="44" rx="9" fill="none" stroke="var(--anchor)"/>
+            <text x="677" y="150" class="t-small t-anchor" text-anchor="middle" font-weight="600">anchor moves</text>
+            <text x="677" y="164" class="t-tiny" text-anchor="middle">plan regenerates</text>
+
+            <path d="M456 206 C520 222 548 232 592 232" fill="none" stroke="var(--anchor)" stroke-width="1.8" marker-end="url(#f-b)"/>
+            <text x="530" y="242" class="t-tiny t-anchor" text-anchor="middle">deny</text>
+            <rect x="592" y="210" width="170" height="44" rx="9" fill="none" stroke="var(--anchor)"/>
+            <text x="677" y="230" class="t-small t-anchor" text-anchor="middle" font-weight="600">anchor holds</text>
+            <text x="677" y="244" class="t-tiny" text-anchor="middle">work stays inside it</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section id="research">
+      <span class="sec-num">06</span>
+      <h2>What the research shows</h2>
+      <p class="lead">Not only intuition — controlled runs and large corpus studies back the core moves, and mark where to stop.</p>
+      <div class="stats">
+        <div class="stat">
+          <div class="n">+13.8pp</div>
+          <div class="l">Any durable rules file lifted an agent's pass rate from 50% to 63.8%. Presence alone moves the needle.</div>
+          <span class="s">Guardrails Beat Guidance</span>
+        </div>
+        <div class="stat">
+          <div class="n">boundaries win</div>
+          <div class="l">Every rule that helped was a “do not X”; every one that hurt was a “do X.”</div>
+          <span class="s">Guardrails Beat Guidance</span>
+        </div>
+        <div class="stat">
+          <div class="n">14.5%</div>
+          <div class="l">Of 2,303 real context files, the share naming security or performance — vs 75% for testing.</div>
+          <span class="s">Agent READMEs</span>
+        </div>
+        <div class="stat">
+          <div class="n">U-shaped</div>
+          <div class="l">Under-specify and work leaks downstream; over-specify and you rebuild waterfall. Aim for the checkable middle.</div>
+          <span class="s">Eisele · O’Reilly</span>
+        </div>
+      </div>
+      <p>Read the +13.8pp result honestly. That study scored a <em>single</em> benchmark task, and there random rules matched curated ones — presence drove the gain, not exact wording. So don't over-author an anchor chasing a one-shot score; it won't move.</p>
+      <p>Point ICS at the axis that's ours: <strong>long-running, sequential work, where context drifts across many steps</strong>. There the win isn't a higher benchmark — it's that you can <strong>trust the anchor still says what you meant</strong>, so the whole stream stays aligned with intent. A tightened rule that wouldn't budge a one-shot score is often exactly what keeps a long run on course. Freeze the anchor (§05) so that trust holds.</p>
+      <div class="refs">
+        <a href="https://arxiv.org/abs/2604.11088" target="_blank" rel="noopener">Guardrails Beat Guidance <span class="ext">arXiv ↗</span></a>
+        <a href="https://arxiv.org/abs/2511.12884" target="_blank" rel="noopener">Agent READMEs <span class="ext">arXiv ↗</span></a>
+        <a href="https://arxiv.org/abs/2606.27045" target="_blank" rel="noopener">Spec Growth Engine <span class="ext">arXiv ↗</span></a>
+        <a href="https://www.oreilly.com/radar/why-ai-coding-agents-still-need-clear-specs/" target="_blank" rel="noopener">Eisele · the U-curve <span class="ext">O’Reilly ↗</span></a>
+      </div>
+    </section>
+
+    <section id="examples">
+      <span class="sec-num">07</span>
+      <h2>Examples</h2>
+
+      <h3>A real anchor</h3>
+      <p>One feature's anchor. Each of <strong>Intent</strong>, <strong>Constraints</strong>, and <strong>Success</strong> is its own small doc — a line of context, then a set of rubrics — exactly like Fig 5, one per dimension.</p>
+      <div class="anchorex">
+        <div class="adoc">
+          <div class="h"><span class="b">I</span><span class="t">intent</span><span class="m">the durable why</span></div>
+          <div class="ctx">Box creation needs a defining doc, but there's no guided way to make one — so it gets skipped or done inconsistently.</div>
+          <div class="rus">
+            <div class="ru">every Box starts from a defining anchor</div>
+            <div class="ru">a bounded Q&amp;A produces it — finite prompts, not open chat</div>
+            <div class="ru">the North Star fits one line</div>
+          </div>
+        </div>
+        <div class="adoc">
+          <div class="h"><span class="b">C</span><span class="t">constraints</span><span class="m">the laws</span></div>
+          <div class="ctx">Boundaries the build must not cross.</div>
+          <div class="rus">
+            <div class="ru">no open-ended conversation</div>
+            <div class="ru">no second flow engine — composes the existing one</div>
+            <div class="ru">the anchor is never written unreviewed</div>
+            <div class="ru">no writes outside the Box's own files</div>
+          </div>
+        </div>
+        <div class="adoc">
+          <div class="h"><span class="b">S</span><span class="t">success</span><span class="m">the bar</span></div>
+          <div class="ctx">What every phase is judged against.</div>
+          <div class="rus">
+            <div class="ru">a run yields a valid, parseable anchor</div>
+            <div class="ru">steps recompose under a second config</div>
+            <div class="ru">the build is warning-free and green</div>
+            <div class="ru">each criterion is asserted in a test</div>
+          </div>
+        </div>
+      </div>
+      <p class="fine">Every feature or domain carries its own I · C · S set — many rubrics per artifact, not one prose paragraph.</p>
+
+      <h3>Bad → good, one per dimension</h3>
+      <div class="anti">
+        <div class="r">
+          <div class="bad"><span class="tag">Bad</span><em>Intent:</em> make Box creation better.</div>
+          <div class="fix"><span class="tag">Good</span><em>Intent:</em> unguided Box creation gets skipped — a bounded Q&amp;A yields a valid anchor every time.</div>
+        </div>
+        <div class="r">
+          <div class="bad"><span class="tag">Bad</span><em>Constraints:</em> add the model, wire the endpoint, then update the client.</div>
+          <div class="fix"><span class="tag">Good</span><em>Constraints:</em> must not change the public API; must not add a new dependency.</div>
+        </div>
+        <div class="r">
+          <div class="bad"><span class="tag">Bad</span><em>Success:</em> the feature works correctly.</div>
+          <div class="fix"><span class="tag">Good</span><em>Success:</em> <code>SC-1</code> 200 on valid input · <code>SC-2</code> 4xx on malformed, asserted in tests.</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  <div class="in">
+    <p>ICS · Intent · Constraints · Success — the A.Box agent harness.</p>
+  </div>
+</footer>
+</body>
+</html>
